@@ -27,16 +27,16 @@ unzoom = function(x) x/.ENV$ZOOM
 # Initialize a Hilbert curve
 #
 # == param
-# -s start
-# -e end
-# -level 
+# -s start of Hilbert curve
+# -e end of Hilbert curve
+# -level order of Hilbert curve. There will by ``4^level`` segments in the Hilbert curve.
 # -mode 
 # -reference
-# -zoom Since 
+# -zoom 
 # -newpage
 #
 hc_initialize = function(s, e, level = 3, mode = c("normal", "pixel"),
-	reference = FALSE, zoom = NULL, newpage = TRUE) {
+	reference = FALSE, zoom = NULL, newpage = TRUE, background = "white") {
 
 	.ENV$BINS = NULL
 	.ENV$POS = NULL
@@ -74,8 +74,10 @@ hc_initialize = function(s, e, level = 3, mode = c("normal", "pixel"),
 		increase_plot_index()
 		pushViewport(viewport(name = paste0("hilbert_curve_", get_plot_index()), xscale = c(-0.5, 2^level - 0.5), yscale = c(-0.5, sqrt(n)-0.5)))
 		
-		if(convertHeight(unit(1, "npc"), "mm", valueOnly = TRUE) != convertWidth(unit(1, "mm", valueOnly = TRUE))) {
-			warning("Hilbert curve should be put in a squared viewport.\n")
+		h = round(convertHeight(unit(1, "npc"), "mm", valueOnly = TRUE))
+		w = round(convertWidth(unit(1, "npc"), "mm", valueOnly = TRUE))
+		if(h != w) {
+			warning(sprintf("Hilbert curve has height %imm and width %imm, but it should be put in a squared viewport.\n", h, w))
 		}
 
 		if(reference) {
@@ -92,9 +94,11 @@ hc_initialize = function(s, e, level = 3, mode = c("normal", "pixel"),
 
 		upViewport()
 	} else {
-		.ENV$RGB = list(red = matrix(nrow = 2^level, ncol = 2^level),
-			            green = matrix(nrow = 2^level, ncol = 2^level),
-			            blue = matrix(nrow = 2^level, ncol = 2^level))
+		background = background[1]
+		background = col2rgb(background) / 255
+		.ENV$RGB = list(red = matrix(background[1], nrow = 2^level, ncol = 2^level),
+			            green = matrix(background[2], nrow = 2^level, ncol = 2^level),
+			            blue = matrix(background[3], nrow = 2^level, ncol = 2^level))
 	}
 
 	return(invisible(NULL))
@@ -131,7 +135,7 @@ hc_points = function(ir, np = max(c(2, 10 - hc_level())),
 	}
 
 	if(np >= 2) {
-		hc_segmented_points(ir, gp = gp, np = np, mean_mode = mean_mode)
+		hc_segmented_points(ir, gp = gp, np = np, mean_mode = mean_mode, shape = shape)
 	} else {
 		hc_normal_points(ir, gp = gp, size = size)
 	}
@@ -241,18 +245,19 @@ hc_segmented_points = function(ir, gp = gpar(), np = max(c(2, 10 - hc_level())),
 			if(shape == "circle") {
 				grid.circle(x, y, r = 1/(np-1)/2, default.units = "native", gp = gpar(fill = fill[i], col = col[i]))
 			} else if(shape == "square") {
-				grid.rect(x, y, width = r/2, height = r/2, default.units = "native", gp = gpar(fill = fill[i], col = col[i]))
+				grid.rect(x, y, width = 2*r, height = 2*r, default.units = "native", gp = gpar(fill = fill[i], col = col[i]))
 			} else if(shape == "triangle") {
-				grid.polygon(c(x, x-r*tan(pi/6), x+r*tan(pi/6), 
-					c(y+r/2, y-r/2, y-r/2), id = rep(seq_along(x), 3), default.units = "native", gp = gpar(fill = fill[i], col = col[i]))
+				grid.polygon(c(x, x-2*r*tan(pi/6), x+2*r*tan(pi/6)), 
+					c(y+r, y-r, y-r), id = rep(seq_along(x), 3), default.units = "native", gp = gpar(fill = fill[i], col = col[i]))
 			} else if(shape == "hexagon") {
-				grid.polygon(rep(cos(0:5 * pi/3)*r/2, length(x)) + rep(x, each = 6),
-					         rep(sin(0:5 * pi/3)*r/2, length(y)) + rep(y, each = 6),
+				grid.polygon(rep(cos(0:5 * pi/3)*r, length(x)) + rep(x, each = 6),
+					         rep(sin(0:5 * pi/3)*r, length(y)) + rep(y, each = 6),
 					         id = rep(seq_along(x), each = 6),
 					         default.units = "native", gp = gpar(fill = fill[i], col = col[i]))
 			} else if(shape == "star") {
-				grid.polygon(rep(sin(0:9*pi/5 + pi/2)*rep(c(r/2,r/2/(cos(pi/10) + sin(pi/10)*tan(pi/20))), 5), length(x)) + rep(x, each = 10),
-					         rep(cos(0:9*pi/5 + pi/2)*rep(c(r/2,r/2/(cos(pi/10) + sin(pi/10)*tan(pi/20))), 5), length(y)) + rep(y, each = 10),
+				r2 = cos(pi/10)*tan(pi/20)/(tan(pi/20) + tan(pi/10)) * r
+				grid.polygon(rep(sin(0:9*pi/5 + pi*0)*rep(c(r,r2), 5), length(x)) + rep(x, each = 10),
+					         rep(cos(0:9*pi/5 + pi*0)*rep(c(r,r2), 5), length(y)) + rep(y, each = 10),
 					         id = rep(seq_along(x), each = 10),
 					         default.units = "native", gp = gpar(fill = fill[i], col = col[i]))
 			}
@@ -521,30 +526,16 @@ hc_layer = function(ir, col = "red", mean_mode = c("w0", "absolute", "weighted")
 
 	rgb = col2rgb(fill, alpha = TRUE)
 
-	r = average_in_window(window, ir, mtch, rgb[1, ], mean_mode, 255)
-	g = average_in_window(window, ir, mtch, rgb[2, ], mean_mode, 255)
-	b = average_in_window(window, ir, mtch, rgb[3, ], mean_mode, 255)
-	alpha = rep(max(rgb[4, ]), length(r))
+	r = average_in_window(window, ir, mtch, rgb[1, ], mean_mode, 255)/255
+	g = average_in_window(window, ir, mtch, rgb[2, ], mean_mode, 255)/255
+	b = average_in_window(window, ir, mtch, rgb[3, ], mean_mode, 255)/255
+	alpha = rep(max(rgb[4, ]), length(r))/255
 
-	index = as.numeric(names(r))
-	fill2 = rgb(red = r, green = g, blue = b, alpha = alpha, maxColorValue = 255)
+	.ENV$RGB$red = r*alpha + .ENV$RGB$red*(1-alpha)
+	.ENV$RGB$green = g*alpha + .ENV$RGB$green*(1-alpha)
+	.ENV$RGB$blue = b*alpha + .ENV$RGB$blue*(1-alpha)
 
-	pos = .ENV$POS
-	n = 4^.ENV$LEVEL
-
-	if(n %in% index) {
-		ind = setdiff(index, n)
-		grid.rect(pos$x1[ind], pos$y1[ind], width = 1, height = 1, default.units = "native", gp = gpar(fill = fill2[-length(fill2)], col = NA, lineend = "butt", linejoin = "mitre"))
-		df = data.frame(x = pos$x1[ind], y = pos$y1[ind])
-
-		grid.rect(pos$x2[n], pos$y2[n], width = 1, height = 1, default.units = "native", gp = gpar(fill = fill2[length(fill2)], col = NA, lineend = "butt", linejoin = "mitre"))
-		df = data.frame(x = c(df$x, pos$x2[n]), y = c(df$y, pos$y2[n]))
-	} else {
-		grid.rect(pos$x1[index], pos$y1[index], width = 1, height = 1, default.units = "native", gp = gpar(fill = fill2, col = NA, lineend = "butt", linejoin = "mitre"))
-		df = data.frame(x = pos$x1[index], y = pos$y1[index])
-	}
-
-	return(invisible(df))
+	return(invisible(NULL))
 
 }
 
