@@ -38,6 +38,8 @@ unzoom = function(x) x/.ENV$ZOOM
 hc_initialize = function(s, e, level = 3, mode = c("normal", "pixel"),
 	reference = FALSE, zoom = NULL, newpage = TRUE, background = "white") {
 
+	# create an enrivonment in parent env
+
 	.ENV$BINS = NULL
 	.ENV$POS = NULL
 	.ENV$PLOT_MODE = NULL
@@ -283,11 +285,13 @@ average_in_window = function(window, ir, mtch, v, mean_mode, empty_v = 0) {
 		x = x + x2
 	} else if(mean_mode == "absolute") {
 		x = tapply(v, mtch[, 1], mean)
+		
 	} else {
 		w = width(intersect)-1
 		x = tapply(w*v, mtch[, 1], sum) / tapply(w, mtch[, 1], sum)
 	}
-
+	x = structure(as.vector(x), names = dimnames(x)[[1]])
+	
 	return(x)
 }
 
@@ -522,28 +526,38 @@ hc_layer = function(ir, col = "red", mean_mode = c("w0", "absolute", "weighted")
 	# colors correspond to mean value for each window
 	mean_mode = match.arg(mean_mode)[1]
 
-	fill = normalize_gp("fill", gp$fill, length(ir))
-
-	rgb = col2rgb(fill, alpha = TRUE)
+	if(length(col) == 1) col = rep(col, length(ir))
+	
+	rgb = col2rgb(col, alpha = TRUE)
 
 	r = average_in_window(window, ir, mtch, rgb[1, ], mean_mode, 255)/255
 	g = average_in_window(window, ir, mtch, rgb[2, ], mean_mode, 255)/255
 	b = average_in_window(window, ir, mtch, rgb[3, ], mean_mode, 255)/255
 	alpha = rep(max(rgb[4, ]), length(r))/255
+	r[r > 1] = 1
+	g[g > 1] = 1
+	b[b > 1] = 1
+	alpha[alpha > 1] = 1
 
-	.ENV$RGB$red = r*alpha + .ENV$RGB$red*(1-alpha)
-	.ENV$RGB$green = g*alpha + .ENV$RGB$green*(1-alpha)
-	.ENV$RGB$blue = b*alpha + .ENV$RGB$blue*(1-alpha)
+	col_index = c(.ENV$POS$x1, .ENV$POS$x2[4^.ENV$LEVEL-1]) + 1
+	row_index = c(.ENV$POS$y1, .ENV$POS$y2[4^.ENV$LEVEL-1]) + 1
+	col_index = col_index[as.numeric(names(r))]
+	row_index = row_index[as.numeric(names(r))]
+
+	ind = row_index + (col_index - 1)*nrow(.ENV$RGB$red)
+	.ENV$RGB$red[ind] = r*alpha + .ENV$RGB$red[ind] * (1-alpha)
+	.ENV$RGB$green[ind] = g*alpha + .ENV$RGB$green[ind] * (1-alpha)
+	.ENV$RGB$blue[ind] = b*alpha + .ENV$RGB$blue[ind] * (1-alpha)
 
 	return(invisible(NULL))
 
 }
 
-hc_save = function(file, grid = hc_level()/2-1) {
+hc_save = function(file = "Rplot.png", grid = 0) {
 
-	red = t(.ENV$RGB$red)
-	green = t(.ENV$RGB$green)
-	blue = t(.ENV$RGB$blue)
+	red = .ENV$RGB$red
+	green = .ENV$RGB$green
+	blue = .ENV$RGB$blue
 	red = red[seq(nrow(red), 1), , drop = FALSE]
 	green = green[seq(nrow(green), 1), , drop = FALSE]
 	blue = blue[seq(nrow(blue), 1), , drop = FALSE]
