@@ -27,13 +27,14 @@ unzoom = function(x) x/.ENV$ZOOM
 # Initialize a Hilbert curve
 #
 # == param
-# -s start of Hilbert curve
-# -e end of Hilbert curve
+# -s start of Hilbert curve, should be an integer
+# -e end of Hilbert curve, should be an integer
 # -level order of Hilbert curve. There will by ``4^level`` segments in the Hilbert curve.
-# -mode 
-# -reference
-# -zoom 
-# -newpage
+# -mode make it like a normal R plot or write the plot directly into png file.
+# -reference add reference information on the plot
+# -zoom zooming of data ranges
+# -newpage whether call `grid::newpage``
+# -background background color
 #
 hc_initialize = function(s, e, level = 3, mode = c("normal", "pixel"),
 	reference = FALSE, zoom = NULL, newpage = TRUE, background = "white") {
@@ -288,6 +289,8 @@ average_in_window = function(window, ir, mtch, v, mean_mode, empty_v = 0) {
 		x = tapply(w*v, mtch[, 1], sum) / tapply(w, mtch[, 1], sum)
 	}
 
+	x = as.vector(x)
+
 	return(x)
 }
 
@@ -522,9 +525,9 @@ hc_layer = function(ir, col = "red", mean_mode = c("w0", "absolute", "weighted")
 	# colors correspond to mean value for each window
 	mean_mode = match.arg(mean_mode)[1]
 
-	fill = normalize_gp("fill", gp$fill, length(ir))
+	if(length(col) == 1) col = rep(col, length(ir))
 
-	rgb = col2rgb(fill, alpha = TRUE)
+	rgb = col2rgb(col, alpha = TRUE)
 
 	r = average_in_window(window, ir, mtch, rgb[1, ], mean_mode, 255)/255
 	g = average_in_window(window, ir, mtch, rgb[2, ], mean_mode, 255)/255
