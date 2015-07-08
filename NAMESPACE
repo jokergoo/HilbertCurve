@@ -1,0 +1,14 @@
+exportMethods(hc_segments)
+exportMethods(hc_save)
+exportMethods(hc_level)
+export(HilbertCurve)
+exportMethods(hc_normal_points)
+exportMethods(zoom)
+exportMethods(hc_text)
+exportMethods(hc_layer)
+exportMethods(hc_rect)
+exportMethods(hc_segmented_points)
+exportMethods(hc_points)
+exportMethods(unzoom)
+
+

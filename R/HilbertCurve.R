@@ -1,7 +1,7 @@
 
 .ENV = new.env()
 
-.ENV$I_PLOT = 0
+.ENVI_PLOT = 0
 
 get_plot_index = function() {
 	.ENV$I_PLOT
@@ -12,16 +12,43 @@ increase_plot_index = function() {
 }
 
 
-.ENV$BINS = NULL
-.ENV$POS = NULL
-.ENV$PLOT_MODE = NULL
-.ENV$RANGE = NULL
-.ENV$ZOOM = NULL
-.ENV$MODE = NULL
-.ENV$RGB = NULL
 
-zoom = function(x) x*.ENV$ZOOM
-unzoom = function(x) x/.ENV$ZOOM
+HilbertCurve = setClass("HilbertCurve",
+	slots = list(
+		BINS = "IRanges",
+		POS = "data.frame",
+		RANGE = "numeric",
+		ZOOM = "numeric",
+		MODE = "character",
+		RGB = "environment",
+		LEVEL = "integer"
+))
+
+# == title
+# zoom
+#
+# == param
+# -object
+# -x
+#
+setMethod(f = "zoom",
+	signature = "HilbertCurve",
+	definition = function(object, x) {
+	x * object@ZOOM
+})
+
+# == title
+# unzoom
+#
+# == param
+# -hc
+# -x
+#
+setMethod(f = "unzoom",
+	signature = "HilbertCurve",
+	definition = function(object, x) {
+	x / object@ZOOM
+})
 
 # == title
 # Initialize a Hilbert curve
@@ -36,38 +63,33 @@ unzoom = function(x) x/.ENV$ZOOM
 # -newpage whether call `grid::newpage``
 # -background background color
 #
-hc_initialize = function(s, e, level = 3, mode = c("normal", "pixel"),
+HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 	reference = FALSE, zoom = NULL, newpage = TRUE, background = "white") {
 
-	.ENV$BINS = NULL
-	.ENV$POS = NULL
-	.ENV$PLOT_MODE = NULL
-	.ENV$RANGE = NULL
-	.ENV$ZOOM = NULL
-	.ENV$MODE = NULL
-	.ENV$RGB = NULL
+	hc = new("HilbertCurve")
+	level = as.integer(level)
 
 	if(is.null(zoom)) zoom = ceiling(10*(4^level-1)/(e - s))
-	.ENV$ZOOM = zoom
+	hc@ZOOM = zoom
 
 	pos = hilbertCurve(level)
 	n = 4^level  # number of points
 
-	breaks = round(seq(zoom(s), zoom(e), length = n)) 
+	breaks = round(seq(zoom(hc, s), zoom(hc, e), length = n)) 
 
 	# n - 1 rows
 	bins = IRanges(start = breaks[-length(breaks)], end = breaks[-1]) # number of segments
 
 	# x and y correspond to the end point of each interval in ir
-	.ENV$BINS = bins
+	hc@BINS = bins
 
 	# position for two end points for every segment (e.g. interval in bins)
-	.ENV$POS = data.frame(x1 = pos$x[-n], y1 = pos$y[-n], x2 = pos$x[-1], y2 = pos$y[-1])
-	.ENV$RANGE = c(breaks[1], breaks[length(breaks)])
-	.ENV$LEVEL = level
+	hc@POS = data.frame(x1 = pos$x[-n], y1 = pos$y[-n], x2 = pos$x[-1], y2 = pos$y[-1])
+	hc@RANGE = c(breaks[1], breaks[length(breaks)])
+	hc@LEVEL = level
 
 	mode = match.arg(mode)[1]
-	.ENV$MODE = mode
+	hc@MODE = mode
 
 	if(mode == "normal") {
 		if(newpage) grid.newpage()
@@ -82,40 +104,62 @@ hc_initialize = function(s, e, level = 3, mode = c("normal", "pixel"),
 		}
 
 		if(reference) {
-			grid.segments(.ENV$POS$x1, .ENV$POS$y1, .ENV$POS$x2, .ENV$POS$y2, default.units = "native", gp = gpar(lty = 3, col = "#CCCCCC"))
+			grid.segments(hc@POS$x1, hc@POS$y1, hc@POS$x2, hc@POS$y2, default.units = "native", gp = gpar(lty = 3, col = "#CCCCCC"))
 			
-			# grid.points(.ENV$POS$x1[1], .ENV$POS$y1[1], default.units = "native", gp = gpar(col = "#CCCCCC", cex = 0.5))
-			# grid.points(.ENV$POS$x2, .ENV$POS$y2, default.units = "native", gp = gpar(col = "#CCCCCC", cex = 0.5))
+			# grid.points(hc@POS$x1[1], hc@POS$y1[1], default.units = "native", gp = gpar(col = "#CCCCCC", cex = 0.5))
+			# grid.points(hc@POS$x2, hc@POS$y2, default.units = "native", gp = gpar(col = "#CCCCCC", cex = 0.5))
 
-			grid.text(round(unzoom(start(bins)[1])), .ENV$POS$x1[1], .ENV$POS$y1[1], default.units = "native", gp = gpar(col = "#999999", cex = 0.5))
-			grid.text(round(unzoom(end(bins))), .ENV$POS$x2, .ENV$POS$y2, default.units = "native", gp = gpar(col = "#999999", cex = 0.5))
+			# grid.text(round(unzoom(hc, start(bins)[1])), hc@POS$x1[1], hc@POS$y1[1], default.units = "native", gp = gpar(col = "#999999", cex = 0.5))
+			# grid.text(round(unzoom(hc, end(bins))), hc@POS$x2, hc@POS$y2, default.units = "native", gp = gpar(col = "#999999", cex = 0.5))
 		
-			grid_arrows(.ENV$POS$x1, .ENV$POS$y1, (.ENV$POS$x1+.ENV$POS$x2)/2, (.ENV$POS$y1+.ENV$POS$y2)/2, only.head = TRUE, arrow_gp = gpar(fill = "#CCCCCC", col = NA))
+			#grid_arrows(hc@POS$x1, hc@POS$y1, (hc@POS$x1+hc@POS$x2)/2, (hc@POS$y1+hc@POS$y2)/2, only.head = TRUE, arrow_gp = gpar(fill = "#CCCCCC", col = NA))
 		}
 
 		upViewport()
 	} else {
 		background = background[1]
 		background = col2rgb(background) / 255
-		.ENV$RGB = list(red = matrix(background[1], nrow = 2^level, ncol = 2^level),
-			            green = matrix(background[2], nrow = 2^level, ncol = 2^level),
-			            blue = matrix(background[3], nrow = 2^level, ncol = 2^level))
+		red = matrix(background[1], nrow = 2^level, ncol = 2^level)
+		green = matrix(background[2], nrow = 2^level, ncol = 2^level)
+		blue = matrix(background[3], nrow = 2^level, ncol = 2^level)
+		hc@RGB$red = red
+		hc@RGB$green = green
+		hc@RGB$blue = blue
 	}
 
-	return(invisible(NULL))
+	return(hc)
 }
 
-hc_level = function() {
-	if(is.null(.ENV$BINS)) {
-		stop("hc_initialize() should be called first.\n")
-	}
-	.ENV$LEVEL
-}
+# == title
+# show
+# 
+# == param
+# -object
+#
+setMethod(f = "show",
+	signature = "HilbertCurve",
+	definition = function(object) {
+	cat("A Hilbert curve with order", object@LEVEL, "\n")
+	cat("mode:", object@MODE, "\n")
+})
+
+# == title
+# hc_level
+#
+# == param
+# -object
+#
+setMethod(f = "hc_level",
+	signature = "HilbertCurve",
+	definition = function(object) {
+	object@LEVEL
+})
 
 # == title
 # Add points to the Hilbert curve
 #
 # == param
+# -object
 # -ir a `IRanges::IRanges` object
 # -np number of points (a circle or a square) that are put in a segment
 # -size size of the points
@@ -127,42 +171,51 @@ hc_level = function() {
 # If ``np`` is set to a value less than 2 or ``NULL``, points will be added at every middle point in ``ir``.
 # If ``np`` is set to a value larger or equal to 2, a list of e.g. circles are put at every segment in ``ir``,
 # longer segments will have more circles on it.
-hc_points = function(ir, np = max(c(2, 10 - hc_level())), 
-	size = unit(1, "char"), gp = gpar(), mean_mode = c("w0", "absolute", "weighted"),
+setMethod(f = "hc_points",
+	signature = "HilbertCurve",
+	definition = function(object, ir, np = max(c(2, 10 - hc_level(object))), 
+	size = unit(1, "char"), pch = 1, gp = gpar(), mean_mode = c("w0", "absolute", "weighted"),
 	shape = c("circle", "square", "triangle", "hexagon", "star")) {
 
-	if(.ENV$MODE == "pixel") {
+	if(object@MODE == "pixel") {
 		stop("`hc_points()` can only be used under 'normal' mode.")
 	}
 
 	if(np >= 2) {
-		hc_segmented_points(ir, gp = gp, np = np, mean_mode = mean_mode, shape = shape)
+		hc_segmented_points(object, ir, gp = gp, np = np, mean_mode = mean_mode, shape = shape)
 	} else {
-		hc_normal_points(ir, gp = gp, size = size)
+		hc_normal_points(object, ir, gp = gp, pch = pch, size = size)
 	}
 
-}
+})
 
-hc_normal_points = function(ir, gp = gpar(), size = unit(1, "char")) {
+# == title
+# hc_normal_points
+#
+# == param
+# -object
+# -ir
+# -gp
+# -size
+# 
+setMethod(f = "hc_normal_points",
+	signature = "HilbertCurve",
+	definition = function(object, ir, gp = gpar(), pch = 1, size = unit(1, "char")) {
 
-	ir = IRanges(start = zoom((start(ir) + end(ir))/2),
-	             end = zoom((start(ir) + end(ir))/2))
-
-	if(is.null(.ENV$BINS)) {
-		stop("hc_initialize() should be called first.\n")
-	}
+	ir = IRanges(start = zoom(object, (start(ir) + end(ir))/2),
+	             end = zoom(object, (start(ir) + end(ir))/2))
 
 	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
 
 	od = order(ir)
 	ir = ir[od]
 
-	mtch = as.matrix(findOverlaps(.ENV$BINS, ir))
+	mtch = as.matrix(findOverlaps(object@BINS, ir))
 	l = duplicated(mtch[,2])
 	mtch = mtch[!l, , drop = FALSE]
 
-	r1 = .ENV$BINS[mtch[,1]]
-	pos = .ENV$POS[mtch[,1], ]
+	r1 = object@BINS[mtch[,1]]
+	pos = object@POS[mtch[,1], ]
 	r = pintersect(r1, ir[mtch[,2]])
 
 	sr1 = start(r1)
@@ -173,36 +226,46 @@ hc_normal_points = function(ir, gp = gpar(), size = unit(1, "char")) {
 	x1 = pos$x2 - (pos$x2 - pos$x1)*(er1 - sr)/(er1 - sr1)
 	y1 = pos$y2 - (pos$y2 - pos$y1)*(er1 - sr)/(er1 - sr1)
 
-	grid.points(x1, y1, default.units = "native", gp = gp,  size = size)	
+	grid.points(x1, y1, default.units = "native", gp = gp, pch = pch, size = size)	
 	
 	df = data.frame(x = x1, y = y1, stringsAsFactors = FALSE)
 	return(invisible(df))
-}
+})
 
+# == title
+# hc_segmented_points
+#
+# == param
+# -object
+# -ir
+# -gp
+# -np
+# -mean_mode
+# -shape
+#
+# == details
 # only color/fill can be mapped to cicles
-hc_segmented_points = function(ir, gp = gpar(), np = max(c(2, 10 - hc_level())),
+setMethod(f = "hc_segmented_points",
+	signature = "HilbertCurve",
+	definition = function(object, ir, gp = gpar(), np = max(c(2, 10 - hc_level(object))),
 	mean_mode = c("w0", "absolute", "weighted"), shape = c("circle", "square", "triangle", "hexagon", "star")) {
 
-	ir = IRanges(start = zoom(start(ir)),
-	             end = zoom(end(ir)))
+	ir = IRanges(start = zoom(object, start(ir)),
+	             end = zoom(object, end(ir)))
 
 	col = normalize_gp("col", gp$col, length(ir))
 	fill = normalize_gp("fill", gp$fill, length(ir))
 
-	if(is.null(.ENV$BINS)) {
-		stop("hc_initialize() should be called first.\n")
-	}
-
 	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
 
-	mtch = as.matrix(findOverlaps(.ENV$BINS, ir))
-	r = pintersect(.ENV$BINS[mtch[,1]], ir[mtch[,2]])
+	mtch = as.matrix(findOverlaps(object@BINS, ir))
+	r = pintersect(object@BINS[mtch[,1]], ir[mtch[,2]])
 	l = width(r) > 1
 	r = r[l]
 	mtch = mtch[l, , drop = FALSE]
 
-	r1 = .ENV$BINS[mtch[,1]]
-	pos = .ENV$POS[mtch[,1], ]
+	r1 = object@BINS[mtch[,1]]
+	pos = object@POS[mtch[,1], ]
 	col = col[mtch[,2]]
 	fill = fill[mtch[,2]]
 
@@ -270,7 +333,7 @@ hc_segmented_points = function(ir, gp = gpar(), np = max(c(2, 10 - hc_level())),
 
 	df = data.frame(x = xx, y = yy, r = rep(1/(np-1)/2, length(xx)))
 	return(invisible(df))
-}
+})
 
 average_in_window = function(window, ir, mtch, v, mean_mode, empty_v = 0) {
  	intersect = pintersect(window[mtch[,1]], ir[mtch[,2]])
@@ -284,13 +347,14 @@ average_in_window = function(window, ir, mtch, v, mean_mode, empty_v = 0) {
 		x = x + x2
 	} else if(mean_mode == "absolute") {
 		x = tapply(v, mtch[, 1], mean)
+		
 	} else {
 		w = width(intersect)-1
 		x = tapply(w*v, mtch[, 1], sum) / tapply(w, mtch[, 1], sum)
 	}
 
-	x = as.vector(x)
-
+	x = structure(as.vector(x), names = dimnames(x)[[1]])
+	
 	return(x)
 }
 
@@ -298,28 +362,27 @@ average_in_window = function(window, ir, mtch, v, mean_mode, empty_v = 0) {
 # Add rectangles on Hilbert curve
 #
 # == param
+# -object
 # -ir
 # -value
 # -fill
 # -mean_mode
 #
-hc_rect = function(ir, gp = gpar(fill = "red"), mean_mode = c("w0", "absolute", "weighted")) {
+setMethod(f = "hc_rect",
+	signature = "HilbertCurve",
+	definition = function(object, ir, gp = gpar(fill = "red"), mean_mode = c("w0", "absolute", "weighted")) {
 
-	if(.ENV$MODE == "pixel") {
+	if(object@MODE == "pixel") {
 		stop("`hc_rect()` can only be used under 'normal' mode.")
 	}
 
-	ir = IRanges(start = zoom(start(ir)),
-	             end = zoom(end(ir)))
-
-	if(is.null(.ENV$BINS)) {
-		stop("hc_initialize() should be called first.\n")
-	}
+	ir = IRanges(start = zoom(object, start(ir)),
+	             end = zoom(object, end(ir)))
 
 	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
 
-	s = start(.ENV$BINS)
-	e = end(.ENV$BINS)
+	s = start(object@BINS)
+	e = end(object@BINS)
 	mid = round((s + e)/2)
 	window = IRanges(start = c(s[1], mid), end = c(mid, e[length(e)]))
 		
@@ -340,8 +403,8 @@ hc_rect = function(ir, gp = gpar(fill = "red"), mean_mode = c("w0", "absolute", 
 	index = as.numeric(names(r))
 	fill2 = rgb(red = r, green = g, blue = b, alpha = alpha, maxColorValue = 255)
 
-	pos = .ENV$POS
-	n = 4^.ENV$LEVEL
+	pos = object@POS
+	n = 4^object@LEVEL
 
 	if(n %in% index) {
 		ind = setdiff(index, n)
@@ -357,7 +420,7 @@ hc_rect = function(ir, gp = gpar(fill = "red"), mean_mode = c("w0", "absolute", 
 
 	return(invisible(df))
 
-}
+})
 
 normalize_gp = function(name = NULL, value = NULL, length = NULL) {
 	if(is.null(value)) value = get.gpar(name)[[name]]
@@ -369,35 +432,34 @@ normalize_gp = function(name = NULL, value = NULL, length = NULL) {
 # Add line segments to Hilbert curve
 #
 # == param
+# -object
 # -ir a `IRanges::IRanges` object in which each interval corresponds to a segment in the curve.
 # -gp grahical parameters for lines
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
 #
-hc_segments = function(ir, gp = gpar()) {
+setMethod(f = "hc_segments",
+	signature = "HilbertCurve",
+	definition = function(object, ir, gp = gpar()) {
 
-	if(.ENV$MODE == "pixel") {
+	if(object@MODE == "pixel") {
 		stop("`hc_segments()` can only be used under 'normal' mode.")
 	}
 
-	ir = IRanges(start = zoom(start(ir)),
-	             end = zoom(end(ir)))
-
-	if(is.null(.ENV$BINS)) {
-		stop("hc_initialize() should be called first.\n")
-	}
+	ir = IRanges(start = zoom(object, start(ir)),
+	             end = zoom(object, end(ir)))
 
 	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
 
-	mtch = as.matrix(findOverlaps(.ENV$BINS, ir))
-	r = pintersect(.ENV$BINS[mtch[,1]], ir[mtch[,2]])
+	mtch = as.matrix(findOverlaps(object@BINS, ir))
+	r = pintersect(object@BINS[mtch[,1]], ir[mtch[,2]])
 	l = width(r) > 1
 	r = r[l]
 	mtch = mtch[l, , drop = FALSE]
 
-	r1 = .ENV$BINS[mtch[,1]]
-	pos = .ENV$POS[mtch[,1], ]
+	r1 = object@BINS[mtch[,1]]
+	pos = object@POS[mtch[,1], ]
 
 	sr1 = start(r1)
 	sr = start(r)
@@ -415,12 +477,13 @@ hc_segments = function(ir, gp = gpar()) {
 	df = data.frame(x1 = x1, y1 = y1, x2 = x2, y2 = y2)
 	return(invisible(df))
 	
-}
+})
 
 # == title
 # Add text to Hilbert curve
 #
 # == param
+# -object
 # -ir a `IRanges::IRanges` object that contains positions of text. If interval has width larger than 1,
 #     the middle point of the interval will be the position of the text.
 # -text text corresponding the ``ir``.
@@ -430,18 +493,16 @@ hc_segments = function(ir, gp = gpar()) {
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
 #
-hc_text = function(ir, text, gp = gpar(), ...) {
+setMethod(f = "hc_text",
+	signature = "HilbertCurve",
+	definition = function(object, ir, text, gp = gpar(), ...) {
 
-	if(.ENV$MODE == "pixel") {
+	if(object@MODE == "pixel") {
 		stop("`hc_text()` can only be used under 'normal' mode.")
 	}
 
-	ir = IRanges(start = zoom((start(ir) + end(ir))/2),
-	             end = zoom((start(ir) + end(ir))/2))
-
-	if(is.null(.ENV$BINS)) {
-		stop("hc_initialize() should be called first.\n")
-	}
+	ir = IRanges(start = zoom(object, (start(ir) + end(ir))/2),
+	             end = zoom(object, (start(ir) + end(ir))/2))
 
 	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
 
@@ -449,12 +510,12 @@ hc_text = function(ir, text, gp = gpar(), ...) {
 	ir = ir[od]
 	text = text[od]
 
-	mtch = as.matrix(findOverlaps(.ENV$BINS, ir))
+	mtch = as.matrix(findOverlaps(object@BINS, ir))
 	l = duplicated(mtch[,2])
 	mtch = mtch[!l, , drop = FALSE]
 
-	r1 = .ENV$BINS[mtch[,1]]
-	pos = .ENV$POS[mtch[,1], ]
+	r1 = object@BINS[mtch[,1]]
+	pos = object@POS[mtch[,1], ]
 	text = text[mtch[,2]]
 	r = pintersect(r1, ir[mtch[,2]])
 
@@ -470,7 +531,7 @@ hc_text = function(ir, text, gp = gpar(), ...) {
 	
 	df = data.frame(x = x1, y = y1, text = text, stringsAsFactors = FALSE)
 	return(invisible(df))
-}
+})
 
 # add arrow at (x2, y2) and x1 -> x2
 grid_arrows = function(x1, y1, x2, y2, length = unit(2, "mm"), angle = 15, only.head = FALSE, 
@@ -502,21 +563,28 @@ grid_arrows = function(x1, y1, x2, y2, length = unit(2, "mm"), angle = 15, only.
 	#grid.points(x2, y2, gp = gpar(col = "red"))
 }
 
-hc_layer = function(ir, col = "red", mean_mode = c("w0", "absolute", "weighted")) {
+# == title
+# hc_layer
+#
+# == param
+# -object
+# -ir
+# -col
+# -mean_mode
+#
+setMethod(f = "hc_layer",
+	signature = "HilbertCurve",
+	definition = function(object, ir, col = "red", mean_mode = c("w0", "absolute", "weighted")) {
 
-	if(.ENV$MODE == "normal") {
+	if(object@MODE == "normal") {
 		stop("`hc_layer()` can only be used under 'pixel' mode.")
 	}
 
-	ir = IRanges(start = zoom(start(ir)),
-	             end = zoom(end(ir)))
+	ir = IRanges(start = zoom(object, start(ir)),
+	             end = zoom(object, end(ir)))
 
-	if(is.null(.ENV$BINS)) {
-		stop("hc_initialize() should be called first.\n")
-	}
-
-	s = start(.ENV$BINS)
-	e = end(.ENV$BINS)
+	s = start(object@BINS)
+	e = end(object@BINS)
 	mid = round((s + e)/2)
 	window = IRanges(start = c(s[1], mid), end = c(mid, e[length(e)]))
 		
@@ -533,20 +601,39 @@ hc_layer = function(ir, col = "red", mean_mode = c("w0", "absolute", "weighted")
 	g = average_in_window(window, ir, mtch, rgb[2, ], mean_mode, 255)/255
 	b = average_in_window(window, ir, mtch, rgb[3, ], mean_mode, 255)/255
 	alpha = rep(max(rgb[4, ]), length(r))/255
+	r[r > 1] = 1
+	g[g > 1] = 1
+	b[b > 1] = 1
+	alpha[alpha > 1] = 1
 
-	.ENV$RGB$red = r*alpha + .ENV$RGB$red*(1-alpha)
-	.ENV$RGB$green = g*alpha + .ENV$RGB$green*(1-alpha)
-	.ENV$RGB$blue = b*alpha + .ENV$RGB$blue*(1-alpha)
+	col_index = c(object@POS$x1, object@POS$x2[4^object@LEVEL-1]) + 1
+	row_index = c(object@POS$y1, object@POS$y2[4^object@LEVEL-1]) + 1
+	col_index = col_index[as.numeric(names(r))]
+	row_index = row_index[as.numeric(names(r))]
+
+	ind = row_index + (col_index - 1)*nrow(object@RGB$red)
+	object@RGB$red[ind] = r*alpha + object@RGB$red[ind] * (1-alpha)
+	object@RGB$green[ind] = g*alpha + object@RGB$green[ind] * (1-alpha)
+	object@RGB$blue[ind] = b*alpha + object@RGB$blue[ind] * (1-alpha)
 
 	return(invisible(NULL))
+})
 
-}
+# == title
+# hc_save
+#
+# == param
+# -object
+# -file
+# -grid
+#
+setMethod(f = "hc_save",
+	signature = "HilbertCurve",
+	definition = function(object, file = "Rplot.png", grid = 0) {
 
-hc_save = function(file, grid = hc_level()/2-1) {
-
-	red = t(.ENV$RGB$red)
-	green = t(.ENV$RGB$green)
-	blue = t(.ENV$RGB$blue)
+	red = object@RGB$red
+	green = object@RGB$green
+	blue = object@RGB$blue
 	red = red[seq(nrow(red), 1), , drop = FALSE]
 	green = green[seq(nrow(green), 1), , drop = FALSE]
 	blue = blue[seq(nrow(blue), 1), , drop = FALSE]
@@ -564,7 +651,7 @@ hc_save = function(file, grid = hc_level()/2-1) {
 		}
 	}
 
-	img = array(dim = c(2^.ENV$LEVEL, 2^.ENV$LEVEL, 3))
+	img = array(dim = c(2^object@LEVEL, 2^object@LEVEL, 3))
 	img[, , 1] = red
 	img[, , 2] = green
 	img[, , 3] = blue
@@ -574,7 +661,7 @@ hc_save = function(file, grid = hc_level()/2-1) {
 	}
 
 	writePNG(img, target = file)
-}
+})
 
 
 

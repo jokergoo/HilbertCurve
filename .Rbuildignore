@@ -1,5 +1,13 @@
+^\..*
+README.*
+lib/
 test/
-.DS_Store
-^\.
-README.md
-
+to-do.txt
+circlize_.*\.tar\.gz
+check.bat
+R/link-bezier.R
+example/
+index.html
+make_index.pl
+generate_genomic_figures/
+.travis.yml
