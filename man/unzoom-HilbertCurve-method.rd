@@ -2,17 +2,29 @@
 \alias{unzoom,HilbertCurve-method}
 \alias{unzoom}
 \title{
-unzoom
+Transform zoomed positions to their original values
 
 }
 \description{
-unzoom
+Transform zoomed positions to their original values
 
 }
 \usage{
 \S4method{unzoom}{HilbertCurve}(object, x)}
 \arguments{
 
-  \item{hc}{-hc}
-  \item{x}{-x}
+  \item{object}{A \code{\link{HilbertCurve-class}} object}
+  \item{x}{positions}
+}
+\details{
+The function is used internally
+
+}
+\value{
+Original positioins
+
+}
+\author{
+Zuguang Gu <z.gu@dkfz.de>
+
 }

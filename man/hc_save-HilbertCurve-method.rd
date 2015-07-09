@@ -1,19 +1,27 @@
 \name{hc_save-HilbertCurve-method}
 \alias{hc_save,HilbertCurve-method}
+\alias{hc_save}
 \title{
-hc_save
+Save Hilbert curve as PNG figure
 
 }
 \description{
-hc_save
+Save Hilbert curve as PNG figure
 
 }
 \usage{
 \S4method{hc_save}{HilbertCurve}(object, file = "Rplot.png", grid = 0)}
 \arguments{
 
-  \item{object}{-object}
-  \item{file}{-file}
-  \item{grid}{-grid}
+  \item{object}{A \code{\link{HilbertCurve-class}} object}
+  \item{file}{file name}
+  \item{grid}{add grid lines}
 }
-\alias{hc_save}
+\value{
+No value is returned
+
+}
+\author{
+Zuguang Gu <z.gu@dkfz.de>
+
+}

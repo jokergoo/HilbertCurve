@@ -12,7 +12,10 @@ increase_plot_index = function() {
 }
 
 
-
+# == title
+# The HilbertCurve class
+#
+# == 
 HilbertCurve = setClass("HilbertCurve",
 	slots = list(
 		BINS = "IRanges",
@@ -25,11 +28,20 @@ HilbertCurve = setClass("HilbertCurve",
 ))
 
 # == title
-# zoom
+# Zoom original positions
 #
 # == param
-# -object
-# -x
+# -object A `HilbertCurve-class` object
+# -x positions
+#
+# == details
+# The function is used internally
+#
+# == value
+# Zoomed positions
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
 #
 setMethod(f = "zoom",
 	signature = "HilbertCurve",
@@ -38,11 +50,20 @@ setMethod(f = "zoom",
 })
 
 # == title
-# unzoom
+# Transform zoomed positions to their original values
 #
 # == param
-# -hc
-# -x
+# -object A `HilbertCurve-class` object
+# -x positions
+#
+# == details
+# The function is used internally
+#
+# == value
+# Original positioins
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
 #
 setMethod(f = "unzoom",
 	signature = "HilbertCurve",
@@ -54,14 +75,20 @@ setMethod(f = "unzoom",
 # Initialize a Hilbert curve
 #
 # == param
-# -s start of Hilbert curve, should be an integer
-# -e end of Hilbert curve, should be an integer
-# -level order of Hilbert curve. There will by ``4^level`` segments in the Hilbert curve.
+# -s start of the Hilbert curve, should be an integer
+# -e end of the Hilbert curve, should be an integer
+# -level order of the Hilbert curve. There will by ``4^level`` segments in the Hilbert curve.
 # -mode make it like a normal R plot or write the plot directly into png file.
 # -reference add reference information on the plot
-# -zoom zooming of data ranges
-# -newpage whether call `grid::newpage``
+# -zoom zooming of the position ranges
+# -newpage whether call `grid::grid.newpage``
 # -background background color
+#
+# == value
+# A `HilbertCurve-class` object.
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
 #
 HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 	reference = FALSE, zoom = NULL, newpage = TRUE, background = "white") {
@@ -131,10 +158,16 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 }
 
 # == title
-# show
+# Print the HilbertCurve object
 # 
 # == param
-# -object
+# -object A `HilbertCurve-class` object
+#
+# == value
+# No value is returned
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
 #
 setMethod(f = "show",
 	signature = "HilbertCurve",
@@ -144,10 +177,16 @@ setMethod(f = "show",
 })
 
 # == title
-# hc_level
+# Level of the Hilbert curve
 #
 # == param
-# -object
+# -object A `HilbertCurve-class` object
+#
+# == value
+# The level of the Hilbert curve
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
 #
 setMethod(f = "hc_level",
 	signature = "HilbertCurve",
@@ -159,18 +198,26 @@ setMethod(f = "hc_level",
 # Add points to the Hilbert curve
 #
 # == param
-# -object
+# -object A `HilbertCurve-class` object
 # -ir a `IRanges::IRanges` object
-# -np number of points (a circle or a square) that are put in a segment
+# -np number of points (a circle or a square, ...) that are put in a segment
 # -size size of the points
+# -pch shape of points, used for points if ``np >= 2``
 # -gp graphical parameters for points
 # -mean_mode
-# -shape
+# -shape shape of points, used for points if ``np <= 1``
 #
 # == details
 # If ``np`` is set to a value less than 2 or ``NULL``, points will be added at every middle point in ``ir``.
 # If ``np`` is set to a value larger or equal to 2, a list of e.g. circles are put at every segment in ``ir``,
-# longer segments will have more circles on it.
+# so, longer segments will have more circles on it.
+#
+# == value
+# A data frame which contains coordinates for points.
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
 setMethod(f = "hc_points",
 	signature = "HilbertCurve",
 	definition = function(object, ir, np = max(c(2, 10 - hc_level(object))), 
@@ -190,14 +237,26 @@ setMethod(f = "hc_points",
 })
 
 # == title
-# hc_normal_points
+# Add points to the Hilbert curve
 #
 # == param
-# -object
-# -ir
-# -gp
-# -size
-# 
+# -object A `HilbertCurve-class` object
+# -ir a `IRanges::IRanges` object
+# -size size of the points
+# -pch shape of points, used for points if ``np >= 2``
+# -gp graphical parameters for points
+#
+# == details
+# Points are added at every middle point in ``ir``.
+#
+# This function is used internally.
+#
+# == value
+# A data frame which contains coordinates for points.
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
 setMethod(f = "hc_normal_points",
 	signature = "HilbertCurve",
 	definition = function(object, ir, gp = gpar(), pch = 1, size = unit(1, "char")) {
@@ -233,18 +292,28 @@ setMethod(f = "hc_normal_points",
 })
 
 # == title
-# hc_segmented_points
+# Add points to the Hilbert curve
 #
 # == param
-# -object
-# -ir
-# -gp
-# -np
+# -object A `HilbertCurve-class` object
+# -ir a `IRanges::IRanges` object
+# -np number of points (a circle or a square, ...) that are put in a segment
+# -gp graphical parameters for points
 # -mean_mode
-# -shape
+# -shape shape of points, used for points if ``np <= 1``
 #
 # == details
-# only color/fill can be mapped to cicles
+# A list of e.g. circles are put at every segment in ``ir``,
+# so, longer segments will have more circles on it.
+#
+# This function is used internally.
+#
+# == value
+# A data frame which contains coordinates for points.
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
 setMethod(f = "hc_segmented_points",
 	signature = "HilbertCurve",
 	definition = function(object, ir, gp = gpar(), np = max(c(2, 10 - hc_level(object))),
@@ -362,15 +431,21 @@ average_in_window = function(window, ir, mtch, v, mean_mode, empty_v = 0) {
 # Add rectangles on Hilbert curve
 #
 # == param
-# -object
-# -ir
-# -value
-# -fill
+# -object A `HilbertCurve-class` object
+# -ir a `IRanges::IRanges` object
+# -gp graphical parameters for rectangles
 # -mean_mode
+#
+# == value
+# A data frame which contains coordinates for rectangles.
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
 #
 setMethod(f = "hc_rect",
 	signature = "HilbertCurve",
-	definition = function(object, ir, gp = gpar(fill = "red"), mean_mode = c("w0", "absolute", "weighted")) {
+	definition = function(object, ir, gp = gpar(fill = "red", col = "red"), 
+	mean_mode = c("w0", "absolute", "weighted")) {
 
 	if(object@MODE == "pixel") {
 		stop("`hc_rect()` can only be used under 'normal' mode.")
@@ -432,9 +507,12 @@ normalize_gp = function(name = NULL, value = NULL, length = NULL) {
 # Add line segments to Hilbert curve
 #
 # == param
-# -object
-# -ir a `IRanges::IRanges` object in which each interval corresponds to a segment in the curve.
-# -gp grahical parameters for lines
+# -object A `HilbertCurve-class` object
+# -ir a `IRanges::IRanges` object
+# -gp graphical parameters for rectangles
+#
+# == value
+# A data frame which contains coordinates for segments.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -483,12 +561,15 @@ setMethod(f = "hc_segments",
 # Add text to Hilbert curve
 #
 # == param
-# -object
+# -object A `HilbertCurve-class` object
 # -ir a `IRanges::IRanges` object that contains positions of text. If interval has width larger than 1,
 #     the middle point of the interval will be the position of the text.
 # -text text corresponding the ``ir``.
 # -gp graphical parameters for text
 # -... pass to `grid::grid.text`. You can set ``just`` for text here
+#
+# == value
+# A data frame which contains coordinates for text.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -564,13 +645,22 @@ grid_arrows = function(x1, y1, x2, y2, length = unit(2, "mm"), angle = 15, only.
 }
 
 # == title
-# hc_layer
+# Add a new layer on the Hilbert curve
 #
 # == param
-# -object
-# -ir
-# -col
+# -object A `HilbertCurve-class` object
+# -ir a `IRanges::IRanges` object
+# -col colors corresponding to each interval in ``ir``
 # -mean_mode
+#
+# == details
+# If you want to add more than one layers on the plot, remember to set transparent colors.
+#
+# == value
+# No value is returned
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
 #
 setMethod(f = "hc_layer",
 	signature = "HilbertCurve",
@@ -620,12 +710,18 @@ setMethod(f = "hc_layer",
 })
 
 # == title
-# hc_save
+# Save Hilbert curve as PNG figure
 #
 # == param
-# -object
-# -file
-# -grid
+# -object A `HilbertCurve-class` object
+# -file file name
+# -grid add grid lines
+#
+# == value
+# No value is returned
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
 #
 setMethod(f = "hc_save",
 	signature = "HilbertCurve",

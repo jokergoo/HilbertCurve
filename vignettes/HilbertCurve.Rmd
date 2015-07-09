@@ -13,9 +13,6 @@ Make Hilbert Curve
 -------------------------------------------------------------
 
 ```{r, echo = FALSE, message = FALSE}
-library(markdown)
-options(markdown.HTML.options = c(options('markdown.HTML.options')[[1]], "toc"))
-
 library(knitr)
 knitr::opts_chunk$set(
     error = FALSE,
@@ -28,10 +25,11 @@ options(width = 100)
 ```
 
 ```{r}
-library(HilbertCurve)
+suppressPackageStartupMessages(library(HilbertCurve))
+set.seed(123)
 ```
 
-```{r, width = 12, height = 3}
+```{r, fig.width = 12, fig.height = 3}
 grid.newpage()
 pushViewport(viewport(layout = grid.layout(nr = 1, nc = 4)))
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 1))
@@ -47,7 +45,7 @@ HilbertCurve(1, 100, level = 4, reference = TRUE, newpage = FALSE)
 grid.text("level = 4", gp = gpar(col = "red"))
 upViewport()
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 4))
-HilbertCurve(1, 100, level = 5, reference = TRUE, newpage = FALSE)
+HilbertCurve(1, 100, level = 5, newpage = FALSE)
 grid.text("level = 5", gp = gpar(col = "red"))
 upViewport()
 upViewport()
@@ -66,9 +64,6 @@ hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
 hc_points(hc, ir, shape = "star")
 
 hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
-hc_points(hc, ir, shape = "hexagon")
-
-hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
 hc_segments(hc, ir)
 
 hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
@@ -85,19 +80,30 @@ ir = IRanges(start = 1:99, end = 2:100)
 hc_points(hc, ir, gp = gpar(col = col, fill = col))
 ```
 
+```{r, custom_plot = TRUE, fig.ext = 'png'}
+hc = HilbertCurve(1, 100, level = 5, mode = "pixel")
+hc_layer(hc, ir)
+hc_save(hc, file = fig_path('.png'))
+```
+
 ```{r}
-hc = HilbertCurve(1, 249250621, level = 5, reference = TRUE)
+load(paste0(system.file("extdata", package = "HilbertCurve"), "/refseq_chr1.RData"))
+hc = HilbertCurve(1, 249250621, level = 5)
+hc_segments(hc, IRanges(start = 1, end = 249250621), gp = gpar(col = "grey"))
 hc_segments(hc, ranges(g), gp = gpar(lwd = unit(6, "mm")))
 ```
 
 ```{r}
+load(paste0(system.file("extdata", package = "HilbertCurve"), "/mouse_net.RData"))
 hc = HilbertCurve(1, 249250621, level = 6, background = "yellow")
 hc_points(hc, ranges(mouse), gp = gpar(col = "red", fill = "red"))
 
+load(paste0(system.file("extdata", package = "HilbertCurve"), "/zebrafish_net.RData"))
 hc = HilbertCurve(1, 249250621, level = 6, background = "yellow")
 hc_points(hc, ranges(zebrafish), gp = gpar(col = "red", fill = "red"))
-
 ```
+
+
 
 ## Session info
 

@@ -13,9 +13,13 @@ Add line segments to Hilbert curve
 \S4method{hc_segments}{HilbertCurve}(object, ir, gp = gpar())}
 \arguments{
 
-  \item{object}{-object}
-  \item{ir}{a \code{\link[IRanges]{IRanges}} object in which each interval corresponds to a segment in the curve.}
-  \item{gp}{grahical parameters for lines}
+  \item{object}{A \code{\link{HilbertCurve-class}} object}
+  \item{ir}{a \code{\link[IRanges]{IRanges}} object}
+  \item{gp}{graphical parameters for rectangles}
+}
+\value{
+A data frame which contains coordinates for segments.
+
 }
 \author{
 Zuguang Gu <z.gu@dkfz.de>

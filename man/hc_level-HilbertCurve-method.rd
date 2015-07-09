@@ -1,17 +1,25 @@
 \name{hc_level-HilbertCurve-method}
 \alias{hc_level,HilbertCurve-method}
+\alias{hc_level}
 \title{
-hc_level
+Level of the Hilbert curve
 
 }
 \description{
-hc_level
+Level of the Hilbert curve
 
 }
 \usage{
 \S4method{hc_level}{HilbertCurve}(object)}
 \arguments{
 
-  \item{object}{-object}
+  \item{object}{A \code{\link{HilbertCurve-class}} object}
 }
-\alias{hc_level}
+\value{
+The level of the Hilbert curve
+
+}
+\author{
+Zuguang Gu <z.gu@dkfz.de>
+
+}

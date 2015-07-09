@@ -1,11 +1,12 @@
 \name{hc_segmented_points-HilbertCurve-method}
 \alias{hc_segmented_points,HilbertCurve-method}
+\alias{hc_segmented_points}
 \title{
-hc_segmented_points
+Add points to the Hilbert curve
 
 }
 \description{
-hc_segmented_points
+Add points to the Hilbert curve
 
 }
 \usage{
@@ -13,15 +14,25 @@ hc_segmented_points
     mean_mode = c("w0", "absolute", "weighted"), shape = c("circle", "square", "triangle", "hexagon", "star"))}
 \arguments{
 
-  \item{object}{-object}
-  \item{ir}{-ir}
-  \item{gp}{-gp}
-  \item{np}{-np}
+  \item{object}{A \code{\link{HilbertCurve-class}} object}
+  \item{ir}{a \code{\link[IRanges]{IRanges}} object}
+  \item{np}{number of points (a circle or a square, ...) that are put in a segment}
+  \item{gp}{graphical parameters for points}
   \item{mean_mode}{-mean_mode}
-  \item{shape}{-shape}
+  \item{shape}{shape of points, used for points if \code{np <= 1}}
 }
 \details{
-only color/fill can be mapped to cicles
+A list of e.g. circles are put at every segment in \code{ir},
+so, longer segments will have more circles on it.
+
+This function is used internally.
 
 }
-\alias{hc_segmented_points}
+\value{
+A data frame which contains coordinates for points.
+
+}
+\author{
+Zuguang Gu <z.gu@dkfz.de>
+
+}

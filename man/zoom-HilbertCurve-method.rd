@@ -2,17 +2,29 @@
 \alias{zoom,HilbertCurve-method}
 \alias{zoom}
 \title{
-zoom
+Zoom original positions
 
 }
 \description{
-zoom
+Zoom original positions
 
 }
 \usage{
 \S4method{zoom}{HilbertCurve}(object, x)}
 \arguments{
 
-  \item{object}{-object}
-  \item{x}{-x}
+  \item{object}{A \code{\link{HilbertCurve-class}} object}
+  \item{x}{positions}
+}
+\details{
+The function is used internally
+
+}
+\value{
+Zoomed positions
+
+}
+\author{
+Zuguang Gu <z.gu@dkfz.de>
+
 }
