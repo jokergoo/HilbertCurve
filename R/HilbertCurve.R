@@ -112,7 +112,7 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 			# grid.text(round(unzoom(hc, start(bins)[1])), hc@POS$x1[1], hc@POS$y1[1], default.units = "native", gp = gpar(col = "#999999", cex = 0.5))
 			# grid.text(round(unzoom(hc, end(bins))), hc@POS$x2, hc@POS$y2, default.units = "native", gp = gpar(col = "#999999", cex = 0.5))
 		
-			#grid_arrows(hc@POS$x1, hc@POS$y1, (hc@POS$x1+hc@POS$x2)/2, (hc@POS$y1+hc@POS$y2)/2, only.head = TRUE, arrow_gp = gpar(fill = "#CCCCCC", col = NA))
+			grid_arrows(hc@POS$x1, hc@POS$y1, (hc@POS$x1+hc@POS$x2)/2, (hc@POS$y1+hc@POS$y2)/2, only.head = TRUE, arrow_gp = gpar(fill = "#CCCCCC", col = NA))
 		}
 
 		upViewport()
@@ -127,7 +127,7 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 		hc@RGB$blue = blue
 	}
 
-	return(hc)
+	return(invisible(hc))
 }
 
 # == title

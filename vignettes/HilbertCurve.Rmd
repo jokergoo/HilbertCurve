@@ -27,7 +27,77 @@ options(markdown.HTML.stylesheet = "custom.css")
 options(width = 100)
 ```
 
+```{r}
+library(HilbertCurve)
+```
 
+```{r, width = 12, height = 3}
+grid.newpage()
+pushViewport(viewport(layout = grid.layout(nr = 1, nc = 4)))
+pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 1))
+HilbertCurve(1, 100, level = 2, reference = TRUE, newpage = FALSE)
+grid.text("level = 2", gp = gpar(col = "red"))
+upViewport()
+pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 2))
+HilbertCurve(1, 100, level = 3, reference = TRUE, newpage = FALSE)
+grid.text("level = 3", gp = gpar(col = "red"))
+upViewport()
+pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 3))
+HilbertCurve(1, 100, level = 4, reference = TRUE, newpage = FALSE)
+grid.text("level = 4", gp = gpar(col = "red"))
+upViewport()
+pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 4))
+HilbertCurve(1, 100, level = 5, reference = TRUE, newpage = FALSE)
+grid.text("level = 5", gp = gpar(col = "red"))
+upViewport()
+upViewport()
+```
+
+```{r}
+x = sort(sample(100, 20))
+s = x[1:10*2 - 1]
+e = x[1:10*2]
+ir = IRanges(s, e)
+
+hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
+hc_points(hc, ir)
+
+hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
+hc_points(hc, ir, shape = "star")
+
+hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
+hc_points(hc, ir, shape = "hexagon")
+
+hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
+hc_segments(hc, ir)
+
+hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
+hc_rect(hc, ir)
+
+hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
+hc_text(hc, ir, sample(letters, length(ir), replace = TRUE))
+```
+
+```{r}
+col = rainbow(100)
+hc = HilbertCurve(1, 100, level = 5)
+ir = IRanges(start = 1:99, end = 2:100)
+hc_points(hc, ir, gp = gpar(col = col, fill = col))
+```
+
+```{r}
+hc = HilbertCurve(1, 249250621, level = 5, reference = TRUE)
+hc_segments(hc, ranges(g), gp = gpar(lwd = unit(6, "mm")))
+```
+
+```{r}
+hc = HilbertCurve(1, 249250621, level = 6, background = "yellow")
+hc_points(hc, ranges(mouse), gp = gpar(col = "red", fill = "red"))
+
+hc = HilbertCurve(1, 249250621, level = 6, background = "yellow")
+hc_points(hc, ranges(zebrafish), gp = gpar(col = "red", fill = "red"))
+
+```
 
 ## Session info
 
