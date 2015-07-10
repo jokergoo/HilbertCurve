@@ -3,8 +3,16 @@ visualize genomic data by Hilbert curve
 
 Show rainbow color spectrum:
 
-![rgb](https://cloud.githubusercontent.com/assets/449218/8606160/324972d4-268a-11e5-8433-6cc9c61e6c94.png)
+![download](https://cloud.githubusercontent.com/assets/449218/8629460/e8e62eca-275b-11e5-9249-e871194f953f.png)
 
 Genes on chromosome 1:
 
-![gene](https://cloud.githubusercontent.com/assets/449218/8606176/4dfc9236-268a-11e5-90f8-1d2b7aa20274.png)
+![download 1](https://cloud.githubusercontent.com/assets/449218/8629458/e8dcaa1c-275b-11e5-95c4-c36a9e1629ce.png)
+
+Methylation on chromosome 1:
+
+![download 2](https://cloud.githubusercontent.com/assets/449218/8629459/e8e1fc2e-275b-11e5-99e0-ed7cfd9aa0ad.png)
+
+GC percent and genes on chromosome 1:
+
+![download 3](https://cloud.githubusercontent.com/assets/449218/8629472/01f441d6-275c-11e5-8760-4d9412c4754d.png)
