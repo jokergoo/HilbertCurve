@@ -77,9 +77,10 @@ setMethod(f = "unzoom",
 # == param
 # -s start of the Hilbert curve, should be an integer
 # -e end of the Hilbert curve, should be an integer
-# -level order of the Hilbert curve. There will by ``4^level`` segments in the Hilbert curve.
+# -level level of the Hilbert curve. There will by ``4^level`` segments in the Hilbert curve.
 # -mode make it like a normal R plot or write the plot directly into png file.
-# -reference add reference information on the plot
+# -reference add reference line on the plot
+# -arrow whther draw arrows on the reference line
 # -zoom zooming of the position ranges
 # -newpage whether call `grid::grid.newpage``
 # -background background color
@@ -91,7 +92,8 @@ setMethod(f = "unzoom",
 # Zuguang Gu <z.gu@dkfz.de>
 #
 HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
-	reference = FALSE, zoom = NULL, newpage = TRUE, background = "white") {
+	reference = FALSE, arrow = TRUE, zoom = NULL, newpage = TRUE, 
+	background = "white") {
 
 	hc = new("HilbertCurve")
 	level = as.integer(level)
@@ -131,7 +133,7 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 		}
 
 		if(reference) {
-			grid.segments(hc@POS$x1, hc@POS$y1, hc@POS$x2, hc@POS$y2, default.units = "native", gp = gpar(lty = 3, col = "#CCCCCC"))
+			grid.segments(hc@POS$x1, hc@POS$y1, hc@POS$x2, hc@POS$y2, default.units = "native", gp = gpar(lty = 3, col = "#999999"))
 			
 			# grid.points(hc@POS$x1[1], hc@POS$y1[1], default.units = "native", gp = gpar(col = "#CCCCCC", cex = 0.5))
 			# grid.points(hc@POS$x2, hc@POS$y2, default.units = "native", gp = gpar(col = "#CCCCCC", cex = 0.5))
@@ -139,7 +141,7 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 			# grid.text(round(unzoom(hc, start(bins)[1])), hc@POS$x1[1], hc@POS$y1[1], default.units = "native", gp = gpar(col = "#999999", cex = 0.5))
 			# grid.text(round(unzoom(hc, end(bins))), hc@POS$x2, hc@POS$y2, default.units = "native", gp = gpar(col = "#999999", cex = 0.5))
 		
-			grid_arrows(hc@POS$x1, hc@POS$y1, (hc@POS$x1+hc@POS$x2)/2, (hc@POS$y1+hc@POS$y2)/2, only.head = TRUE, arrow_gp = gpar(fill = "#CCCCCC", col = NA))
+			if(arrow) grid_arrows(hc@POS$x1, hc@POS$y1, (hc@POS$x1+hc@POS$x2)/2, (hc@POS$y1+hc@POS$y2)/2, only.head = TRUE, arrow_gp = gpar(fill = "#CCCCCC", col = NA))
 		}
 
 		upViewport()
@@ -172,7 +174,7 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 setMethod(f = "show",
 	signature = "HilbertCurve",
 	definition = function(object) {
-	cat("A Hilbert curve with order", object@LEVEL, "\n")
+	cat("A Hilbert curve with level", object@LEVEL, "\n")
 	cat("mode:", object@MODE, "\n")
 })
 
@@ -519,11 +521,15 @@ normalize_gp = function(name = NULL, value = NULL, length = NULL) {
 #
 setMethod(f = "hc_segments",
 	signature = "HilbertCurve",
-	definition = function(object, ir, gp = gpar()) {
+	definition = function(object, ir, gp = gpar(lty = 1, lwd = 1, col = 1)) {
 
 	if(object@MODE == "pixel") {
 		stop("`hc_segments()` can only be used under 'normal' mode.")
 	}
+
+	if(length(gp$lty) == 1) gp$lty = rep(gp$lty, length(ir))
+	if(length(gp$lwd) == 1) gp$lwd = rep(gp$lwd, length(ir))
+	if(length(gp$col) == 1) gp$col = rep(gp$col, length(ir))
 
 	ir = IRanges(start = zoom(object, start(ir)),
 	             end = zoom(object, end(ir)))
@@ -536,23 +542,57 @@ setMethod(f = "hc_segments",
 	r = r[l]
 	mtch = mtch[l, , drop = FALSE]
 
-	r1 = object@BINS[mtch[,1]]
-	pos = object@POS[mtch[,1], ]
+	df = tapply(seq_len(nrow(mtch)), mtch[, 2], function(ind) {
+		i1 = mtch[ind, 1]
+		i2 = mtch[ind[1], 2]
 
-	sr1 = start(r1)
-	sr = start(r)
-	er1 = end(r1)
-	er = end(r)
+		r = r[ind]
+		r1 = object@BINS[i1]
+		pos = object@POS[i1, ,drop = FALSE]
 
-	x1 = pos$x2 - (pos$x2 - pos$x1)*(er1 - sr)/(er1 - sr1)
-	y1 = pos$y2 - (pos$y2 - pos$y1)*(er1 - sr)/(er1 - sr1)
-	x2 = pos$x2 - (pos$x2 - pos$x1)*(er1 - er)/(er1 - sr1)
-	y2 = pos$y2 - (pos$y2 - pos$y1)*(er1 - er)/(er1 - sr1)
+		sr1 = start(r1)
+		sr = start(r)
+		er1 = end(r1)
+		er = end(r)
 
-	gp$lineend = "butt"
-	grid.segments(x1, y1, x2, y2, default.units = "native", gp = gp)
+		er[er == er1] = er[er == er1] + 1
 
-	df = data.frame(x1 = x1, y1 = y1, x2 = x2, y2 = y2)
+		x1 = pos$x2 - (pos$x2 - pos$x1)*(er1 - sr)/(er1 - sr1)
+		y1 = pos$y2 - (pos$y2 - pos$y1)*(er1 - sr)/(er1 - sr1)
+		x2 = pos$x2 - (pos$x2 - pos$x1)*(er1 - er)/(er1 - sr1)
+		y2 = pos$y2 - (pos$y2 - pos$y1)*(er1 - er)/(er1 - sr1)
+
+		df = data.frame(x = c(x1, x2[length(x2)]), y = c(y1, y2[length(y2)]))
+		grid.lines(df$x, df$y, default.units = "native", 
+			gp = gpar(lwd = gp$lwd[i2], lty = gp$lty[i2], col = gp$col[i2], lineend ="butt", linejoin = "mitre"))
+
+		df$which = rep(i2, nrow(df))
+		return(df)
+	})
+
+	# gp$lty = gp$lty[mtch[, 2]]
+	# gp$lwd = gp$lwd[mtch[, 2]]
+	# gp$col = gp$col[mtch[, 2]]
+
+	# r1 = object@BINS[mtch[,1]]
+	# pos = object@POS[mtch[,1], ]
+
+	# sr1 = start(r1)
+	# sr = start(r)
+	# er1 = end(r1)
+	# er = end(r)
+
+	# er[er == er1] = er[er == er1] + 1
+
+	# x1 = pos$x2 - (pos$x2 - pos$x1)*(er1 - sr)/(er1 - sr1)
+	# y1 = pos$y2 - (pos$y2 - pos$y1)*(er1 - sr)/(er1 - sr1)
+	# x2 = pos$x2 - (pos$x2 - pos$x1)*(er1 - er)/(er1 - sr1)
+	# y2 = pos$y2 - (pos$y2 - pos$y1)*(er1 - er)/(er1 - sr1)
+
+	# gp$lineend = "butt"
+	# grid.segments(x1, y1, x2, y2, default.units = "native", gp = gp)
+
+	# df = data.frame(x1 = x1, y1 = y1, x2 = x2, y2 = y2)
 	return(invisible(df))
 	
 })

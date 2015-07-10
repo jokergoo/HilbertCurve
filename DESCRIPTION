@@ -2,17 +2,17 @@ Package: HilbertCurve
 Type: Package
 Title: Make Hilbert Curve
 Version: 0.99.0
-Date: 2015-6-17
+Date: 2015-7-10
 Author: Zuguang Gu
 Maintainer: Zuguang Gu <z.gu@dkfz.de>
 Depends: R (>= 3.1.2), grid, IRanges, GenomicRanges
 Imports: methods, HilbertVis, png
-Suggests: knitr
+Suggests: knitr, testthat (>= 0.3), circlize, ComplexHeatmap
 VignetteBuilder: knitr
 Description: Make Hilbert Curve
 biocViews: Software, Visualization, Sequencing
 URL: https://github.com/jokergoo/HilbertCurve
 License: GPL (>= 2)
-Packaged: 2015-6-17 00:00:00 UTC; Administrator
+Packaged: 2015-7-10 00:00:00 UTC; Administrator
 Repository: Bioconductor
-Date/Publication: 2015-6-17 00:00:00
+Date/Publication: 2015-7-10 00:00:00

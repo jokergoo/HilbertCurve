@@ -10,7 +10,7 @@ Add line segments to Hilbert curve
 
 }
 \usage{
-\S4method{hc_segments}{HilbertCurve}(object, ir, gp = gpar())}
+\S4method{hc_segments}{HilbertCurve}(object, ir, gp = gpar(lty = 1, lwd = 1, col = 1))}
 \arguments{
 
   \item{object}{A \code{\link{HilbertCurve-class}} object}
