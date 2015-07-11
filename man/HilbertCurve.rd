@@ -11,7 +11,8 @@ Initialize a Hilbert curve
 \usage{
 HilbertCurve(s, e, level = 4, mode = c("normal", "pixel"),
     reference = FALSE, arrow = TRUE, zoom = NULL, newpage = TRUE,
-    background = "white")}
+    background = "white", title = NULL, title_gp = gpar(fontsize = 16),
+    legend = list())}
 \arguments{
 
   \item{s}{start of the Hilbert curve, should be an integer}
@@ -23,6 +24,9 @@ HilbertCurve(s, e, level = 4, mode = c("normal", "pixel"),
   \item{zoom}{zooming of the position ranges}
   \item{newpage}{whether call \code{\link[grid]{grid.newpage}}`}
   \item{background}{background color}
+  \item{title}{title of the plot}
+  \item{title_gp}{graphical parameters for title}
+  \item{legend}{a \code{\link[grid]{grob}} object or a list of \code{\link[grid]{grob}} objects.}
 }
 \value{
 A \code{\link{HilbertCurve-class}} object.

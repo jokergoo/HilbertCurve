@@ -1,9 +1,9 @@
 <!--
 %\VignetteEngine{knitr}
-%\VignetteIndexEntry{Make Hilbert Curve}
+%\VignetteIndexEntry{Making Hilbert Curve}
 -->
 
-Make Hilbert Curve
+Making Hilbert Curve
 ========================================
 
 **Author**: Zuguang Gu ( z.gu@dkfz.de )
@@ -13,6 +13,9 @@ Make Hilbert Curve
 -------------------------------------------------------------
 
 ```{r, echo = FALSE, message = FALSE}
+library(markdown)
+options(markdown.HTML.options = c(options('markdown.HTML.options')[[1]], "toc"))
+
 library(knitr)
 knitr::opts_chunk$set(
     error = FALSE,
@@ -53,20 +56,16 @@ Following shows Hilbert curve with level 2, 3, 4, 5:
 grid.newpage()
 pushViewport(viewport(layout = grid.layout(nr = 1, nc = 4)))
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 1))
-HilbertCurve(1, 100, level = 2, reference = TRUE, newpage = FALSE)
-grid.text("level = 2", gp = gpar(col = "red", fontsize = 16))
+HilbertCurve(1, 100, level = 2, reference = TRUE, newpage = FALSE, title = "level = 2")
 upViewport()
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 2))
-HilbertCurve(1, 100, level = 3, reference = TRUE, newpage = FALSE)
-grid.text("level = 3", gp = gpar(col = "red", fontsize = 16))
+HilbertCurve(1, 100, level = 3, reference = TRUE, newpage = FALSE, title = "level = 3")
 upViewport()
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 3))
-HilbertCurve(1, 100, level = 4, reference = TRUE, newpage = FALSE)
-grid.text("level = 4", gp = gpar(col = "red", fontsize = 16))
+HilbertCurve(1, 100, level = 4, reference = TRUE, newpage = FALSE, title = "level = 4")
 upViewport()
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 4))
-HilbertCurve(1, 100, level = 5, reference = TRUE, arrow = FALSE, newpage = FALSE)
-grid.text("level = 5", gp = gpar(col = "red", fontsize = 16))
+HilbertCurve(1, 100, level = 5, reference = TRUE, arrow = FALSE, newpage = FALSE, title = "level = 5")
 upViewport()
 upViewport()
 ```
@@ -150,6 +149,21 @@ hc_points(hc, ir, np = 3)
 hc_text(hc, ir, labels, gp = gpar(fontsize = 16, col = "blue"))
 ```
 
+## Add legend
+
+Legend can be passed to `legend` options in `HilbertCurve()` as a `grob` object or a list of `grob` objects.
+Because width and height are enforced to be equal for the Hilbert curve, you need to manually adjust the width
+and height for the whole figure to remove the empty regions around Hilbert curve.
+
+```{r}
+value = runif(length(ir))
+col_fun = colorRamp2(c(0, 1), c("white", "red"))
+cm = ColorMapping(col_fun = col_fun, name = "value")
+legend = color_mapping_legend(cm, plot = FALSE)
+hc = HilbertCurve(1, 100, reference = TRUE, level = 4, legend = legend)
+hc_points(hc, ir, np = 3, gp = gpar(fill = col_fun(value)))
+```
+
 ## Pixel mode
 
 When the level of the Hilbert curve is high (e.g. 10), it is not a good idea to plot it in
@@ -191,7 +205,7 @@ hc_segments(hc, IRanges(start = 1, end = chr1_len), gp = gpar(col = "grey"))
 hc_segments(hc, ranges(g), gp = gpar(lwd = unit(6, "mm"), col = rand_color(length(g))))
 ```
 
-Following two figures compare sequence conservations.
+Following two figures compare sequence conservations. Data are from [here](http://genome.ucsc.edu/cgi-bin/hgTables?hgsid=434791817_tLOpTRgCwS2hR4uJ2cDjGaHUQEKj&clade=mammal&org=Human&db=hg19&hgta_group=compGeno&hgta_track=placentalChainNet&hgta_table=0&hgta_regionType=genome&position=chr16%3A81839239-81902938&hgta_outputType=wigData&hgta_outFileName=).
 
 ```{r}
 load(paste0(system.file("extdata", package = "HilbertCurve"), "/mouse_net.RData"))
@@ -211,48 +225,77 @@ col = c(rep("red", length(ir1)), rep("yellow", length(ir2)))
 hc_points(hc, ir, np = 3, gp = gpar(col = col, fill = col))
 ```
 
-<img src="gc_percent_chr1_points.png" />
-<img src="gc_percent_chr1.png" />
-<img src="H3K27ac_chr1.png" />
-<img src="H3K36me3_chr1.png" />
-<img src="H3K4me1_chr1.png" />
-<img src="H3K4me3_chr1.png" />
-<img src="H3K9me3_chr1.png" />
-<img src="methylation_chr1.png" />
+GC percent on chromosome 1, under "normal" mode:
 
-```{r, echo = FALSE, eval = FALSE}
-library(GetoptLong)
-
-df = read.table("/icgc/dkfzlsdf/analysis/B080/guz/gc_percent/hg19_gc_percent_window1000.bed")
-df = df[df[[1]] == "chr1", ]
+```{r, eval = FALSE}
+df = read.table(pipe("awk '$1==\"chr1\"' /icgc/dkfzlsdf/analysis/B080/guz/gc_percent/hg19_gc_percent_window1000.bed"))
 col_fun = colorRamp2(c(0, 500, 1000), c("green", "#FFFFCC", "red"))
 png("gc_percent_chr1_points.png", width = 500, height = 500)
 hc = HilbertCurve(1, chr1_len, level = 6)
 hc_points(hc, IRanges(df[[2]], df[[3]]), np = 3, gp = gpar(fill = col_fun(df[[5]]), col = col_fun(df[[5]])))
 hc_rect(hc, reduce(ranges(g)), gp = gpar(fill = "#00000020", col = "#00000020"))
 dev.off()
+```
 
+<p><center><img src="gc_percent_chr1_points.png" /></center></p>
+
+GC percent on chromosome 1, under "pixel" mode:
+
+```{r, eval = FALSE}
 hc = HilbertCurve(1, chr1_len, level = 9, mode = "pixel")
 hc_layer(hc, IRanges(df[[2]], df[[3]]), col = col_fun(df[[5]]))
 hc_layer(hc, reduce(ranges(g)), col = "#00000020")
 hc_save(hc, file = "gc_percent_chr1.png")
+```
+
+<p><center><img src="gc_percent_chr1.png" /></center></p>
+
+Following data are from http://genboree.org/EdaccData/Release-9/sample-experiment/Lung/
+
+```{r, eval = FALSE}
+library(GetoptLong)
 
 for(mark in c("H3K27ac", "H3K36me3", "H3K4me1", "H3K4me3", "H3K9me3")) {
 	df = read.table(pipe(qq("awk '$5>0 && $1==\"chr1\"' /icgc/dkfzlsdf/analysis/B080/guz/HilbertCurveTest/UCSD.Lung.@{mark}.STL002.bed")), sep = "\t")
-	df = df[df[[1]] == "chr1", ]
 	col_fun = colorRamp2(c(0, quantile(df[[5]], 0.99)), c("white", "red"))
 	hc = HilbertCurve(1, chr1_len, level = 9, mode = "pixel")
 	hc_layer(hc, IRanges(df[[2]], df[[3]]), col = col_fun(df[[5]]))
 	hc_save(hc, file = qq("@{mark}_chr1.png"))
 }
+```
 
+H3K27ac histone mark:
+
+<p><center><img src="H3K27ac_chr1.png" /></center></p>
+
+H3K36me3 histone mark:
+
+<p><center><img src="H3K36me3_chr1.png" /></center></p>
+
+H3K4me1 histone mark:
+
+<p><center><img src="H3K4me1_chr1.png" /></center></p>
+
+H3K4me3 histone mark:
+
+<p><center><img src="H3K4me3_chr1.png" /></center></p>
+
+H3K9me3 histone mark:
+
+<p><center><img src="H3K9me3_chr1.png" /></center></p>
+
+Methylation, blue corresponds to un-methylation, red corresponds to full-methylation.
+
+```{r, eval = FALSE}
 df = read.table(pipe("awk '$1==\"chr1\"' /icgc/dkfzlsdf/analysis/B080/guz/HilbertCurveTest/UCSD.Lung.Bisulfite-Seq.STL002.bed"), sep = "\t")
-df = df[df[[1]] == "chr1", ]
 col_fun = colorRamp2(c(0, 0.5, 1), c("blue", "white", "red"))
 hc = HilbertCurve(1, chr1_len, level = 9, mode = "pixel")
 hc_layer(hc, IRanges(df[[2]], df[[3]]), col = col_fun(df[[5]]), mean_mode = "absolute")
 hc_save(hc, file = "methylation_chr1.png")
 ```
+
+<p><center><img src="methylation_chr1.png" /></center></p>
+
 
 ## Session info
 

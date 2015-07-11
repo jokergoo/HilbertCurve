@@ -21,7 +21,7 @@ The function is used internally
 
 }
 \value{
-Original positioins
+Original positions
 
 }
 \author{

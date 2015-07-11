@@ -60,7 +60,7 @@ setMethod(f = "zoom",
 # The function is used internally
 #
 # == value
-# Original positioins
+# Original positions
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -84,6 +84,9 @@ setMethod(f = "unzoom",
 # -zoom zooming of the position ranges
 # -newpage whether call `grid::grid.newpage``
 # -background background color
+# -title title of the plot
+# -title_gp graphical parameters for title
+# -legend a `grid::grob` object or a list of `grid::grob` objects.
 #
 # == value
 # A `HilbertCurve-class` object.
@@ -93,7 +96,8 @@ setMethod(f = "unzoom",
 #
 HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 	reference = FALSE, arrow = TRUE, zoom = NULL, newpage = TRUE, 
-	background = "white") {
+	background = "white", title = NULL, title_gp = gpar(fontsize = 16), 
+	legend = list()) {
 
 	hc = new("HilbertCurve")
 	level = as.integer(level)
@@ -122,15 +126,56 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 
 	if(mode == "normal") {
 		if(newpage) grid.newpage()
-
 		increase_plot_index()
-		pushViewport(viewport(name = paste0("hilbert_curve_", get_plot_index()), xscale = c(-0.5, 2^level - 0.5), yscale = c(-0.5, sqrt(n)-0.5)))
-		
-		h = round(convertHeight(unit(1, "npc"), "mm", valueOnly = TRUE))
-		w = round(convertWidth(unit(1, "npc"), "mm", valueOnly = TRUE))
-		if(h != w) {
-			warning(sprintf("Hilbert curve has height %imm and width %imm, but it should be put in a squared viewport.\n", h, w))
+
+		# create a 2x2 layout
+		if(length(title) == 0) {
+			title_height = unit(0, "mm")
+		} else {
+			title_height = grobHeight(textGrob(title, gp = title_gp)) + unit(5, "mm")
 		}
+
+		if(length(legend) == 0) {
+			legend_width = unit(0, "mm")
+		} else {
+			if(inherits(legend, "grob")) legend = list(legend)
+			legend_width = max(do.call("unit.c", lapply(legend, grobWidth))) + unit(4, "mm")
+		}
+
+		pushViewport(viewport(layout = grid.layout(nrow = 2, ncol = 2, widths = unit.c(unit(1, "npc") - legend_width, legend_width), 
+			                                                       heights = unit.c(title_height, unit(1, "npc") - title_height))))
+
+		if(length(title) != 0) {
+			pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 1))
+			grid.text(title, gp = title_gp)
+			upViewport()
+		}
+		if(length(legend) != 0) {
+			gap = unit(2, "mm")
+			pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 2))
+			# draw the list of legend
+			legend_height = sum(do.call("unit.c", lapply(legend, grobHeight))) + gap*(length(legend)-1)
+			y = unit(0.5, "npc") + legend_height*0.5 
+			for(i in seq_along(legend)) {
+				pushViewport(viewport(x = 0, y = y, height = grobHeight(legend[[i]]), just = c("left", "top")))
+				grid.draw(legend[[i]])
+				upViewport()
+				y = y - gap - grobHeight(grobHeight(legend[[i]]))
+			}
+
+			upViewport()
+		}
+
+		pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 1))
+
+		size = min(unit.c(convertHeight(unit(1, "npc"), "mm"), convertWidth(unit(1, "npc"), "mm")))
+		pushViewport(viewport(name = paste0("hilbert_curve_", get_plot_index()), xscale = c(-0.5, 2^level - 0.5), yscale = c(-0.5, sqrt(n)-0.5), width = size, height = size))
+		
+		# h = round(convertHeight(unit(1, "npc"), "mm", valueOnly = TRUE))
+		# w = round(convertWidth(unit(1, "npc"), "mm", valueOnly = TRUE))
+		# if(h != w) {
+		# 	warning(sprintf("Hilbert curve has height %imm and width %imm, but it should be put in a squared viewport.\n", h, w))
+		# }
 
 		if(reference) {
 			grid.segments(hc@POS$x1, hc@POS$y1, hc@POS$x2, hc@POS$y2, default.units = "native", gp = gpar(lty = 3, col = "#999999"))
@@ -144,7 +189,7 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 			if(arrow) grid_arrows(hc@POS$x1, hc@POS$y1, (hc@POS$x1+hc@POS$x2)/2, (hc@POS$y1+hc@POS$y2)/2, only.head = TRUE, arrow_gp = gpar(fill = "#CCCCCC", col = NA))
 		}
 
-		upViewport()
+		upViewport(3)
 	} else {
 		background = background[1]
 		background = col2rgb(background) / 255
