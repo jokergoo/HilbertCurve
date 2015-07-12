@@ -23,3 +23,7 @@ No value is returned
 Zuguang Gu <z.gu@dkfz.de>
 
 }
+\examples{
+NULL
+
+}

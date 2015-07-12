@@ -17,7 +17,7 @@ Transform zoomed positions to their original values
   \item{x}{positions}
 }
 \details{
-The function is used internally
+The function is used internally.
 
 }
 \value{
@@ -26,5 +26,9 @@ Original positions
 }
 \author{
 Zuguang Gu <z.gu@dkfz.de>
+
+}
+\examples{
+NULL
 
 }

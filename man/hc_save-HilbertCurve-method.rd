@@ -15,7 +15,7 @@ Save Hilbert curve as PNG figure
 
   \item{object}{A \code{\link{HilbertCurve-class}} object}
   \item{file}{file name}
-  \item{grid}{add grid lines}
+  \item{grid}{add grid lines, should be an integer number}
 }
 \value{
 No value is returned
@@ -23,5 +23,10 @@ No value is returned
 }
 \author{
 Zuguang Gu <z.gu@dkfz.de>
+
+}
+\examples{
+# see hc_layer
+NULL
 
 }

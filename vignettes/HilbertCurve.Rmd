@@ -30,8 +30,8 @@ options(width = 100)
 ```
 
 [Hilbert curve](https://en.wikipedia.org/wiki/Hilbert_curve) is a type of space-filling curves
-that fold one dimensional axis into a two dimensional space, but with still keep the locality.
-So It has advantages to visualize data with long axis in following two aspects:
+that fold one dimensional axis into a two dimensional space, but with still keeping the locality.
+It has advantages to visualize data with long axis in following two aspects:
 
 1. greatly improve resolution for the visualization
 2. easy to visualization clusters because generally they will also be close in the Hilbert curve. 
@@ -72,7 +72,7 @@ upViewport()
 
 Following heatmap shows distance between elements in the Hilbert curve.
 Basically, if elements are close in the one dimensional axis, they also have small 
-distance in the Hilbert curve (regions around diag0nals)
+distance in the Hilbert curve (regions around diagonals)
 
 ```{r, fig.width = 7, echo = FALSE}
 pos = HilbertVis::hilbertCurve(5)
@@ -114,7 +114,16 @@ can be set by `gp`. Note under this mode, the size of points can only be changed
 
 ```{r}
 hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
-hc_points(hc, ir, , np = 3, gp = gpar(fill = rand_color(length(ir))))
+hc_points(hc, ir, np = 3, gp = gpar(fill = rand_color(length(ir))))
+```
+
+If the position are not integers, you can set the positions by `x1` and `x2`. These
+two arguments also work for other grahical functions.
+
+```{r, eval = FALSE}
+hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
+hc_points(hc, x1 = c(10.5, 50.5), x2 = c(20.5, 60.5), np = 3, 
+	gp = gpar(fill = rand_color(length(ir))))
 ```
 
 Add segments:
@@ -136,7 +145,7 @@ Add texts:
 ```{r}
 hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
 labels = sample(letters, length(ir), replace = TRUE)
-hc_text(hc, ir, labels)
+hc_text(hc, ir, labels = labels)
 ```
 
 With combination of these basic graphic functions, complicated graphics can be easily made:
@@ -146,7 +155,7 @@ hc = HilbertCurve(1, 100, level = 4)
 hc_segments(hc, IRanges(1, 100))
 hc_rect(hc, ir)
 hc_points(hc, ir, np = 3)
-hc_text(hc, ir, labels, gp = gpar(fontsize = 16, col = "blue"))
+hc_text(hc, ir, labels = labels, gp = gpar(fontsize = 16, col = "blue"))
 ```
 
 ## Add legend

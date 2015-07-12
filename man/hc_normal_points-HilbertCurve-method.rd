@@ -10,11 +10,13 @@ Add points to the Hilbert curve
 
 }
 \usage{
-\S4method{hc_normal_points}{HilbertCurve}(object, ir, gp = gpar(), pch = 1, size = unit(1, "char"))}
+\S4method{hc_normal_points}{HilbertCurve}(object, ir, x1 = NULL, x2 = NULL, gp = gpar(), pch = 1, size = unit(1, "char"))}
 \arguments{
 
   \item{object}{A \code{\link{HilbertCurve-class}} object}
   \item{ir}{a \code{\link[IRanges]{IRanges}} object}
+  \item{x1}{if positions are not integer, the position can be set by \code{x1} and \code{x2}}
+  \item{x2}{if positions are not integer, the position can be set by \code{x1} and \code{x2}}
   \item{size}{size of the points}
   \item{pch}{shape of points, used for points if \code{np >= 2}}
   \item{gp}{graphical parameters for points}
@@ -31,5 +33,10 @@ A data frame which contains coordinates for points.
 }
 \author{
 Zuguang Gu <z.gu@dkfz.de>
+
+}
+\examples{
+# see hc_points
+NULL
 
 }
