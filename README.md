@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/jokergoo/HilbertCurve.svg)](https://travis-ci.org/jokergoo/HilbertCurve)
+
+
 # HilbertCurve
 visualize genomic data by Hilbert curve
 
