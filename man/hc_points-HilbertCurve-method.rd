@@ -15,33 +15,42 @@ Add points to the Hilbert curve
     shape = c("circle", "square", "triangle", "hexagon", "star"))}
 \arguments{
 
-  \item{object}{A \code{\link{HilbertCurve-class}} object}
-  \item{ir}{a \code{\link[IRanges]{IRanges}} object}
-  \item{x1}{if positions are not integer, the position can be set by \code{x1} and \code{x2}}
-  \item{x2}{if positions are not integer, the position can be set by \code{x1} and \code{x2}}
-  \item{np}{number of points (a circle or a square, ...) that are put in a segment}
-  \item{size}{size of the points}
-  \item{pch}{shape of points, used for points if \code{np >= 2}}
-  \item{gp}{graphical parameters for points}
-  \item{mean_mode}{when a window is not perfectkt matched to one region in \code{ir}, how to calculate the mean values in this window. See 'Details' section for a detailed explanation.}
-  \item{shape}{shape of points, used for points if \code{np <= 1}}
+  \item{object}{A \code{\link{HilbertCurve-class}} object.}
+  \item{ir}{a \code{\link[IRanges]{IRanges}} object.}
+  \item{x1}{if positions are not integers, they can be set by \code{x1} and \code{x2}.}
+  \item{x2}{if positions are not integers, they can be set by \code{x1} and \code{x2}.}
+  \item{np}{number of points (a circle or a square, ...) that are put in a segment. \code{np} controlsthe mode of how to add the points to the curve. See 'details' section.}
+  \item{size}{size of the points. It should be a \code{\link[grid]{unit}} object. Only works if \code{np < 2}}
+  \item{pch}{shape of points, used for points if \code{np < 2}.}
+  \item{gp}{graphical parameters for points. It should be specified by \code{\link[grid]{gpar}}.}
+  \item{mean_mode}{when a segment in the curve overlaps with intervals in \code{ir}, how to calculate the mean values for this segment (such as the RGB colors). See 'Details' section for a detailed explanation.}
+  \item{shape}{shape of points, used for points if \code{np >= 2}.}
 }
 \details{
-If \code{np} is set to a value less than 2 or \code{NULL}, points will be added at every middle point in \code{ir}.
-If \code{np} is set to a value larger or equal to 2, a list of e.g. circles are put at every segment in \code{ir},
-so, longer segments will have more circles on it.
+If \code{np} is set to a value less than 2 or \code{NULL}, points will be added at the middle points in \code{ir} (or \code{x1}, \code{x2}).
+If \code{np} is set to a value larger or equal to 2, every segment that overlaps to \code{ir} will be segmented into \code{np} parts
+and a circle (or star, ...) is put on every 'small segments'.
 
 Following illustrates different settings for \code{mean_mode}:
 
   \preformatted{
-       4      5      2     values in ir
-    ++++++   +++   +++++   gr
-      ================     window (16bp)
+       100    80     60    values in ir (e.g. red compoment for colors)
+    ++++++   +++   +++++   ir
+      ================     window (width = 16)
 
-    absolute: (4 + 5 + 2)/3
-    weighted: (4*4 + 5*3 + 2*3)/(4 + 3 + 3)
-    w0:       (4*4 + 5*3 + 2*3)/16
+    absolute: (100 + 80 + 60)/3
+    weighted: (100*4 + 80*3 + 60*3)/(4 + 3 + 3)
+    w0:       (100*4 + 80*3 + 60*3)/16
   }
+
+So use of the mode depends on specific scenario. For example, if \code{ir} corresponds to positions of genes,
+then the mode of \code{w0} is perhaps a good choise. If \code{ir} corresponds to positions of CpG sites which is
+has width of 1 and most of the time is sparse in genomic windows, then \code{absolute} is a correct choice.
+
+Graphical parameters can be set as a vector and they will be averaged according to above rules.
+
+Internally, it will depatch to \code{\link{hc_normal_points,HilbertCurve-method}} or \code{\link{hc_segmented_points,HilbertCurve-method}}
+depending on the value of \code{np}.
 
 }
 \value{

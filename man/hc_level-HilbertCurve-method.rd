@@ -13,10 +13,10 @@ Level of the Hilbert curve
 \S4method{hc_level}{HilbertCurve}(object)}
 \arguments{
 
-  \item{object}{A \code{\link{HilbertCurve-class}} object}
+  \item{object}{A \code{\link{HilbertCurve-class}} object.}
 }
 \value{
-The level of the Hilbert curve
+The level of the Hilbert curve.
 
 }
 \author{

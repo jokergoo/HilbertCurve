@@ -13,10 +13,10 @@ Print the HilbertCurve object
 \S4method{show}{HilbertCurve}(object)}
 \arguments{
 
-  \item{object}{A \code{\link{HilbertCurve-class}} object}
+  \item{object}{A \code{\link{HilbertCurve-class}} object.}
 }
 \value{
-No value is returned
+No value is returned.
 
 }
 \author{

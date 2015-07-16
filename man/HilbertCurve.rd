@@ -15,22 +15,33 @@ HilbertCurve(s, e, level = 4, mode = c("normal", "pixel"),
     legend = list())}
 \arguments{
 
-  \item{s}{start of the Hilbert curve, should be an integer}
-  \item{e}{end of the Hilbert curve, should be an integer}
+  \item{s}{position that will be mapped to the start of the Hilbert curve. It should be a positive number.}
+  \item{e}{position that will be mapped to the end of the Hilbert curve. It should be a positive number.}
   \item{level}{level of the Hilbert curve. There will by \code{4^level} segments in the Hilbert curve.}
-  \item{mode}{make it like a normal R plot or write the plot directly into png file.}
-  \item{reference}{add reference line on the plot}
-  \item{arrow}{whther draw arrows on the reference line}
-  \item{zoom}{zooming of the position ranges}
-  \item{newpage}{whether call \code{\link[grid]{grid.newpage}}`}
-  \item{background}{background color}
-  \item{title}{title of the plot}
-  \item{title_gp}{graphical parameters for title}
+  \item{mode}{make it like a normal R plot or write the plot directly into png file. See 'details' for explanation.}
+  \item{reference}{whether add reference line on the plot}
+  \item{arrow}{whether add arrows on the reference line}
+  \item{zoom}{internally, position are stored as integer values. To increase the resolutionof the data that maps to the Hilbert curve, the original position would be zoomaccording to the range of the position and the level of Hilbert curve. E.g. if the curve visualizes data ranging from 1 to 2 but level of the curve is set to 4,the positions will be zoomed by ~x2000 so that values link 1.5, 1.555 can be mappedto the curve with more accuracy. Proper zooming factor is calculated automatically.}
+  \item{newpage}{whether call \code{\link[grid]{grid.newpage}} to draw on a new graphic device.}
+  \item{background}{background color, only used under 'pixel' mode.}
+  \item{title}{title of the plot.}
+  \item{title_gp}{graphical parameters for title. It should be specified by \code{\link[grid]{gpar}}.}
   \item{legend}{a \code{\link[grid]{grob}} object or a list of \code{\link[grid]{grob}} objects.}
 }
 \details{
 This funciton initializes a Hilbert curve with level \code{level} which corresponds 
 to the range between \code{s} and \code{e}.
+
+Under 'normal' mode, there is a visible Hilbert curve which plays like a folded axis and
+different low-level graphics can be added on according to the coordinate. 
+It only works nice if the level of the Hilbert curve is small (say less than 6). 
+
+When the level is high (e.g. > 10), the whole 2D space will be almost completely filled by the curve and
+it is impossible to add or visualize e.g. points on the curve. In this case, the 'pixel'
+mode visualizes each tiny 'segment' as a pixel and maps values to colors. So the Hilbert
+curve with level 11 will generate a PNG figure with 2048x2048 resolution. This is extremely
+useful for visualize genomic data. E.g. If we make a Hilbert curve for human chromosome 1 with
+level 11, then each pixel can represent 60bp (\code{249250621/2048/2048}) which is of very high resolution.
 
 }
 \value{
@@ -47,7 +58,7 @@ HilbertCurve(1, 100, level = 5)
 HilbertCurve(1, 100, title = "title")
 
 require(ComplexHeatmap)
-cm = ColorMapping(name = "foo", colors = c("red", "blue"), levels = c("a", "b"))
+cm = ColorMapping(legend_title = "foo", colors = c("red", "blue"), levels = c("a", "b"))
 legend = color_mapping_legend(cm, plot = FALSE)
 HilbertCurve(1, 100, title = "title", legend = legend)
 
