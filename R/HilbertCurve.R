@@ -1,7 +1,7 @@
 
 .ENV = new.env()
 
-.ENVI_PLOT = 0
+.ENV$I_PLOT = 0
 
 get_plot_index = function() {
 	.ENV$I_PLOT
@@ -125,8 +125,8 @@ setMethod(f = "unzoom",
 # -e position that will be mapped to the end of the Hilbert curve. It should be a positive number.
 # -level level of the Hilbert curve. There will by ``4^level`` segments in the Hilbert curve.
 # -mode make it like a normal R plot or write the plot directly into png file. See 'details' for explanation.
-# -reference whether add reference line on the plot
-# -arrow whether add arrows on the reference line
+# -reference whether add reference line on the plot. Only works under 'normal' mode.
+# -arrow whether add arrows on the reference line. Only works under 'normal' mode.
 # -zoom internally, position are stored as integer values. To increase the resolution
 #            of the data that maps to the Hilbert curve, the original position would be zoom
 #            according to the range of the position and the level of Hilbert curve. E.g. if 
@@ -153,6 +153,9 @@ setMethod(f = "unzoom",
 # curve with level 11 will generate a PNG figure with 2048x2048 resolution. This is extremely
 # useful for visualize genomic data. E.g. If we make a Hilbert curve for human chromosome 1 with
 # level 11, then each pixel can represent 60bp (``249250621/2048/2048``) which is of very high resolution.
+#
+# Under 'pixel' mode, if the current device is an interactive deivce, every time a new layer is added, 
+# the image will be add to the interactive device as a rastered image.
 #
 # == value
 # A `HilbertCurve-class` object.
@@ -200,59 +203,54 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 	mode = match.arg(mode)[1]
 	hc@MODE = mode
 
-	if(mode == "normal") {
-		if(newpage) grid.newpage()
-		increase_plot_index()
+	
+	if(newpage) grid.newpage()
+	increase_plot_index()
 
-		# create a 2x2 layout
-		if(length(title) == 0) {
-			title_height = unit(0, "mm")
-		} else {
-			title_height = grobHeight(textGrob(title, gp = title_gp)) + unit(5, "mm")
-		}
+	# create a 2x2 layout
+	if(length(title) == 0) {
+		title_height = unit(0, "mm")
+	} else {
+		title_height = grobHeight(textGrob(title, gp = title_gp)) + unit(5, "mm")
+	}
 
-		if(length(legend) == 0) {
-			legend_width = unit(0, "mm")
-		} else {
-			if(inherits(legend, "grob")) legend = list(legend)
-			legend_width = max(do.call("unit.c", lapply(legend, grobWidth))) + unit(4, "mm")
-		}
+	if(length(legend) == 0) {
+		legend_width = unit(0, "mm")
+	} else {
+		if(inherits(legend, "grob")) legend = list(legend)
+		legend_width = max(do.call("unit.c", lapply(legend, grobWidth))) + unit(4, "mm")
+	}
 
-		pushViewport(viewport(layout = grid.layout(nrow = 2, ncol = 2, widths = unit.c(unit(1, "npc") - legend_width, legend_width), 
+	pushViewport(viewport(layout = grid.layout(nrow = 2, ncol = 2, widths = unit.c(unit(1, "npc") - legend_width, legend_width), 
 			                                                       heights = unit.c(title_height, unit(1, "npc") - title_height))))
 
-		if(length(title) != 0) {
-			pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 1))
-			grid.text(title, gp = title_gp)
+	if(length(title) != 0) {
+		pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 1))
+		grid.text(title, gp = title_gp)
+		upViewport()
+	}
+	if(length(legend) != 0) {
+		gap = unit(2, "mm")
+		pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 2))
+		# draw the list of legend
+		legend_height = sum(do.call("unit.c", lapply(legend, grobHeight))) + gap*(length(legend)-1)
+		y = unit(0.5, "npc") + legend_height*0.5 
+		for(i in seq_along(legend)) {
+			pushViewport(viewport(x = 0, y = y, height = grobHeight(legend[[i]]), just = c("left", "top")))
+			grid.draw(legend[[i]])
 			upViewport()
-		}
-		if(length(legend) != 0) {
-			gap = unit(2, "mm")
-			pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 2))
-			# draw the list of legend
-			legend_height = sum(do.call("unit.c", lapply(legend, grobHeight))) + gap*(length(legend)-1)
-			y = unit(0.5, "npc") + legend_height*0.5 
-			for(i in seq_along(legend)) {
-				pushViewport(viewport(x = 0, y = y, height = grobHeight(legend[[i]]), just = c("left", "top")))
-				grid.draw(legend[[i]])
-				upViewport()
-				y = y - gap - grobHeight(grobHeight(legend[[i]]))
-			}
-
-			upViewport()
+			y = y - gap - grobHeight(grobHeight(legend[[i]]))
 		}
 
-		pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 1))
+		upViewport()
+	}
 
-		size = min(unit.c(convertHeight(unit(1, "npc"), "mm"), convertWidth(unit(1, "npc"), "mm")))
-		pushViewport(viewport(name = paste0("hilbert_curve_", get_plot_index()), xscale = c(-0.5, 2^level - 0.5), yscale = c(-0.5, sqrt(n)-0.5), width = size, height = size))
+	pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 1))
+
+	size = min(unit.c(convertHeight(unit(1, "npc"), "mm"), convertWidth(unit(1, "npc"), "mm")))
+	pushViewport(viewport(name = paste0("hilbert_curve_", get_plot_index()), xscale = c(-0.5, 2^level - 0.5), yscale = c(-0.5, sqrt(n)-0.5), width = size, height = size))
 		
-		# h = round(convertHeight(unit(1, "npc"), "mm", valueOnly = TRUE))
-		# w = round(convertWidth(unit(1, "npc"), "mm", valueOnly = TRUE))
-		# if(h != w) {
-		# 	warning(sprintf("Hilbert curve has height %imm and width %imm, but it should be put in a squared viewport.\n", h, w))
-		# }
-
+	if(mode == "normal") {
 		if(reference) {
 			grid.segments(hc@POS$x1, hc@POS$y1, hc@POS$x2, hc@POS$y2, default.units = "native", gp = gpar(lty = 3, col = "#999999"))
 			
@@ -264,8 +262,6 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 		
 			if(arrow) grid_arrows(hc@POS$x1, hc@POS$y1, (hc@POS$x1+hc@POS$x2)/2, (hc@POS$y1+hc@POS$y2)/2, only.head = TRUE, arrow_gp = gpar(fill = "#CCCCCC", col = NA))
 		}
-
-		upViewport(3)
 	} else {
 		background = background[1]
 		background = col2rgb(background) / 255
@@ -275,7 +271,12 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 		hc@RGB$red = red
 		hc@RGB$green = green
 		hc@RGB$blue = blue
+
+		add_raster(hc@RGB)
+
 	}
+
+	upViewport(3)
 
 	return(invisible(hc))
 }
@@ -354,6 +355,7 @@ setMethod(f = "hc_level",
 #        100    80     60    values in ir (e.g. red compoment for colors)
 #     ++++++   +++   +++++   ir
 #       ================     window (width = 16)
+#         4     3     3      overlap
 #
 #     absolute: (100 + 80 + 60)/3
 #     weighted: (100*4 + 80*3 + 60*3)/(4 + 3 + 3)
@@ -409,6 +411,8 @@ setMethod(f = "hc_points",
 	if(object@MODE == "pixel") {
 		stop("`hc_points()` can only be used under 'normal' mode.")
 	}
+
+	if(is.null(np)) np = 1
 
 	if(np >= 2) {
 		hc_segmented_points(object, ir, x1 = x1, x2 = x2, gp = gp, np = np, mean_mode = mean_mode, shape = shape)
@@ -982,6 +986,9 @@ grid_arrows = function(x1, y1, x2, y2, length = unit(2, "mm"), angle = 15, only.
 # -col colors corresponding to intervals in ``ir`` (or combinations of ``x1`` and ``x2``).
 # -mean_mode when a segment in the curve overlaps with intervals in ``ir``, how to calculate 
 #       the mean values for this segment. See explanation in `hc_points`.
+# -grid_line whether add grid lines to show blocks of the Hilber curve. 
+#        It should be an integer number and there will be ``2^(grid_line-1)-1``
+#        grid lines horizontal and vertical.
 #
 # == details
 # If you want to add more than one layers to the curve, remember to set colors transparent.
@@ -1001,12 +1008,14 @@ grid_arrows = function(x1, y1, x2, y2, length = unit(2, "mm"), angle = 15, only.
 # ir = IRanges(s, e)
 #
 # hc_layer(hc, ir)
-# hc_save(hc, file = "test.png")
+#
+# hc = HilbertCurve(1, 100, level = 9, mode = "pixel")
+# hc_layer(hc, ir, grid_line = 3)
 #
 setMethod(f = "hc_layer",
 	signature = "HilbertCurve",
 	definition = function(object, ir, x1 = NULL, x2 = NULL, col = "red", 
-	mean_mode = c("w0", "absolute", "weighted")) {
+	mean_mode = c("w0", "absolute", "weighted"), grid_line = 0) {
 
 	if(object@MODE == "normal") {
 		stop("`hc_layer()` can only be used under 'pixel' mode.")
@@ -1057,6 +1066,27 @@ setMethod(f = "hc_layer",
 	object@RGB$green[ind] = g*alpha + object@RGB$green[ind] * (1-alpha)
 	object@RGB$blue[ind] = b*alpha + object@RGB$blue[ind] * (1-alpha)
 
+	grid_line = as.integer(grid_line)
+	if(grid_line > hc@LEVEL) {
+		stop("`grid_line` can not exceed the level of the curve.")
+	}
+
+	if(grid_line > 1) {
+		grid = 2^(grid_line-1)
+		n = ncol(object@RGB$red)
+		for(i in 1:(grid-1)) {
+			object@RGB$red[round(n/grid*i), ] = 0
+			object@RGB$green[round(n/grid*i), ] = 0
+			object@RGB$blue[round(n/grid*i), ] = 0
+			
+			object@RGB$red[, round(n/grid*i)] = 0
+			object@RGB$green[, round(n/grid*i)] = 0
+			object@RGB$blue[, round(n/grid*i)] = 0
+		}
+	}
+
+	add_raster(object@RGB)
+
 	return(invisible(NULL))
 })
 
@@ -1067,8 +1097,11 @@ setMethod(f = "hc_layer",
 # -object A `HilbertCurve-class` object.
 # -file file name. If the suffix of the file name is not ``.png``, 
 #        it will be added automatically no matter you like it or not.
-# -grid whether add grid lines to show blocks of the Hilber curve. 
-#        It should be an integer number and should not exceed the level of the curve.
+#
+# == details
+# A PNG figure with resolution of ``2^level x 2^level`` is generated.
+#
+# Only the body of the Hilbert curve will be written to PNG file.
 #
 # == value
 # No value is returned.
@@ -1085,13 +1118,15 @@ setMethod(f = "hc_layer",
 # ir = IRanges(s, e)
 #
 # hc_layer(hc, ir)
-# hc_save(hc, file = "test2.png", grid = 2)
-# hc_save(hc, file = "test3.png", grid = 3)
-# hc_save(hc, file = "test4.png", grid = 4)
+# hc_png(hc, file = "test.png")
 #
-setMethod(f = "hc_save",
+setMethod(f = "hc_png",
 	signature = "HilbertCurve",
-	definition = function(object, file = "Rplot.png", grid = 0) {
+	definition = function(object, file = "Rplot.png") {
+
+	if(object@MODE == "normal") {
+		stop("`hc_save()` can only be used under 'pixel' mode.")
+	}
 
 	red = object@RGB$red
 	green = object@RGB$green
@@ -1099,24 +1134,6 @@ setMethod(f = "hc_save",
 	red = red[seq(nrow(red), 1), , drop = FALSE]
 	green = green[seq(nrow(green), 1), , drop = FALSE]
 	blue = blue[seq(nrow(blue), 1), , drop = FALSE]
-	
-	grid = as.integer(grid)
-	if(grid > hc$LEVEL) {
-		stop("`grid` can not exceed the level of the curve.")
-	}
-
-	if(grid > 1) {
-		n = ncol(red)
-		for(i in 1:(grid-1)) {
-			red[round(n/grid*i), ] = 0
-			green[round(n/grid*i), ] = 0
-			blue[round(n/grid*i), ] = 0
-			
-			red[, round(n/grid*i)] = 0
-			green[, round(n/grid*i)] = 0
-			blue[, round(n/grid*i)] = 0
-		}
-	}
 
 	img = array(dim = c(2^object@LEVEL, 2^object@LEVEL, 3))
 	img[, , 1] = red
@@ -1129,3 +1146,22 @@ setMethod(f = "hc_save",
 
 	writePNG(img, target = file)
 })
+
+add_raster = function(lt_rgb) {
+	#if(dev.interactive()) {
+		red = lt_rgb$red
+		green = lt_rgb$green
+		blue = lt_rgb$blue
+		red = red[seq(nrow(red), 1), , drop = FALSE]
+		green = green[seq(nrow(green), 1), , drop = FALSE]
+		blue = blue[seq(nrow(blue), 1), , drop = FALSE]
+
+		img = array(dim = c(dim(red), 3))
+		img[, , 1] = red
+		img[, , 2] = green
+		img[, , 3] = blue
+
+		seekViewport(paste0("hilbert_curve_", get_plot_index()))
+		grid.raster(img, x = unit(0.5, "npc"), y = unit(0.5, "npc"), width = unit(1, "npc"), height = unit(1, "npc"))
+	#}
+}

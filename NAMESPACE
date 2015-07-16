@@ -1,5 +1,5 @@
+exportMethods(hc_png)
 exportMethods(hc_segments)
-exportMethods(hc_save)
 exportMethods(hc_level)
 export(HilbertCurve)
 exportMethods(hc_normal_points)

@@ -37,6 +37,7 @@ Following illustrates different settings for \code{mean_mode}:
        100    80     60    values in ir (e.g. red compoment for colors)
     ++++++   +++   +++++   ir
       ================     window (width = 16)
+        4     3     3      overlap
 
     absolute: (100 + 80 + 60)/3
     weighted: (100*4 + 80*3 + 60*3)/(4 + 3 + 3)
