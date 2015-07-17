@@ -20,7 +20,7 @@ Add a new layer to the Hilbert curve
   \item{x2}{if positions are not integers, they can be set by \code{x1} and \code{x2}.}
   \item{col}{colors corresponding to intervals in \code{ir} (or combinations of \code{x1} and \code{x2}).}
   \item{mean_mode}{when a segment in the curve overlaps with intervals in \code{ir}, how to calculate the mean values for this segment. See explanation in \code{\link{hc_points}}.}
-  \item{grid_line}{whether add grid lines to show blocks of the Hilber curve. It should be an integer number and there will be \code{2^(grid_line-1)}grid lines horizontal and vertical.}
+  \item{grid_line}{whether add grid lines to show blocks of the Hilber curve. It should be an integer number and there will be \code{2^(grid_line-1)-1}grid lines horizontal and vertical.}
 }
 \details{
 If you want to add more than one layers to the curve, remember to set colors transparent.

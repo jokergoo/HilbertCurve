@@ -33,8 +33,9 @@ The \code{\link{HilbertCurve-class}} provides following methods:
   \item \code{\link{hc_points,HilbertCurve-method}}: add points;
   \item \code{\link{hc_segments,HilbertCurve-method}}: add lines;
   \item \code{\link{hc_rect,HilbertCurve-method}}: add rectangles;
+  \item \code{\link{hc_text,HilbertCurve-method}}: add text;
   \item \code{\link{hc_layer,HilbertCurve-method}}: add layers;
-  \item \code{\link{hc_save,HilbertCurve-method}}: save plot as png format.
+  \item \code{\link{hc_png,HilbertCurve-method}}: save plot as png format.
 }
 
 }

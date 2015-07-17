@@ -1,8 +1,39 @@
 [![Build Status](https://travis-ci.org/jokergoo/HilbertCurve.svg)](https://travis-ci.org/jokergoo/HilbertCurve)
 
-
 # HilbertCurve
-visualize genomic data by Hilbert curve
+
+[Hilbert curve](https://en.wikipedia.org/wiki/Hilbert_curve) is a type of space-filling curves
+that fold one dimensional axis into a two dimensional space, but with still keeping the locality.
+It has advantages to visualize data with long axis in following two aspects:
+
+1. greatly improve resolution for the visualization;
+2. easy to visualize clusters because generally data points in the cluster will also be close in the Hilbert curve. 
+
+This package aims to provide an easy and flexible way to visualize data through Hilbert curve.
+The implementation and example figures are based on following sources:
+
+- http://mkweb.bcgsc.ca/hilbert/
+- http://corte.si/posts/code/hilbert/portrait/index.html
+- http://bioconductor.org/packages/devel/bioc/html/HilbertVis.html
+
+## Install
+
+```r
+library(devtools)
+install_github("jokergoo/HilbertCurve")
+```
+
+## Usage
+
+```r
+hc = HilbertCurve(1, 100, level = 4)
+hc_points(hc, ...)
+hc_segments(hc, ...)
+hc_rect(hc, ...)
+hc_text(hc, ...)
+```
+
+## Examples
 
 Show rainbow color spectrum:
 

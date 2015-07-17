@@ -46,7 +46,7 @@ The implementation and example figures are based on following sources:
 ```{r}
 suppressPackageStartupMessages(library(HilbertCurve))
 library(circlize)
-set.seed(123)
+set.seed(12345)
 ```
 
 Following shows Hilbert curve with level 2, 3, 4, 5:
@@ -276,7 +276,7 @@ Grid lines can be added to the plot for better distinguish blocks in the Hilbert
 ```{r}
 hc = HilbertCurve(1, 100, level = 9, mode = "pixel", title = "pixel mode", legend = legend)
 hc_layer(hc, ir, col = col_fun(value), grid_line = 2)
-hc_layer(hc, x1 = 40, x2 = 50, col = "#00000020")
+hc_layer(hc, x1 = 75, x2 = 85, col = "#0000FF20")
 ```
 
 The Hilbert curve can be save as PNG figure by `hc_png()`, with resolution `2^level x 2^level`.
@@ -301,7 +301,6 @@ to represent to different genes.
 
 ```{r}
 chr1_len = 249250621
-library(GenomicRanges)
 load(paste0(system.file("extdata", package = "HilbertCurve"), "/refseq_chr1.RData"))
 hc = HilbertCurve(1, chr1_len, level = 5)
 hc_segments(hc, IRanges(start = 1, end = chr1_len), gp = gpar(col = "grey"))
@@ -331,7 +330,7 @@ hc_points(hc, ir, np = 3, gp = gpar(col = col, fill = col))
 GC percent on chromosome 1, under "normal" mode:
 
 ```{r, eval = FALSE}
-df = read.table(pipe("awk '$1==\"chr1\"' /icgc/dkfzlsdf/analysis/B080/guz/gc_percent/hg19_gc_percent_window1000.bed"))
+df = read.table(pipe("awk '$1==\"chr1\"' /path-to/hg19_gc_percent_window1000.bed"))
 col_fun = colorRamp2(c(0, 500, 1000), c("green", "#FFFFCC", "red"))
 png("gc_percent_chr1_points.png", width = 500, height = 500)
 hc = HilbertCurve(1, chr1_len, level = 6)
@@ -355,14 +354,17 @@ hc_png(hc, file = "gc_percent_chr1.png")
 
 Following data are from http://genboree.org/EdaccData/Release-9/sample-experiment/Lung/
 
+First is the distribution of histone marks as well as the gene regions (shadow).
+
 ```{r, eval = FALSE}
 library(GetoptLong)
 
-for(mark in c("H3K27ac", "H3K36me3", "H3K4me1", "H3K4me3", "H3K9me3")) {
-	df = read.table(pipe(qq("awk '$5>0 && $1==\"chr1\"' /icgc/dkfzlsdf/analysis/B080/guz/HilbertCurveTest/UCSD.Lung.@{mark}.STL002.bed")), sep = "\t")
+for(mark in c("H3K27ac", "H3K36me3", "H3K4me3", "H3K9me3")) {
+	df = read.table(pipe(qq("awk '$5>0 && $1==\"chr1\"' /path-to/UCSD.Lung.@{mark}.STL002.bed")), sep = "\t")
 	col_fun = colorRamp2(c(0, quantile(df[[5]], 0.99)), c("white", "red"))
 	hc = HilbertCurve(1, chr1_len, level = 9, mode = "pixel")
 	hc_layer(hc, IRanges(df[[2]], df[[3]]), col = col_fun(df[[5]]))
+  hc_layer(hc, reduce(ranges(g)), col = "#00000010")
 	hc_png(hc, file = qq("@{mark}_chr1.png"))
 }
 ```
@@ -371,26 +373,37 @@ H3K27ac histone mark:
 
 <p><center><img src="H3K27ac_chr1.png" /></center></p>
 
-H3K36me3 histone mark:
+H3K36me3 histone mark. (H3K36me3 is found in actively transcribed gene bodies)
 
 <p><center><img src="H3K36me3_chr1.png" /></center></p>
 
-H3K4me1 histone mark:
-
-<p><center><img src="H3K4me1_chr1.png" /></center></p>
-
-H3K4me3 histone mark:
+H3K4me3 histone mark. (H3K4me3 is found in actively transcribed promoters, particularly just after the transcription start site)
 
 <p><center><img src="H3K4me3_chr1.png" /></center></p>
 
-H3K9me3 histone mark:
+H3K9me3 histone mark. (H3K9me3 is found in constitutively repressed genes)
 
 <p><center><img src="H3K9me3_chr1.png" /></center></p>
+
+Coverage for RNAseq.
+
+```{r, eval = FALSE}
+df = read.table(pipe(qq("awk '$5>0 && $1==\"chr1\"' /path-to/UCSD.Lung.mRNA-Seq.STL002.bed")), sep = "\t")
+df[[5]] = log(df[[5]] + 1)
+col_fun = colorRamp2(c(0, quantile(df[[5]], 0.99)), c("white", "red"))
+hc = HilbertCurve(1, chr1_len, level = 9, mode = "pixel")
+hc_layer(hc, IRanges(df[[2]], df[[3]]), col = col_fun(df[[5]]))
+hc_layer(hc, reduce(ranges(g)), col = "#00000010")
+hc_png(hc, file = qq("RNASeq_coverage_chr1.png"))
+```
+
+<p><center><img src="RNASeq_coverage_chr1.png" /></center></p>
+
 
 Methylation, blue corresponds to un-methylation, red corresponds to full-methylation.
 
 ```{r, eval = FALSE}
-df = read.table(pipe("awk '$1==\"chr1\"' /icgc/dkfzlsdf/analysis/B080/guz/HilbertCurveTest/UCSD.Lung.Bisulfite-Seq.STL002.bed"), sep = "\t")
+df = read.table(pipe("awk '$1==\"chr1\"' /path-to/UCSD.Lung.Bisulfite-Seq.STL002.bed"), sep = "\t")
 col_fun = colorRamp2(c(0, 0.5, 1), c("blue", "white", "red"))
 hc = HilbertCurve(1, chr1_len, level = 9, mode = "pixel")
 hc_layer(hc, IRanges(df[[2]], df[[3]]), col = col_fun(df[[5]]), mean_mode = "absolute")

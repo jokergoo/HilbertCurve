@@ -35,8 +35,9 @@ increase_plot_index = function() {
 # - `hc_points,HilbertCurve-method`: add points;
 # - `hc_segments,HilbertCurve-method`: add lines;
 # - `hc_rect,HilbertCurve-method`: add rectangles;
+# - `hc_text,HilbertCurve-method`: add text;
 # - `hc_layer,HilbertCurve-method`: add layers;
-# - `hc_save,HilbertCurve-method`: save plot as png format.
+# - `hc_png,HilbertCurve-method`: save plot as png format.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -169,7 +170,8 @@ setMethod(f = "unzoom",
 # HilbertCurve(1, 100, title = "title")
 #
 # require(ComplexHeatmap)
-# cm = ColorMapping(legend_title = "foo", colors = c("red", "blue"), levels = c("a", "b"))
+# cm = ColorMapping(legend_title = "foo", colors = c("red", "blue"), 
+#     levels = c("a", "b"))
 # legend = color_mapping_legend(cm, plot = FALSE)
 # HilbertCurve(1, 100, title = "title", legend = legend)
 #
@@ -404,8 +406,9 @@ setMethod(f = "hc_level",
 #
 setMethod(f = "hc_points",
 	signature = "HilbertCurve",
-	definition = function(object, ir, x1 = NULL, x2 = NULL, np = max(c(2, 10 - hc_level(object))), 
-	size = unit(1, "char"), pch = 1, gp = gpar(), mean_mode = c("w0", "absolute", "weighted"),
+	definition = function(object, ir, x1 = NULL, x2 = NULL, 
+	np = max(c(2, 10 - hc_level(object))), size = unit(1, "char"), 
+	pch = 1, gp = gpar(), mean_mode = c("w0", "absolute", "weighted"),
 	shape = c("circle", "square", "triangle", "hexagon", "star")) {
 
 	if(object@MODE == "pixel") {
@@ -413,6 +416,7 @@ setMethod(f = "hc_points",
 	}
 
 	if(is.null(np)) np = 1
+	if(missing(ir)) ir = NULL
 
 	if(np >= 2) {
 		hc_segmented_points(object, ir, x1 = x1, x2 = x2, gp = gp, np = np, mean_mode = mean_mode, shape = shape)
@@ -454,7 +458,7 @@ setMethod(f = "hc_normal_points",
 	definition = function(object, ir, x1 = NULL, x2 = NULL, gp = gpar(), 
 	pch = 1, size = unit(1, "char")) {
 
-	if(missing(ir)) {
+	if(missing(ir) || is.null(ir)) {
 		if(is.null(x1) ) {
 			stop("You should either specify `ir`, or `x1` or `x1` and `x2`.")
 		} else if(!is.null(x1) && !is.null(x2)) {
@@ -528,11 +532,12 @@ setMethod(f = "hc_normal_points",
 #
 setMethod(f = "hc_segmented_points",
 	signature = "HilbertCurve",
-	definition = function(object, ir, x1 = NULL, x2 = NULL, gp = gpar(), np = max(c(2, 10 - hc_level(object))),
+	definition = function(object, ir, x1 = NULL, x2 = NULL, gp = gpar(), 
+	np = max(c(2, 10 - hc_level(object))),
 	mean_mode = c("w0", "absolute", "weighted"), 
 	shape = c("circle", "square", "triangle", "hexagon", "star")) {
 
-	if(missing(ir)) {
+	if(missing(ir) || is.null(ir)) {
 		if(is.null(x1) || is.null(x2)) {
 			stop("You should either specify `ir`, or `x1` and `x2`.")
 		} else {
@@ -682,14 +687,15 @@ average_in_window = function(window, ir, mtch, v, mean_mode, empty_v = 0) {
 #
 setMethod(f = "hc_rect",
 	signature = "HilbertCurve",
-	definition = function(object, ir, x1 = NULL, x2 = NULL, gp = gpar(fill = "red", col = "red"), 
+	definition = function(object, ir, x1 = NULL, x2 = NULL, 
+	gp = gpar(fill = "red", col = "red"), 
 	mean_mode = c("w0", "absolute", "weighted")) {
 
 	if(object@MODE == "pixel") {
 		stop("`hc_rect()` can only be used under 'normal' mode.")
 	}
 
-	if(missing(ir)) {
+	if(missing(ir) || is.null(ir)) {
 		if(is.null(x1) || is.null(x2)) {
 			stop("You should either specify `ir`, or `x1` and `x2`.")
 		} else {
@@ -778,13 +784,14 @@ normalize_gp = function(name = NULL, value = NULL, length = NULL) {
 #
 setMethod(f = "hc_segments",
 	signature = "HilbertCurve",
-	definition = function(object, ir, x1 = NULL, x2 = NULL, gp = gpar(lty = 1, lwd = 1, col = 1)) {
+	definition = function(object, ir, x1 = NULL, x2 = NULL, 
+	gp = gpar(lty = 1, lwd = 1, col = 1)) {
 
 	if(object@MODE == "pixel") {
 		stop("`hc_segments()` can only be used under 'normal' mode.")
 	}
 
-	if(missing(ir)) {
+	if(missing(ir) || is.null(ir)) {
 		if(is.null(x1) || is.null(x2)) {
 			stop("You should either specify `ir`, or `x1` and `x2`.")
 		} else {
@@ -901,7 +908,7 @@ setMethod(f = "hc_text",
 		stop("`hc_text()` can only be used under 'normal' mode.")
 	}
 
-	if(missing(ir)) {
+	if(missing(ir) || is.null(ir)) {
 		if(is.null(x1) ) {
 			stop("You should either specify `ir`, or `x1` or `x1` and `x2`.")
 		} else if(!is.null(x1) && !is.null(x2)) {
@@ -1021,7 +1028,7 @@ setMethod(f = "hc_layer",
 		stop("`hc_layer()` can only be used under 'pixel' mode.")
 	}
 
-	if(missing(ir)) {
+	if(missing(ir) || is.null(ir)) {
 		if(is.null(x1) || is.null(x2)) {
 			stop("You should either specify `ir`, or `x1` and `x2`.")
 		} else {
