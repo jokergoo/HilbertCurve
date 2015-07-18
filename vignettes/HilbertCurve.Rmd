@@ -75,17 +75,17 @@ to the distance for pair distance in the Hilbert curve.
 Basically, if data points are close in the one dimensional axis, they also have small 
 distance in the Hilbert curve (regions around diagonals)
 
-```{r, fig.width = 7, echo = FALSE}
+```{r, fig.width = 7}
 library(HilbertVis)
 pos = HilbertVis::hilbertCurve(5)
 mat = as.matrix(dist(pos))
 library(ComplexHeatmap)
 
-Heatmap(mat, name = "dist", heatmap_legend_title = "euclidean_dist", cluster_rows = FALSE, cluster_columns = FALSE,
-	show_row_names = FALSE, show_column_names = FALSE)
+Heatmap(mat, name = "dist", heatmap_legend_title = "euclidean_dist", cluster_rows = FALSE, 
+    cluster_columns = FALSE, show_row_names = FALSE, show_column_names = FALSE)
 seekViewport("dist_heatmap_body_1")
 grid.segments(c(0.25, 0.5, 0.75, 0, 0, 0), c(0, 0, 0, 0.25, 0.5, 0.75), 
-	c(0.25, 0.5, 0.75, 1, 1, 1), c(1, 1, 1, 0.25, 0.5, 0.75), gp = gpar(lty = 2))
+	  c(0.25, 0.5, 0.75, 1, 1, 1), c(1, 1, 1, 0.25, 0.5, 0.75), gp = gpar(lty = 2))
 ```
 
 ## Basic settings
@@ -276,7 +276,7 @@ Grid lines can be added to the plot for better distinguish blocks in the Hilbert
 ```{r}
 hc = HilbertCurve(1, 100, level = 9, mode = "pixel", title = "pixel mode", legend = legend)
 hc_layer(hc, ir, col = col_fun(value), grid_line = 2)
-hc_layer(hc, x1 = 75, x2 = 85, col = "#0000FF20")
+hc_layer(hc, x1 = 75, x2 = 85, col = "#0000FF10")
 ```
 
 The Hilbert curve can be save as PNG figure by `hc_png()`, with resolution `2^level x 2^level`.
