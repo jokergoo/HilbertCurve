@@ -5,7 +5,7 @@ Version: 0.99.0
 Date: 2015-7-10
 Author: Zuguang Gu
 Maintainer: Zuguang Gu <z.gu@dkfz.de>
-Depends: R (>= 3.1.2), grid, IRanges, GenomicRanges
+Depends: R (>= 3.2), grid, IRanges, GenomicRanges
 Imports: methods, HilbertVis, png
 Suggests: knitr, testthat (>= 0.3), circlize, ComplexHeatmap (>= 1.2.4), 
     markdown

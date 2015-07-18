@@ -25,6 +25,8 @@ Add a new layer to the Hilbert curve
 \details{
 If you want to add more than one layers to the curve, remember to set colors transparent.
 
+This function only works under 'pixel' mode.
+
 }
 \value{
 No value is returned.

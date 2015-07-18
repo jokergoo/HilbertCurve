@@ -20,6 +20,7 @@ The implementation and example figures are based on following sources:
 
 ```r
 library(devtools)
+install_github("jokergoo/ComplexHeatmap")
 install_github("jokergoo/HilbertCurve")
 ```
 

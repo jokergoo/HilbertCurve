@@ -1000,6 +1000,8 @@ grid_arrows = function(x1, y1, x2, y2, length = unit(2, "mm"), angle = 15, only.
 # == details
 # If you want to add more than one layers to the curve, remember to set colors transparent.
 #
+# This function only works under 'pixel' mode.
+#
 # == value
 # No value is returned.
 #
@@ -1109,6 +1111,8 @@ setMethod(f = "hc_layer",
 # A PNG figure with resolution of ``2^level x 2^level`` is generated.
 #
 # Only the body of the Hilbert curve will be written to PNG file.
+#
+# This function only works under 'pixel' mode.
 #
 # == value
 # No value is returned.

@@ -21,6 +21,8 @@ A PNG figure with resolution of \code{2^level x 2^level} is generated.
 
 Only the body of the Hilbert curve will be written to PNG file.
 
+This function only works under 'pixel' mode.
+
 }
 \value{
 No value is returned.
