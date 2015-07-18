@@ -20,4 +20,4 @@ importFrom("png", writePNG)
 importFrom("HilbertVis", hilbertCurve)
 importFrom("methods", setClass)
 importFrom("methods", setMethod)
-
+importFrom("grDevices", col2rgb)
