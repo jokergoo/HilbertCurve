@@ -29,12 +29,25 @@ install_github("jokergoo/HilbertCurve")
 
 ## Usage
 
+Basically, there are two steps to make a Hilbert curve.
+
+1. Initialize the curve and also map the one-dimensional axis to the curve.
+2. add low-level graphics by `hc_points()`, `hc_segments()`, ... by giving the positions of the graphics.
+
 ```r
 hc = HilbertCurve(1, 100, level = 4)
 hc_points(hc, ...)
 hc_segments(hc, ...)
 hc_rect(hc, ...)
 hc_text(hc, ...)
+```
+
+There is another 'pixel' mode which provides a high resolution for visualizing genomic data by the Hilbert curve.
+
+```r
+hc = HilbertCurve(1, 100000000000, level = 10)
+hc_layer(hc, ...) # this can be repeated several times to add multiple layers on the curve
+hc_png(hc, ...)
 ```
 
 ## Examples
