@@ -18,9 +18,12 @@ The implementation and example figures are based on following sources:
 
 ## Install
 
+The package is at [Bioconductor](http://bioconductor.org/packages/devel/bioc/html/HilbertCurve.html) now
+and you can install the newest version by:
+
 ```r
 library(devtools)
-install_github("jokergoo/ComplexHeatmap")
+install_github("jokergoo/ComplexHeatmap")  # in order to get the newest version of ComplexHeatmap
 install_github("jokergoo/HilbertCurve")
 ```
 
