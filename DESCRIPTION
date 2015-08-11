@@ -1,8 +1,8 @@
 Package: HilbertCurve
 Type: Package
 Title: Making 2D Hilbert Curve
-Version: 0.99.1
-Date: 2015-7-10
+Version: 0.99.2
+Date: 2015-8-11
 Author: Zuguang Gu
 Maintainer: Zuguang Gu <z.gu@dkfz.de>
 Depends: R (>= 3.2), grid, IRanges, GenomicRanges
@@ -17,6 +17,6 @@ Description: Hilbert curve is a type of space-filling curves
 biocViews: Software, Visualization, Sequencing, Coverage, GenomeAnnotation
 URL: https://github.com/jokergoo/HilbertCurve
 License: GPL (>= 2)
-Packaged: 2015-7-10 00:00:00 UTC; Administrator
+Packaged: 2015-8-11 00:00:00 UTC; Administrator
 Repository: Bioconductor
-Date/Publication: 2015-7-10 00:00:00
+Date/Publication: 2015-8-11 00:00:00
