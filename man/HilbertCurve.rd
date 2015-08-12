@@ -2,17 +2,16 @@
 \alias{HilbertCurve}
 \title{
 Initialize a Hilbert curve
-
 }
 \description{
 Initialize a Hilbert curve
-
 }
 \usage{
 HilbertCurve(s, e, level = 4, mode = c("normal", "pixel"),
     reference = FALSE, arrow = TRUE, zoom = NULL, newpage = TRUE,
     background = "white", title = NULL, title_gp = gpar(fontsize = 16),
-    legend = list())}
+    legend = list())
+}
 \arguments{
 
   \item{s}{position that will be mapped to the start of the Hilbert curve. It should be a positive number.}
@@ -27,6 +26,7 @@ HilbertCurve(s, e, level = 4, mode = c("normal", "pixel"),
   \item{title}{title of the plot.}
   \item{title_gp}{graphical parameters for title. It should be specified by \code{\link[grid]{gpar}}.}
   \item{legend}{a \code{\link[grid]{grob}} object or a list of \code{\link[grid]{grob}} objects.}
+
 }
 \details{
 This funciton initializes a Hilbert curve with level \code{level} which corresponds 
@@ -34,7 +34,7 @@ to the range between \code{s} and \code{e}.
 
 Under 'normal' mode, there is a visible Hilbert curve which plays like a folded axis and
 different low-level graphics can be added on according to the coordinate. 
-It only works nice if the level of the Hilbert curve is small (say less than 6). 
+It only works nice if the level of the Hilbert curve is small (say less than 6).
 
 When the level is high (e.g. > 10), the whole 2D space will be almost completely filled by the curve and
 it is impossible to add or visualize e.g. points on the curve. In this case, the 'pixel'
@@ -45,25 +45,20 @@ level 11, then each pixel can represent 60bp (\code{249250621/2048/2048}) which 
 
 Under 'pixel' mode, if the current device is an interactive deivce, every time a new layer is added, 
 the image will be add to the interactive device as a rastered image.
-
 }
 \value{
 A \code{\link{HilbertCurve-class}} object.
-
 }
 \author{
 Zuguang Gu <z.gu@dkfz.de>
-
 }
 \examples{
 HilbertCurve(1, 100, reference = TRUE)
 HilbertCurve(1, 100, level = 5)
 HilbertCurve(1, 100, title = "title")
-
 require(ComplexHeatmap)
 cm = ColorMapping(legend_title = "foo", colors = c("red", "blue"), 
     levels = c("a", "b"))
 legend = color_mapping_legend(cm, plot = FALSE)
 HilbertCurve(1, 100, title = "title", legend = legend)
-
 }

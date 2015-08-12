@@ -265,6 +265,7 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 		
 			if(arrow) grid_arrows(hc@POS$x1, hc@POS$y1, (hc@POS$x1+hc@POS$x2)/2, (hc@POS$y1+hc@POS$y2)/2, only.head = TRUE, arrow_gp = gpar(fill = "#CCCCCC", col = NA))
 		}
+		upViewport(3)
 	} else {
 		background = background[1]
 		background = col2rgb(background) / 255
@@ -275,11 +276,11 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 		hc@RGB$green = green
 		hc@RGB$blue = blue
 
-		add_raster(hc@RGB)
+		add_raster(hc@RGB)  # already jump to top vp
 
 	}
 
-	upViewport(3)
+	
 
 	return(invisible(hc))
 }
