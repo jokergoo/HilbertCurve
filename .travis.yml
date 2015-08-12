@@ -10,13 +10,13 @@ r-packages:
 - png
 - knitr
 - markdown
-- circlize
 
 bioc_packages:
 - GenomicRanges
 
 r_github_packages:
 - jokergoo/ComplexHeatmap
+- jokergoo/circlize
 
 bioc_required: true
 
