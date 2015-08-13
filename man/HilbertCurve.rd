@@ -57,8 +57,8 @@ HilbertCurve(1, 100, reference = TRUE)
 HilbertCurve(1, 100, level = 5)
 HilbertCurve(1, 100, title = "title")
 require(ComplexHeatmap)
-cm = ColorMapping(legend_title = "foo", colors = c("red", "blue"), 
+cm = ColorMapping(colors = c("red", "blue"), 
     levels = c("a", "b"))
-legend = color_mapping_legend(cm, plot = FALSE)
+legend = color_mapping_legend(cm, plot = FALSE, title = "foo")
 HilbertCurve(1, 100, title = "title", legend = legend)
 }
