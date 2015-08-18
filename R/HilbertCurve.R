@@ -499,6 +499,7 @@ setMethod(f = "hc_normal_points",
 	grid.points(x1, y1, default.units = "native", gp = gp, pch = pch, size = size)	
 
 	seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "global"))
+	upViewport()
 	
 	df = data.frame(x = x1, y = y1, stringsAsFactors = FALSE)
 	return(invisible(df))
@@ -632,6 +633,7 @@ setMethod(f = "hc_segmented_points",
 	}
 	
 	seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "global"))
+	upViewport()
 
 	df = data.frame(x = xx, y = yy, r = rep(1/(np-1)/2, length(xx)))
 	return(invisible(df))
@@ -753,6 +755,7 @@ setMethod(f = "hc_rect",
 	}
 
 	seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "global"))
+	upViewport()
 
 	return(invisible(df))
 
@@ -876,6 +879,7 @@ setMethod(f = "hc_segments",
 	# df = data.frame(x1 = x1, y1 = y1, x2 = x2, y2 = y2)
 
 	seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "global"))
+	upViewport()
 
 	return(invisible(df))
 	
@@ -962,7 +966,8 @@ setMethod(f = "hc_text",
 	df = data.frame(x = x1, y = y1, labels = labels, stringsAsFactors = FALSE)
 
 	seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "global"))
-
+	upViewport()
+	
 	return(invisible(df))
 })
 
@@ -1189,6 +1194,6 @@ add_raster = function(lt_rgb) {
 		seekViewport(paste0("hilbert_curve_", get_plot_index()))
 		grid.raster(img, x = unit(0.5, "npc"), y = unit(0.5, "npc"), width = unit(1, "npc"), height = unit(1, "npc"))
 		seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "global"))
-
+		upViewport()
 	#}
 }
