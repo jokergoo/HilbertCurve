@@ -3,17 +3,16 @@
 \alias{hc_segmented_points}
 \title{
 Add points to the Hilbert curve
-
 }
 \description{
 Add points to the Hilbert curve
-
 }
 \usage{
 \S4method{hc_segmented_points}{HilbertCurve}(object, ir, x1 = NULL, x2 = NULL, gp = gpar(),
     np = max(c(2, 10 - hc_level(object))),
     mean_mode = c("w0", "absolute", "weighted"),
-    shape = c("circle", "square", "triangle", "hexagon", "star"))}
+    shape = c("circle", "square", "triangle", "hexagon", "star"))
+}
 \arguments{
 
   \item{object}{A \code{\link{HilbertCurve-class}} object.}
@@ -24,24 +23,21 @@ Add points to the Hilbert curve
   \item{gp}{graphical parameters for points. It should be specified by \code{\link[grid]{gpar}}.}
   \item{mean_mode}{when a segment in the curve overlaps with intervals in \code{ir}, how to calculate the mean values for this segment. See explanation in \code{\link{hc_points}}.}
   \item{shape}{shape of points. Possible values are "circle", "square", "triangle", "hexagon", "star".}
+
 }
 \details{
 Every segment that overlaps to \code{ir} will be segmented into \code{np} parts
 and a circle (or star, ...) is put on every 'small segments'.
 
 This function is used internally.
-
 }
 \value{
 A data frame which contains coordinates for points.
-
 }
 \author{
 Zuguang Gu <z.gu@dkfz.de>
-
 }
 \examples{
 # see documentation of hc_points
 NULL
-
 }
