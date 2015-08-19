@@ -81,11 +81,18 @@ pos = HilbertVis::hilbertCurve(5)
 mat = as.matrix(dist(pos))
 library(ComplexHeatmap)
 
-Heatmap(mat, name = "dist", heatmap_legend_title = "euclidean_dist", cluster_rows = FALSE, 
-    cluster_columns = FALSE, show_row_names = FALSE, show_column_names = FALSE)
-seekViewport("dist_heatmap_body_1")
-grid.segments(c(0.25, 0.5, 0.75, 0, 0, 0), c(0, 0, 0, 0.25, 0.5, 0.75), 
-	  c(0.25, 0.5, 0.75, 1, 1, 1), c(1, 1, 1, 0.25, 0.5, 0.75), gp = gpar(lty = 2))
+ht = Heatmap(mat, name = "dist", cluster_rows = FALSE, cluster_columns = FALSE, 
+    show_row_names = FALSE, show_column_names = FALSE, 
+    heatmap_legend_param = list(title = "euclidean_dist"))
+draw(ht, padding = unit(c(5, 5, 5, 2), "mm"))
+decorate_heatmap_body("dist", {
+    grid.segments(c(0.25, 0.5, 0.75, 0, 0, 0), c(0, 0, 0, 0.25, 0.5, 0.75), 
+	      c(0.25, 0.5, 0.75, 1, 1, 1), c(1, 1, 1, 0.25, 0.5, 0.75), gp = gpar(lty = 2))
+    grid.text(rev(c(256, 512, 768, 1024)), 0, c(0, 256, 512, 768)/1024, just = "bottom", 
+        rot = 90, gp = gpar(fontsize = 10))
+    grid.text(c(1, 256, 512, 768, 1024), c(1, 256, 512, 768, 1024)/1024, 1, just = "bottom",
+        gp = gpar(fontsize = 10))
+})
 ```
 
 ## Basic settings
@@ -246,8 +253,8 @@ the curve.
 ```{r}
 value = runif(length(ir))
 col_fun = colorRamp2(c(0, 1), c("white", "red"))
-cm = ColorMapping(col_fun = col_fun, legend_title = "value")
-legend = color_mapping_legend(cm, plot = FALSE)
+cm = ColorMapping(col_fun = col_fun)
+legend = color_mapping_legend(cm, plot = FALSE, title = "value")
 hc = HilbertCurve(1, 100, reference = TRUE, title = "points", legend = legend)
 hc_points(hc, ir, np = 3, gp = gpar(fill = col_fun(value)))
 ```

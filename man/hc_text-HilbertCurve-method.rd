@@ -3,14 +3,13 @@
 \alias{hc_text}
 \title{
 Add text to Hilbert curve
-
 }
 \description{
 Add text to Hilbert curve
-
 }
 \usage{
-\S4method{hc_text}{HilbertCurve}(object, ir, labels, x1 = NULL, x2 = NULL, gp = gpar(), ...)}
+\S4method{hc_text}{HilbertCurve}(object, ir, labels, x1 = NULL, x2 = NULL, gp = gpar(), ...)
+}
 \arguments{
 
   \item{object}{A \code{\link{HilbertCurve-class}} object.}
@@ -20,24 +19,20 @@ Add text to Hilbert curve
   \item{x2}{if positions are not integers, they can be set by \code{x1} and \code{x2}.}
   \item{gp}{graphical parameters for text. It should be specified by \code{\link[grid]{gpar}}.}
   \item{...}{pass to \code{\link[grid]{grid.text}}. E.g. you can set text justification by \code{just} here.}
+
 }
 \value{
 A data frame which contains coordinates for text.
-
 }
 \author{
 Zuguang Gu <z.gu@dkfz.de>
-
 }
 \examples{
 hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
-
 x = sort(sample(100, 20))
 s = x[1:10*2 - 1]
 e = x[1:10*2]
 ir = IRanges(s, e)
-
 labels = sample(letters, length(ir), replace = TRUE)
 hc_text(hc, ir, labels = labels)
-
 }

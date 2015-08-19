@@ -3,11 +3,9 @@
 \alias{HilbertCurve-class}
 \title{
 The HilbertCurve class
-
 }
 \description{
 The HilbertCurve class
-
 }
 \details{
 Hilbert curve (\url{https://en.wikipedia.org/wiki/Hilbert_curve} ) is a type of space-filling curves
@@ -23,7 +21,6 @@ The implementation and example figures are based on following sources:
   \item \url{http://corte.si/posts/code/hilbert/portrait/index.html}
   \item \url{http://bioconductor.org/packages/devel/bioc/html/HilbertVis.html}
 }
-
 }
 \section{Methods}{
 The \code{\link{HilbertCurve-class}} provides following methods:
@@ -36,14 +33,10 @@ The \code{\link{HilbertCurve-class}} provides following methods:
   \item \code{\link{hc_text,HilbertCurve-method}}: add text;
   \item \code{\link{hc_layer,HilbertCurve-method}}: add layers;
   \item \code{\link{hc_png,HilbertCurve-method}}: save plot as png format.
-}
-
-}
+}}
 \author{
 Zuguang Gu <z.gu@dkfz.de>
-
 }
 \examples{
 NULL
-
 }

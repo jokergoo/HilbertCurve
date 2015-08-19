@@ -3,18 +3,18 @@
 \alias{zoom}
 \title{
 Zoom original positions
-
 }
 \description{
 Zoom original positions
-
 }
 \usage{
-\S4method{zoom}{HilbertCurve}(object, x)}
+\S4method{zoom}{HilbertCurve}(object, x)
+}
 \arguments{
 
   \item{object}{A \code{\link{HilbertCurve-class}} object.}
   \item{x}{positions.}
+
 }
 \details{
 Internally, position are stored as integer values. To increase the resolution
@@ -25,18 +25,14 @@ the positions will be zoomed by ~x2000 so that values link 1.5, 1.555 can be map
 to the curve with more accuracy.
 
 The function is used internally.
-
 }
 \value{
 A numeric vector which is zoomed positions.
-
 }
 \author{
 Zuguang Gu <z.gu@dkfz.de>
-
 }
 \examples{
 hc = HilbertCurve(1, 2)
 zoom(hc, 1.5)
-
 }

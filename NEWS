@@ -1,9 +1,18 @@
+
+CHANGES in VERSION 0.99.2
+
+* jump to top viewport for each low-level functions
+
+========================================
+
 CHANGES in VERSION 0.99.1
 
 * add dependency to base packages
+
 =========================================
 
 CHANGES in VERSION 0.99.0
 
 * new release
+
 ==========================================

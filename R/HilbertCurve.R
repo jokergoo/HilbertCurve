@@ -170,9 +170,9 @@ setMethod(f = "unzoom",
 # HilbertCurve(1, 100, title = "title")
 #
 # require(ComplexHeatmap)
-# cm = ColorMapping(legend_title = "foo", colors = c("red", "blue"), 
+# cm = ColorMapping(colors = c("red", "blue"), 
 #     levels = c("a", "b"))
-# legend = color_mapping_legend(cm, plot = FALSE)
+# legend = color_mapping_legend(cm, plot = FALSE, title = "foo")
 # HilbertCurve(1, 100, title = "title", legend = legend)
 #
 HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
@@ -224,7 +224,8 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 	}
 
 	pushViewport(viewport(layout = grid.layout(nrow = 2, ncol = 2, widths = unit.c(unit(1, "npc") - legend_width, legend_width), 
-			                                                       heights = unit.c(title_height, unit(1, "npc") - title_height))))
+			                                                       heights = unit.c(title_height, unit(1, "npc") - title_height)),
+	                     name = paste0("hilbert_curve_", get_plot_index(), "global")))
 
 	if(length(title) != 0) {
 		pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 1))
@@ -264,6 +265,7 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 		
 			if(arrow) grid_arrows(hc@POS$x1, hc@POS$y1, (hc@POS$x1+hc@POS$x2)/2, (hc@POS$y1+hc@POS$y2)/2, only.head = TRUE, arrow_gp = gpar(fill = "#CCCCCC", col = NA))
 		}
+		upViewport(3)
 	} else {
 		background = background[1]
 		background = col2rgb(background) / 255
@@ -274,11 +276,11 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 		hc@RGB$green = green
 		hc@RGB$blue = blue
 
-		add_raster(hc@RGB)
+		add_raster(hc@RGB)  # already jump to top vp
 
 	}
 
-	upViewport(3)
+	
 
 	return(invisible(hc))
 }
@@ -495,6 +497,9 @@ setMethod(f = "hc_normal_points",
 	y1 = pos$y2 - (pos$y2 - pos$y1)*(er1 - sr)/(er1 - sr1)
 
 	grid.points(x1, y1, default.units = "native", gp = gp, pch = pch, size = size)	
+
+	seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "global"))
+	upViewport()
 	
 	df = data.frame(x = x1, y = y1, stringsAsFactors = FALSE)
 	return(invisible(df))
@@ -626,6 +631,9 @@ setMethod(f = "hc_segmented_points",
 			yy = c(yy, y)
 		}
 	}
+	
+	seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "global"))
+	upViewport()
 
 	df = data.frame(x = xx, y = yy, r = rep(1/(np-1)/2, length(xx)))
 	return(invisible(df))
@@ -745,6 +753,9 @@ setMethod(f = "hc_rect",
 		grid.rect(pos$x1[index], pos$y1[index], width = 1, height = 1, default.units = "native", gp = gpar(fill = fill2, col = NA, lineend = "butt", linejoin = "mitre"))
 		df = data.frame(x = pos$x1[index], y = pos$y1[index])
 	}
+
+	seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "global"))
+	upViewport()
 
 	return(invisible(df))
 
@@ -866,6 +877,10 @@ setMethod(f = "hc_segments",
 	# grid.segments(x1, y1, x2, y2, default.units = "native", gp = gp)
 
 	# df = data.frame(x1 = x1, y1 = y1, x2 = x2, y2 = y2)
+
+	seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "global"))
+	upViewport()
+
 	return(invisible(df))
 	
 })
@@ -949,6 +964,10 @@ setMethod(f = "hc_text",
 	grid.text(labels, x1, y1, default.units = "native", gp = gp, ...)	
 	
 	df = data.frame(x = x1, y = y1, labels = labels, stringsAsFactors = FALSE)
+
+	seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "global"))
+	upViewport()
+	
 	return(invisible(df))
 })
 
@@ -1174,5 +1193,7 @@ add_raster = function(lt_rgb) {
 
 		seekViewport(paste0("hilbert_curve_", get_plot_index()))
 		grid.raster(img, x = unit(0.5, "npc"), y = unit(0.5, "npc"), width = unit(1, "npc"), height = unit(1, "npc"))
+		seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "global"))
+		upViewport()
 	#}
 }
