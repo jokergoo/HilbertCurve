@@ -35,7 +35,7 @@ and a circle (or star, ...) is put on every 'small segments'.
 Following illustrates different settings for \code{mean_mode}:
 
   \preformatted{
-100    80     60    values in ir (e.g. red compoment for colors)
+       100    80     60    values in ir (e.g. red compoment for colors)
     ++++++   +++   +++++   ir
       ================     window (width = 16)
         4     3     3      overlap
