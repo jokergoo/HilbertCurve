@@ -1074,6 +1074,9 @@ setMethod(f = "hc_layer",
 	if(length(col) == 1) col = rep(col, length(ir))
 
 	rgb = col2rgb(col, alpha = TRUE)
+	if(length(unique(rgb[4, ])) > 1) {
+		warning("You have different transparency values in colors, only take the lowest one.")
+	}
 
 	r = average_in_window(window, ir, mtch, rgb[1, ], mean_mode, 255)/255
 	g = average_in_window(window, ir, mtch, rgb[2, ], mean_mode, 255)/255
