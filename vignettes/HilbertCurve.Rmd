@@ -419,6 +419,47 @@ hc_png(hc, file = "methylation_chr1.png")
 
 <p><center><img src="methylation_chr1.png" /></center></p>
 
+## Put all chromosomes in one plot
+
+We demonstrated how to visualize one single chromosome through Hilbert curve, but sometimes
+we also want to put all chromosomes into one plot to get rid of reading too many plots simutaneously.
+One solution is to construct a 'huge' chromosome which merges all real chromosomes.
+
+```{r, eval = FALSE}
+chr.len = read.chromInfo()$chr.len
+sum_chr = 0
+s = numeric(length(ratio))
+e = numeric(length(ratio))
+for(chr in paste0("chr", c(1:22, "X", "Y"))) {
+    l = as.character(seqnames(ratio)) == chr
+    s[l] = start(ratio[l]) + sum_chr
+    e[l] = end(ratio[l]) + sum_chr
+    sum_chr = sum_chr + chr.len[chr]
+}
+
+ir = IRanges(start = round(s/1000),
+             end = round(e/1000))
+hc = HilbertCurve(0, round(max(chr_cumsum)/1000), level = 9, mode = "pixel")
+hc_layer(hc, ir, col = ..., grid_line = 3)
+```
+
+Following is an example to show log2-ratio of coverage between tumor and control samples for all chromosomes.
+
+<p><center><img src="coverage_all_chromosomes.png" /></center></p>
+
+Also a map which shows the chromosome positions in Hilbert curve is necessary.
+
+```{r, eval = FALSE}
+chr_cumsum = cumsum(chr.len[paste0("chr", c(1:22, "X", "Y"))])
+chr_ir = IRanges(start = round(c(1, chr_cumsum[-length(chr_cumsum)]+1)/1000),
+                 end = round(chr_cumsum/1000),
+                 names = names(chr_cumsum))
+hc = HilbertCurve(0, round(max(chr_cumsum)/1000), level = 8)
+hc_rect(hc, chr_ir, gp = gpar(fill = rand_color(length(chr_ir), transparency = 0.5), col = NA))
+hc_text(hc, chr_ir, names(chr_ir), gp = gpar(fontsize = 16))
+```
+
+<p><center><img src="chromosome_map.png" /></center></p>
 
 ## Session info
 
