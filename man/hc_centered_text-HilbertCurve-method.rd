@@ -1,13 +1,13 @@
-\name{hc_text-HilbertCurve-method}
-\alias{hc_text,HilbertCurve-method}
+\name{hc_centered_text-HilbertCurve-method}
+\alias{hc_centered_text,HilbertCurve-method}
 \title{
-Add text to Hilbert curve
+Add text to the center of the block
 }
 \description{
-Add text to Hilbert curve
+Add text to the center of the block
 }
 \usage{
-\S4method{hc_text}{HilbertCurve}(object, ir, labels, x1 = NULL, x2 = x1, gp = gpar(), ...)
+\S4method{hc_centered_text}{HilbertCurve}(object, ir, labels, x1 = NULL, x2 = NULL, gp = gpar(), ...)
 }
 \arguments{
 
@@ -21,20 +21,15 @@ Add text to Hilbert curve
 
 }
 \details{
-The text is added in the middle of each interval in \code{ir}.
+Internally used.
 }
 \value{
-A data frame which contains coordinates for text.
+\code{NULL}
 }
 \author{
 Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
-hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
-x = sort(sample(100, 20))
-s = x[1:10*2 - 1]
-e = x[1:10*2]
-ir = IRanges(s, e)
-labels = sample(letters, length(ir), replace = TRUE)
-hc_text(hc, ir, labels = labels)
+NULL
 }
+\alias{hc_centered_text}

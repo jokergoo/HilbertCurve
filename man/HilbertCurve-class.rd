@@ -34,6 +34,9 @@ The \code{\link{HilbertCurve-class}} provides following methods:
   \item \code{\link{hc_layer,HilbertCurve-method}}: add layers;
   \item \code{\link{hc_png,HilbertCurve-method}}: save plot as png format.
 }}
+\seealso{
+The \code{\link{GenomicHilbertCurve-class}} inherits \code{\link{HilbertCurve-class}} and is designed specifically for handling genomic data.
+}
 \author{
 Zuguang Gu <z.gu@dkfz.de>
 }

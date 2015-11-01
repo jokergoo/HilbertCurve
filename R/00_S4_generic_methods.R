@@ -1,4 +1,6 @@
 
+setGeneric('hc_map', function(object, ...) standardGeneric('hc_map'))
+
 setGeneric('hc_points', function(object, ...) standardGeneric('hc_points'))
 
 setGeneric('zoom', function(object, ...) standardGeneric('zoom'))
@@ -11,7 +13,11 @@ setGeneric('hc_segmented_points', function(object, ...) standardGeneric('hc_segm
 
 setGeneric('hc_level', function(object, ...) standardGeneric('hc_level'))
 
+setGeneric('hc_offset', function(object, ...) standardGeneric('hc_offset'))
+
 setGeneric('hc_normal_points', function(object, ...) standardGeneric('hc_normal_points'))
+
+setGeneric('hc_centered_text', function(object, ...) standardGeneric('hc_centered_text'))
 
 setGeneric('hc_layer', function(object, ...) standardGeneric('hc_layer'))
 
