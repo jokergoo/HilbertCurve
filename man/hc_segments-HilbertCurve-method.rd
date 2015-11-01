@@ -1,6 +1,5 @@
 \name{hc_segments-HilbertCurve-method}
 \alias{hc_segments,HilbertCurve-method}
-\alias{hc_segments}
 \title{
 Add line segments to Hilbert curve
 }

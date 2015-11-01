@@ -1,6 +1,5 @@
 \name{hc_layer-HilbertCurve-method}
 \alias{hc_layer,HilbertCurve-method}
-\alias{hc_layer}
 \title{
 Add a new layer to the Hilbert curve
 }
@@ -8,7 +7,7 @@ Add a new layer to the Hilbert curve
 Add a new layer to the Hilbert curve
 }
 \usage{
-\S4method{hc_layer}{HilbertCurve}(object, ir, x1 = NULL, x2 = NULL, col = "red",
+\S4method{hc_layer}{HilbertCurve}(object, ir, x1 = NULL, x2 = x1, col = "red",
     mean_mode = c("w0", "absolute", "weighted"), grid_line = 0)
 }
 \arguments{
@@ -23,7 +22,7 @@ Add a new layer to the Hilbert curve
 
 }
 \details{
-If you want to add more than one layers to the curve, remember to set colors transparent.
+If you want to add more than one layers to the curve, remember to set colors with transparency.
 
 This function only works under 'pixel' mode.
 }
