@@ -291,7 +291,8 @@ setMethod(f = "hc_text",
 setMethod(f = "hc_layer",
 	signature = "GenomicHilbertCurve",
 	definition = function(object, gr, col = "red", 
-	mean_mode = c("w0", "absolute", "weighted"), grid_line = 0) {
+	mean_mode = c("w0", "absolute", "weighted"), grid_line = 0,
+	grid_line_col = "black") {
 
 	if(is.data.frame(gr)) {
 		gr = GRanges(seqnames = gr[[1]], ranges = IRanges(gr[[2]], gr[[3]]))
@@ -305,7 +306,7 @@ setMethod(f = "hc_layer",
 	df = merge_into_one_chr(gr, object@background)
 
 	callNextMethod(object, x1 = df[,1], x2 = df[,2], col = col, mean_mode = mean_mode, 
-		grid_line = grid_line)
+		grid_line = grid_line, grid_line_col = grid_line_col)
 })
 
 # == title
@@ -331,7 +332,7 @@ setMethod(f = "hc_map",
 	signature = "GenomicHilbertCurve",
 	definition = function(object, level = 7, fill = NULL, 
 	labels = names(object@background), labels_gp = gpar(),
-	add = FALSE) {
+	add = FALSE, ...) {
 
 	background = object@background
 	df = merge_into_one_chr(background, object@background)
@@ -347,7 +348,7 @@ setMethod(f = "hc_map",
 			hc_centered_text(hc, x1 = df[, 1], x2 = df[, 2], labels = labels, gp = labels_gp)
 		}
 	} else {
-		hc = GenomicHilbertCurve(background = background, level = level)
+		hc = GenomicHilbertCurve(background = background, level = level, ...)
 		hc_rect(hc, background, gp = gpar(fill = fill, col = NA))
 		hc_centered_text(hc, x1 = df[, 1], x2 = df[, 2], labels = labels, gp = labels_gp)
 	}

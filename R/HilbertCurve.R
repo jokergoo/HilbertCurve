@@ -1225,7 +1225,8 @@ grid_arrows = function(x1, y1, x2, y2, length = unit(2, "mm"), angle = 15, only.
 setMethod(f = "hc_layer",
 	signature = "HilbertCurve",
 	definition = function(object, ir, x1 = NULL, x2 = x1, col = "red", 
-	mean_mode = c("w0", "absolute", "weighted"), grid_line = 0) {
+	mean_mode = c("w0", "absolute", "weighted"), grid_line = 0,
+	grid_line_col = "black") {
 
 	if(object@MODE == "normal") {
 		stop("`hc_layer()` can only be used under 'pixel' mode.")
@@ -1290,15 +1291,16 @@ setMethod(f = "hc_layer",
 
 	if(grid_line > 1) {
 		grid = 2^(grid_line-1)
+		grid_line_col = col2rgb(grid_line_col)/255
 		n = ncol(object@RGB$red)
 		for(i in 1:(grid-1)) {
-			object@RGB$red[round(n/grid*i), ] = 0
-			object@RGB$green[round(n/grid*i), ] = 0
-			object@RGB$blue[round(n/grid*i), ] = 0
+			object@RGB$red[round(n/grid*i), ] = grid_line_col[1]
+			object@RGB$green[round(n/grid*i), ] = grid_line_col[2]
+			object@RGB$blue[round(n/grid*i), ] = grid_line_col[3]
 			
-			object@RGB$red[, round(n/grid*i)] = 0
-			object@RGB$green[, round(n/grid*i)] = 0
-			object@RGB$blue[, round(n/grid*i)] = 0
+			object@RGB$red[, round(n/grid*i)] = grid_line_col[1]
+			object@RGB$green[, round(n/grid*i)] = grid_line_col[2]
+			object@RGB$blue[, round(n/grid*i)] = grid_line_col[3]
 		}
 	}
 

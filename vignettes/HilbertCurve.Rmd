@@ -554,12 +554,10 @@ we also want to put all chromosomes into one plot to get rid of reading too many
 One solution is to construct a 'huge' chromosome which merges all real chromosomes.
 
 ```{r, eval = on_cluster, fig.keep = "none", echo = 1:5}
-df = read.table("~/HilbertCurveTest/cnv.txt", sep = "\t")
-df = df[c(1, 2, 2, 3)]
-hc = GenomicHilbertCurve(chr = paste0("chr", c(1:22, "X", "Y")), level = 9, mode = "pixel")
+df = read.table("~/HilbertCurveTest/cnv_1k_window_mean.bed", sep = "\t", stringsAsFactors = FALSE)
+hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel")
 col_fun = colorRamp2(c(-0.7, 0, 0.7), c("green", "white", "red"))
-hc_layer(hc, df, col = col_fun(df[[4]]), mean_mode = "absolute", grid_line = 3)
-hc_layer(hc, reduce(g), col = "#00000010")
+hc_layer(hc, df, col = col_fun(df[[4]]), grid_line = 3, grid_line_col = "grey")
 hc_png(hc, file = 'cnv_all_chromosomes.png')
 ```
 
@@ -578,6 +576,38 @@ hc_map(hc)
 
 ```{r, echo = FALSE, eval = !on_cluster, results = "asis"}
 cat("<p><center><img src='map_all_chromosomes.png' /></center></p>\n")
+```
+
+```{r, eval = on_cluster, fig.keep = "none", echo = 1:5}
+png('cnv_compare.png', width = 800, height = 800)
+pushViewport(viewport(layout = grid.layout(nr = 2, nc = 2)))
+pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 1))
+hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel", 
+    title = "sample 1", newpage = FALSE)
+hc_layer(hc, df, col = col_fun(df[[4]]), grid_line = 3, grid_line_col = "grey")
+upViewport()
+
+pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 2))
+hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel", 
+    title = "sample 2", newpage = FALSE)
+hc_layer(hc, df, col = col_fun(df[[5]]), grid_line = 3, grid_line_col = "grey")
+upViewport()
+
+pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 1))
+hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel", 
+    title = "sample 3", newpage = FALSE)
+hc_layer(hc, df, col = col_fun(df[[6]]), grid_line = 3, grid_line_col = "grey")
+upViewport()
+
+pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 2))
+hc_map(hc, title = "map", newpage = FALSE)
+upViewport()
+upViewport()
+dev.off()
+```
+
+```{r, echo = FALSE, eval = !on_cluster, results = "asis"}
+cat("<p><center><img src='cnv_compare.png' /></center></p>\n")
 ```
 
 If background is defined as a list of regios, ...
