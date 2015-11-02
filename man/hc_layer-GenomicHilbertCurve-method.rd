@@ -8,7 +8,8 @@ Add a new layer to the Hilbert curve
 }
 \usage{
 \S4method{hc_layer}{GenomicHilbertCurve}(object, gr, col = "red",
-    mean_mode = c("w0", "absolute", "weighted"), grid_line = 0)
+    mean_mode = c("w0", "absolute", "weighted"), grid_line = 0,
+    grid_line_col = "black")
 }
 \arguments{
 

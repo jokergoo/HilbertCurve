@@ -10,7 +10,7 @@ Add points to the Hilbert curve
 \S4method{hc_points}{HilbertCurve}(object, ir, x1 = NULL, x2 = x1,
     np = max(c(2, 10 - hc_level(object))), size = unit(1, "char"),
     pch = 1, gp = gpar(), mean_mode = c("w0", "absolute", "weighted"),
-    shape = c("circle", "square", "triangle", "hexagon", "star"))
+    shape = "circle")
 }
 \arguments{
 
@@ -23,7 +23,7 @@ Add points to the Hilbert curve
   \item{pch}{shape of points, used for points if \code{np < 2}.}
   \item{gp}{graphic parameters for points. It should be specified by \code{\link[grid]{gpar}}.}
   \item{mean_mode}{when a segment in the curve overlaps with intervals in \code{ir} (or \code{x1} and \code{x2}), how to calculate the mean values for this segment (such as the RGB colors). See 'Details' section for a detailed explanation.}
-  \item{shape}{shape of points, used for points if \code{np >= 2}.}
+  \item{shape}{shape of points, used for points if \code{np >= 2}. Possible values are "circle", "square", "triangle", "hexagon", "star".}
 
 }
 \details{

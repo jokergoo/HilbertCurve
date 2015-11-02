@@ -8,9 +8,9 @@ Draw a map which represents positions of different genomic categories
 Draw a map which represents positions of different genomic categories
 }
 \usage{
-\S4method{hc_map}{GenomicHilbertCurve}(object, level = 6, fill = NULL,
-    labels = names(object@background), labels_gp = gpar(fontsize = 16),
-    add = FALSE)
+\S4method{hc_map}{GenomicHilbertCurve}(object, level = 7, fill = NULL,
+    labels = names(object@background), labels_gp = gpar(),
+    add = FALSE, ...)
 }
 \arguments{
 
