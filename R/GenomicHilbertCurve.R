@@ -333,25 +333,25 @@ setMethod(f = "hc_map",
 	labels = names(object@background), labels_gp = gpar(),
 	add = FALSE) {
 
-		background = object@background
-		df = merge_into_one_chr(background, object@background)
+	background = object@background
+	df = merge_into_one_chr(background, object@background)
 
-		if(is.null(fill)) {
-			fill = rand_color(length(background), transparency = 0.5)
-		}
-		if(add) {
-			if(object@MODE == "pixel") {
-				hc_layer(object, background, col = fill)
-			} else {
-				hc_rect(hc, background, gp = gpar(fill = fill, col = NA))
-				hc_centered_text(hc, x1 = df[, 1], x2 = df[, 2], labels = labels, gp = labels_gp)
-			}
+	if(is.null(fill)) {
+		fill = rand_color(length(background), transparency = 0.5)
+	}
+	if(add) {
+		if(object@MODE == "pixel") {
+			hc_layer(object, background, col = fill)
 		} else {
-			hc = GenomicHilbertCurve(background = background, level = level)
 			hc_rect(hc, background, gp = gpar(fill = fill, col = NA))
 			hc_centered_text(hc, x1 = df[, 1], x2 = df[, 2], labels = labels, gp = labels_gp)
 		}
-		return(invisible(object))
+	} else {
+		hc = GenomicHilbertCurve(background = background, level = level)
+		hc_rect(hc, background, gp = gpar(fill = fill, col = NA))
+		hc_centered_text(hc, x1 = df[, 1], x2 = df[, 2], labels = labels, gp = labels_gp)
+	}
+	return(invisible(object))
 })
 
 

@@ -510,6 +510,10 @@ setMethod(f = "hc_normal_points",
 	definition = function(object, ir, x1 = NULL, x2 = x1, gp = gpar(), 
 	pch = 1, size = unit(1, "char")) {
 
+	if(object@MODE == "pixel") {
+        stop("`hc_points()` can only be used under 'normal' mode.")
+    }
+
 	if(missing(ir) || is.null(ir)) {
 		if(is.null(x1) ) {
 			stop("You should either specify `ir`, or `x1` or `x1` and `x2`.")
@@ -526,12 +530,13 @@ setMethod(f = "hc_normal_points",
 		             end = zoom(object, (start(ir) + end(ir))/2))
 	}
 
-	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
-
 	od = order(ir)
 	ir = ir[od]
 
 	mtch = as.matrix(findOverlaps(object@BINS, ir))
+	if(nrow(mtch) == 0) {
+		return(invisible(NULL))
+	}
 	l = duplicated(mtch[,2])
 	mtch = mtch[!l, , drop = FALSE]
 
@@ -546,6 +551,8 @@ setMethod(f = "hc_normal_points",
 
 	x1 = pos$x2 - (pos$x2 - pos$x1)*(er1 - sr)/(er1 - sr1)
 	y1 = pos$y2 - (pos$y2 - pos$y1)*(er1 - sr)/(er1 - sr1)
+
+	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
 
 	grid.points(x1, y1, default.units = "native", gp = gp, pch = pch, size = size)	
 
@@ -587,115 +594,116 @@ setMethod(f = "hc_normal_points",
 # NULL
 #
 setMethod(f = "hc_segmented_points",
-	signature = "HilbertCurve",
-	definition = function(object, ir, x1 = NULL, x2 = NULL, gp = gpar(), 
-	np = max(c(2, 10 - hc_level(object))),
-	mean_mode = c("w0", "absolute", "weighted"), 
-	shape = "circle") {
+    signature = "HilbertCurve",
+    definition = function(object, ir, x1 = NULL, x2 = NULL, gp = gpar(), 
+    np = max(c(2, 10 - hc_level(object))),
+    mean_mode = c("w0", "absolute", "weighted"), 
+    shape = "circle") {
 
-	if(missing(ir) || is.null(ir)) {
-		if(is.null(x1) || is.null(x2)) {
-			stop("You should either specify `ir`, or `x1` and `x2`.")
-		} else {
-			x1 = hc_offset(object, x1)
-			x2 = hc_offset(object, x2)
-			ir = IRanges(start = round(zoom(object, x1)),
-				         end = round(zoom(object, x2)))
-		}
-	} else {
-		ir = IRanges(hc_offset(object, start(ir)),
-			         hc_offset(object, end(ir)))
-		ir = IRanges(start = zoom(object, start(ir)),
-	                 end = zoom(object, end(ir)))
-	}
+    if(object@MODE == "pixel") {
+        stop("`hc_points()` can only be used under 'normal' mode.")
+    }
 
-	col = normalize_gp("col", gp$col, length(ir))
-	fill = normalize_gp("fill", gp$fill, length(ir))
-	if(length(shape) == 1) {
-		shape = rep(shape, length(ir))
-	}
+    if(missing(ir) || is.null(ir)) {
+        if(is.null(x1) || is.null(x2)) {
+            stop("You should either specify `ir`, or `x1` and `x2`.")
+        } else {
+            x1 = hc_offset(object, x1)
+            x2 = hc_offset(object, x2)
+            ir = IRanges(start = round(zoom(object, x1)),
+                         end = round(zoom(object, x2)))
+        }
+    } else {
+        ir = IRanges(hc_offset(object, start(ir)),
+                     hc_offset(object, end(ir)))
+        ir = IRanges(start = zoom(object, start(ir)),
+                     end = zoom(object, end(ir)))
+    }
 
-	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
+    col = normalize_gp("col", gp$col, length(ir))
+    fill = normalize_gp("fill", gp$fill, length(ir))
+    if(length(shape) == 1) {
+        shape = rep(shape, length(ir))
+    }
 
-	mtch = as.matrix(findOverlaps(object@BINS, ir))
-	r = pintersect(object@BINS[mtch[,1]], ir[mtch[,2]])
-	# l = width(r) > 1
-	# r = r[l]
-	# mtch = mtch[l, , drop = FALSE]
+    bin_width = width(object@BINS[1])
+    bin_radius = bin_width/(2*(np-1))
+    breaks = seq(object@RANGE[1] - bin_radius, object@RANGE[2] + bin_radius, length = (4^object@LEVEL)*(np-1)+1)
+    radius = 1/(2*(np-1))
+    s = breaks[-length(breaks)]
+    e = breaks[-1]
+    s[1] = s[1] + bin_radius
+    e[length(e)] = e[length(e)] - bin_radius
+    window = IRanges(start = round(s), end = round(e))
 
-	r1 = object@BINS[mtch[,1]]
-	pos = object@POS[mtch[,1], ]
-	col = col[mtch[,2]]
-	fill = fill[mtch[,2]]
-	shape = shape[mtch[,2]]
+    mid = apply(object@POS, 1, function(v) {
+        x = seq(v[1], v[3], length = np)
+        y = seq(v[2], v[4], length = np)
+        data.frame(x = x[-1], y = y[-1])
+    })
+    mid = do.call("rbind", mid)
+    mid = rbind(c(object@POS[1, 1], object@POS[1, 2]), mid)
 
-	sr1 = start(r1)
-	sr = start(r)
-	er1 = end(r1)
-	er = end(r)
+    mtch = as.matrix(findOverlaps(window, ir))
+    if(nrow(mtch) == 0) {
+    	return(invisible(NULL))
+    }
+    
+    # colors correspond to mean value for each window
+    mean_mode = match.arg(mean_mode)[1]
 
-	x1 = pos$x2 - (pos$x2 - pos$x1)*(er1 - sr)/(er1 - sr1)
-	y1 = pos$y2 - (pos$y2 - pos$y1)*(er1 - sr)/(er1 - sr1)
-	x2 = pos$x2 - (pos$x2 - pos$x1)*(er1 - er)/(er1 - sr1)
-	y2 = pos$y2 - (pos$y2 - pos$y1)*(er1 - er)/(er1 - sr1)
+    fill = normalize_gp("fill", gp$fill, length(ir))
+    rgb = col2rgb(fill, alpha = TRUE)
+    r = average_in_window(window, ir, mtch, rgb[1, ], mean_mode, 255)
+    g = average_in_window(window, ir, mtch, rgb[2, ], mean_mode, 255)
+    b = average_in_window(window, ir, mtch, rgb[3, ], mean_mode, 255)
+    alpha = rep(max(rgb[4, ]), length(r))
 
-	#grid.segments(x1, y1, x2, y2, default.units = "native", gp = gpar(lwd = 2, col = "red"))
+    index = as.numeric(names(r))
+    fill2 = rgb(red = r, green = g, blue = b, alpha = alpha, maxColorValue = 255)
 
-	xx = numeric()
-	yy = numeric()
-	for(i in seq_along(x1)) {
-		if(pos$x1[i] == pos$x2[i]) {
-			x = rep(pos$x1[i], np)
-		} else if(pos$x1[i] > pos$x2[i]) {
-			x = seq(pos$x1[i], pos$x2[i], by = -1/(np-1))
-		} else {
-			x = seq(pos$x1[i], pos$x2[i], by = 1/(np-1))
-		}
-		if(pos$y1[i] == pos$y2[i]) {
-			y = rep(pos$y1[i], np)
-		} else if(pos$y1[i] > pos$y2[i]) {
-			y = seq(pos$y1[i], pos$y2[i], by = -1/(np-1))
-		} else {
-			y = seq(pos$y1[i], pos$y2[i], by = 1/(np-1))
-		}
+    col = normalize_gp("col", gp$col, length(ir))
+    rgb = col2rgb(col, alpha = TRUE)
+    r = average_in_window(window, ir, mtch, rgb[1, ], mean_mode, 255)
+    g = average_in_window(window, ir, mtch, rgb[2, ], mean_mode, 255)
+    b = average_in_window(window, ir, mtch, rgb[3, ], mean_mode, 255)
+    alpha = rep(max(rgb[4, ]), length(r))
+    col2 = rgb(red = r, green = g, blue = b, alpha = alpha, maxColorValue = 255)
 
-		l = x >= min(c(x1[i], x2[i])) & x <= max(c(x1[i], x2[i])) &
-		    y >= min(c(y1[i], y2[i])) & y <= max(c(y1[i], y2[i]))
-		x = x[l]
-		y = y[l]
+    shape = tapply(shape[mtch[,2]], mtch[, 1], function(x) x[1])
+    mid = mid[unique(mtch[, 1]), , drop = FALSE]
 
-		if(length(x)) {
-			r = 1/(np-1)/2
-			if(shape[i] == "circle") {
-				grid.circle(x, y, r = 1/(np-1)/2, default.units = "native", gp = gpar(fill = fill[i], col = col[i]))
-			} else if(shape[i] == "square") {
-				grid.rect(x, y, width = 2*r, height = 2*r, default.units = "native", gp = gpar(fill = fill[i], col = col[i]))
-			} else if(shape[i] == "triangle") {
-				grid.polygon(c(x, x-2*r*tan(pi/6), x+2*r*tan(pi/6)), 
-					c(y+r, y-r, y-r), id = rep(seq_along(x), 3), default.units = "native", gp = gpar(fill = fill[i], col = col[i]))
-			} else if(shape[i] == "hexagon") {
-				grid.polygon(rep(cos(0:5 * pi/3)*r, length(x)) + rep(x, each = 6),
-					         rep(sin(0:5 * pi/3)*r, length(y)) + rep(y, each = 6),
-					         id = rep(seq_along(x), each = 6),
-					         default.units = "native", gp = gpar(fill = fill[i], col = col[i]))
-			} else if(shape[i] == "star") {
-				r2 = cos(pi/10)*tan(pi/20)/(tan(pi/20) + tan(pi/10)) * r
-				grid.polygon(rep(sin(0:9*pi/5 + pi*0)*rep(c(r,r2), 5), length(x)) + rep(x, each = 10),
-					         rep(cos(0:9*pi/5 + pi*0)*rep(c(r,r2), 5), length(y)) + rep(y, each = 10),
-					         id = rep(seq_along(x), each = 10),
-					         default.units = "native", gp = gpar(fill = fill[i], col = col[i]))
-			}
+    seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
+    for(s in unique(shape)) {
+        l = shape == s
+        x = mid[l, 1]
+        y = mid[l, 2]
+        if(s == "circle") {
+            grid.circle(x, y, r = radius, default.units = "native", gp = gpar(fill = fill2[l], col = col2[l]))
+        } else if(s == "square") {
+            grid.rect(x, y, width = 2*radius, height = 2*radius, default.units = "native", gp = gpar(fill = fill2[l], col = col2[l]))
+        } else if(s == "triangle") {
+            grid.polygon(c(x, x-2*radius*tan(pi/6), x+2*radius*tan(pi/6)), 
+                c(y+radius, y-radius, y-radius), id = rep(seq_along(x), 3), default.units = "native", gp = gpar(fill = fill2[l], col = col2[l]))
+        } else if(s == "hexagon") {
+            grid.polygon(rep(cos(0:5 * pi/3)*radius, length(x)) + rep(x, each = 6),
+                         rep(sin(0:5 * pi/3)*radius, length(y)) + rep(y, each = 6),
+                         id = rep(seq_along(x), each = 6),
+                         default.units = "native", gp = gpar(fill = fill2[l], col = col2[l]))
+        } else if(s == "star") {
+            r2 = cos(pi/10)*tan(pi/20)/(tan(pi/20) + tan(pi/10)) * radius
+            grid.polygon(rep(sin(0:9*pi/5 + pi*0)*rep(c(radius,r2), 5), length(x)) + rep(x, each = 10),
+                         rep(cos(0:9*pi/5 + pi*0)*rep(c(radius,r2), 5), length(y)) + rep(y, each = 10),
+                         id = rep(seq_along(x), each = 10),
+                         default.units = "native", gp = gpar(fill = fill2[l], col = col2[l]))
+        }
+    }
 
-			xx = c(xx, x)
-			yy = c(yy, y)
-		}
-	}
-	
-	seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "global"))
-	upViewport()
+    seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "global"))
+    upViewport()
 
-	df = data.frame(x = xx, y = yy, r = rep(1/(np-1)/2, length(xx)))
-	return(invisible(df))
+    df = cbind(mid, radius = rep(radius, nrow(mid)))
+    return(invisible(df))
 })
 
 # after zooming, ir may overlap
@@ -789,14 +797,15 @@ setMethod(f = "hc_rect",
 	                 end = zoom(object, end(ir)))
 	}
 
-	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
-
 	s = start(object@BINS)
 	e = end(object@BINS)
 	mid = round((s + e)/2)
 	window = IRanges(start = c(s[1], mid), end = c(mid, e[length(e)]))
 		
 	mtch = as.matrix(findOverlaps(window, ir))
+	if(nrow(mtch) == 0) {
+		return(invisible(NULL))
+	}
 	
 	# colors correspond to mean value for each window
 	mean_mode = match.arg(mean_mode)[1]
@@ -814,6 +823,8 @@ setMethod(f = "hc_rect",
 
 	pos = object@POS
 	n = 4^object@LEVEL
+
+	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
 
 	if(n %in% index) {
 		ind = setdiff(index, n)
@@ -895,14 +906,16 @@ setMethod(f = "hc_segments",
 	if(length(gp$lwd) == 1) gp$lwd = rep(gp$lwd, length(ir))
 	if(length(gp$col) == 1) gp$col = rep(gp$col, length(ir))
 
-	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
-
 	mtch = as.matrix(findOverlaps(object@BINS, ir))
+	if(nrow(mtch) == 0) {
+		return(invisible(NULL))
+	}
 	r = pintersect(object@BINS[mtch[,1]], ir[mtch[,2]])
 	# l = width(r) > 1
 	# r = r[l]
 	# mtch = mtch[l, , drop = FALSE]
 
+	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
 	df = tapply(seq_len(nrow(mtch)), mtch[, 2], function(ind) {
 		i1 = mtch[ind, 1]  ## index for BINS
 		i2 = mtch[ind[1], 2]  ## index for ir
@@ -1019,13 +1032,15 @@ setMethod(f = "hc_text",
 		             end = zoom(object, (start(ir) + end(ir))/2))
 	}
 
-	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
-
 	od = order(ir)
 	ir = ir[od]
 	labels = labels[od]
 
 	mtch = as.matrix(findOverlaps(object@BINS, ir))
+	if(nrow(mtch) == 0) {
+		return(invisible(NULL))
+	}
+
 	l = duplicated(mtch[,2])
 	mtch = mtch[!l, , drop = FALSE]
 
@@ -1041,6 +1056,8 @@ setMethod(f = "hc_text",
 
 	x1 = pos$x2 - (pos$x2 - pos$x1)*(er1 - sr)/(er1 - sr1)
 	y1 = pos$y2 - (pos$y2 - pos$y1)*(er1 - sr)/(er1 - sr1)
+
+	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
 
 	grid.text(labels, x1, y1, default.units = "native", gp = gp, ...)	
 	
@@ -1100,9 +1117,13 @@ setMethod(f = "hc_centered_text",
 	                 end = zoom(object, end(ir)))
 	}
 
+	mtch = as.matrix(findOverlaps(object@BINS, ir))
+	if(nrow(mtch) == 0) {
+		return(invisible(NULL))
+	}
+
 	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
 
-	mtch = as.matrix(findOverlaps(object@BINS, ir))
 	lapply(seq_along(unique(mtch[, 2])), function(i) {
 		ind = mtch[mtch[, 2] == i, 1]
 		pos = object@POS[ind, ]
@@ -1232,6 +1253,9 @@ setMethod(f = "hc_layer",
 	window = IRanges(start = c(s[1], mid), end = c(mid, e[length(e)]))
 		
 	mtch = as.matrix(findOverlaps(window, ir))
+	if(nrow(mtch) == 0) {
+		return(invisible(NULL))
+	}
 	
 	# colors correspond to mean value for each window
 	mean_mode = match.arg(mean_mode)[1]
@@ -1320,7 +1344,7 @@ setMethod(f = "hc_png",
 	definition = function(object, file = "Rplot.png") {
 
 	if(object@MODE == "normal") {
-		stop("`hc_save()` can only be used under 'pixel' mode.")
+		stop("`hc_png()` can only be used under 'pixel' mode.")
 	}
 
 	red = object@RGB$red

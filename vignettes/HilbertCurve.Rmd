@@ -28,6 +28,8 @@ options(markdown.HTML.stylesheet = "custom.css")
 
 options(width = 100)
 
+# if it is on the cluster, chunks that need long time will run when generating
+# the vignette
 on_cluster = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz"
 ```
 
@@ -72,6 +74,10 @@ upViewport()
 upViewport()
 ```
 
+As shown in the above plots, as level increase, the length of the curve become longer and the curve folds
+more tensely. If a Hilbert curve with level 11 is used to map to human chromosome 1, the resolution would be
+`249250621/2^11/2^11` (approximately 60bp).
+
 Following heatmap shows distance between elements in the Hilbert curve. From left to right
 and from top to bottom, the order is the natural order of data points on the axis and colors correspond 
 to the distance for pair distance in the 2D space.
@@ -102,8 +108,8 @@ decorate_heatmap_body("dist", {
 
 ## Basic settings
 
-The **HilbertCurve** package provides a rather simple way to display the data in the Hilbert
-curve. It provides functions to add low-level graphics and also support both "low-resolution"
+The **HilbertCurve** package provides a rather simple way to display the data in the form of Hilbert
+curve. It provides functions to add low-level graphics and also supports both "low-resolution"
 and "high-resolution" modes.
 
 Generally, customizing a Hilbert curve follows following steps:
@@ -328,21 +334,14 @@ hc = HilbertCurve(1, 100, level = 5)
 hc_rect(hc, x1 = 1:99, x2 = 2:100, gp = gpar(col = col, fill = col))
 ```
 
-Reproduce the ip...
+Reproduce the ip... The data is from http://www.iwik.org/ipcountry/
 
-```{r, eval = on_cluster, echo = 1:26}
+```{r, echo = 1:26}
 library(RCurl)
 library(ComplexHeatmap)
 library(RColorBrewer)
 
-html = httpGET("http://www.iwik.org/ipcountry/")
-match = gregexpr("<td><a href=\".*?\">", html)
-files = substr(rep(html, length(match[[1]])), match[[1]] + 13, match[[1]] + attr(match[[1]], "match.length")-3)
-files = files[grep("cidr", files)]
-cidr_list = lapply(files, function(f) {
-    scan(paste0("http://www.iwik.org/ipcountry/", f), what = "character", sep = "\n", comment.char = "#", quiet = TRUE)
-})
-names(cidr_list) = gsub("(.*?).cidr", "\\1", files)
+load(system.file("extdata", "cidr_list.RData", package = "HilbertCurve"))
 
 cidr_list = cidr_list[sapply(cidr_list, length) > 0]
 
@@ -364,26 +363,21 @@ cm = ColorMapping(levels = c(top8, "Others"), color = c(col[top8], "grey"))
 lgd = color_mapping_legend(cm, title = "Top8 countries", labels = c(paste(top8, top8_rate), "Others"), plot = FALSE)
 hc = HilbertCurve(0, 256^4, mode = "pixel", level = 9, legend = lgd)
 hc_layer(hc, x1 = start, x2 = start + width, col = col[country])
-if(file.exists("ip.png")) hc_png(hc, file = "ip.png")
-```
-
-```{r, echo = FALSE, eval = !on_cluster, results = "asis"}
-cat("<p><center><img src='ip.png' /></center></p>\n")
 ```
 
 Duration of Chinese dynasties.
 
 ```{r}
-load(paste0(system.file("extdata", package = "HilbertCurve"), "/chinese_dynasty.RData"))
+load(system.file("extdata", "chinese_dynasty.RData", package = "HilbertCurve"), )
 
-hc = HilbertCurve(min(chinese_dynasty[[2]]), max(chinese_dynasty[[3]]), title = "中国朝代（西周 ~ 清朝）", 
-    title_gp = gpar(fontsize = 16, fontfamily = "Songti SC"))
+hc = HilbertCurve(min(chinese_dynasty[[2]]), max(chinese_dynasty[[3]]), title = "中国朝代（1122 B.C. ~ 1911 A.D.）", 
+    title_gp = gpar(fontsize = 16, fontfamily = "GB1"))
 hc_segments(hc, x1 = chinese_dynasty[[2]], x2 = chinese_dynasty[[3]], 
     gp = gpar(col = circlize::rand_color(nrow(chinese_dynasty), transparency = 0.2), 
         lwd = runif(nrow(chinese_dynasty), min = 1, max = 10)))
 hc_text(hc, x1 = chinese_dynasty[[2]], x2 = chinese_dynasty[[3]], labels = chinese_dynasty[[1]], 
     gp = gpar(fontsize = (chinese_dynasty[[3]] - chinese_dynasty[[2]])/500 * 10 + 8, 
-        fontfamily = "Songti SC"))
+        fontfamily = "GB1"))
 ```
 
 ## GenomicHilbertCurve: specific for genomic data
@@ -397,11 +391,11 @@ Following functions can be applied on the `GenomicHilbertCurve` object, and the 
 should be a data frame or a `GRanges` object.
 
 ```
-hc_points()
-hc_rect()
-hc_segments()
-hc_text()
-hc_layer()
+hc_points(hc, gr, ...)
+hc_rect(hc, gr, ...)
+hc_segments(hc, gr, ...)
+hc_text(hc, gr, ...)
+hc_layer(hc, gr, ...)
 ```
 
 One major feature is multiple chromosomes (or genomic categories) can be put into one same curve.
@@ -423,7 +417,7 @@ Following two figures compare sequence conservations. Data are from [here](http:
 ```{r}
 chr1_len = 249250621
 load(system.file("extdata", "mouse_net.RData", package = "HilbertCurve"))
-seqlengths(mouse) = chr1_len
+seqlengths(mouse) = chr1_len # it is only used to extract the complement
 nonmouse = gaps(mouse); nonmouse = nonmouse[strand(nonmouse) == "*"]
 gr = c(mouse, nonmouse)
 col = c(rep("red", length(mouse)), rep("yellow", length(nonmouse)))
@@ -436,18 +430,17 @@ nonzebrafish = gaps(zebrafish); nonzebrafish = nonzebrafish[strand(nonzebrafish)
 gr = c(zebrafish, nonzebrafish)
 col = c(rep("red", length(zebrafish)), rep("yellow", length(nonzebrafish)))
 hc = GenomicHilbertCurve(chr = "chr1", level = 6)
-hc_points(hc, zebrafish, np = 3, gp = gpar(col = col, fill = col))
+hc_points(hc, gr, np = 3, gp = gpar(col = col, fill = col))
 ```
 
 GC percent on chromosome 1, under "normal" mode:
 
 ```{r, eval = on_cluster, echo = 1:5}
 df = read.table(pipe("awk '$1==\"chr1\"' ~/HilbertCurveTest/hg19_gc_percent_window1000.bed"))
-col_fun = colorRamp2(c(0, 500, 1000), c("green", "#FFFFCC", "red"))
+col_fun = colorRamp2(quantile(df[[5]], c(0.1, 0.5, 0.9)), c("green", "#FFFFCC", "red"))
 hc = GenomicHilbertCurve(chr = "chr1", level = 6)
 hc_points(hc, df, np = 3, gp = gpar(fill = col_fun(df[[5]]), col = col_fun(df[[5]])))
 hc_rect(hc, reduce(g), gp = gpar(fill = "#00000020", col = NA))
-if(file.exists("gc_percent_chr1_points.png")) hc_png(hc, file = "gc_percent_chr1_points.png")
 ```
 
 ```{r, echo = FALSE, eval = !on_cluster, results = "asis"}
@@ -456,14 +449,14 @@ cat("<p><center><img src='gc_percent_chr1_points.png' /></center></p>\n")
 
 GC percent on chromosome 1, under "pixel" mode:
 
-```{r, eval = on_cluster, echo = 1:3}
+```{r, eval = on_cluster, echo = 1:3, fig.keep = "none"}
 hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel")
 hc_layer(hc, df, col = col_fun(df[[5]]))
 hc_layer(hc, reduce(g), col = "#00000020")
-if(file.exists("gc_percent_chr1.png")) hc_png(hc, file = "gc_percent_chr1.png")
+hc_png(hc, file = "gc_percent_chr1.png")
 ```
 
-```{r, echo = FALSE, eval = !on_cluster, results = "asis"}
+```{r, echo = FALSE, results = "asis"}
 cat("<p><center><img src='gc_percent_chr1.png' /></center></p>\n")
 ```
 
@@ -471,7 +464,7 @@ Following data are from http://genboree.org/EdaccData/Release-9/sample-experimen
 
 First is the distribution of histone marks as well as the gene regions (shadow).
 
-```{r, eval = FALSE}
+```{r}
 library(GetoptLong)
 plot_histone_mark = function(mark) {
 	df = read.table(pipe(qq("awk '$5>0 && $1==\"chr1\"' ~/HilbertCurveTest/UCSD.Lung.@{mark}.STL002.bed")), sep = "\t")
@@ -479,81 +472,78 @@ plot_histone_mark = function(mark) {
 	hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel")
 	hc_layer(hc, df, col = col_fun(df[[5]]))
     hc_layer(hc, reduce(g), col = "#00000010")
-    return(invisible(hc))
+    hc_png(hc, qq("@{mark}_chr1.png"))
 }
 ```
 
 H3K27ac histone mark:
 
-```{r, eval = on_cluster, echo = 1}
+```{r, eval = on_cluster, plot.keep = "none", echo = 1}
 plot_histone_mark("H3K27ac")
-if(file.exists("H3K27ac_chr1.png")) hc_png(hc, file = "H3K27ac_chr1.png")
 ```
 
-```{r, echo = FALSE, eval = !on_cluster, results = "asis"}
+```{r, echo = FALSE, results = "asis"}
 cat("<p><center><img src='H3K27ac_chr1.png' /></center></p>\n")
 ```
 
 H3K36me3 histone mark. (H3K36me3 is found in actively transcribed gene bodies)
 
-```{r, eval = on_cluster, echo = 1}
+```{r, eval = on_cluster, plot.keep = "none", echo = 1}
 plot_histone_mark("H3K36me3")
-if(file.exists("H3K36me3_chr1.png")) hc_png(hc, file = "H3K36me3_chr1.png")
 ```
 
-```{r, echo = FALSE, eval = !on_cluster, results = "asis"}
+```{r, echo = FALSE, results = "asis"}
 cat("<p><center><img src='H3K36me3_chr1.png' /></center></p>\n")
 ```
 
 H3K4me3 histone mark. (H3K4me3 is found in actively transcribed promoters, particularly just after the transcription start site)
 
-```{r, eval = on_cluster, echo = 1}
+```{r, eval = on_cluster, fig.keep = "none", echo = 1}
 plot_histone_mark("H3K4me3")
-if(file.exists("H3K4me3_chr1.png")) hc_png(hc, file = "H3K4me3_chr1.png")
 ```
 
-```{r, echo = FALSE, eval = !on_cluster, results = "asis"}
+```{r, echo = FALSE, results = "asis"}
 cat("<p><center><img src='H3K4me3_chr1.png' /></center></p>\n")
 ```
 
 H3K9me3 histone mark. (H3K9me3 is found in constitutively repressed genes)
 
-```{r, eval = on_cluster, echo = 1}
+```{r, eval = on_cluster, fig.keep = "none", echo = 1}
 plot_histone_mark("H3K9me3")
-if(file.exists("H3K9me3_chr1.png")) hc_png(hc, file = "H3K9me3_chr1.png")
 ```
 
-```{r, echo = FALSE, eval = !on_cluster, results = "asis"}
+```{r, echo = FALSE, results = "asis"}
 cat("<p><center><img src='H3K9me3_chr1.png' /></center></p>\n")
 ```
 
 Coverage for RNAseq.
 
-```{r, eval = on_cluster, echo = 1:6}
+```{r, eval = on_cluster, fig.keep = "none", echo = 1:6}
 df = read.table(pipe(qq("awk '$5>0 && $1==\"chr1\"' ~/HilbertCurveTest/UCSD.Lung.mRNA-Seq.STL002.bed")), sep = "\t")
 df[[5]] = log(df[[5]] + 1)
 col_fun = colorRamp2(c(0, quantile(df[[5]], 0.99)), c("white", "red"))
-hc = GenomicHilbertCurve(1, chr1_len, level = 9, mode = "pixel")
+hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel")
 hc_layer(hc, df, col = col_fun(df[[5]]))
 hc_layer(hc, reduce(g), col = "#00000010")
+hc_png(hc, file = 'RNASeq_coverage_chr1.png')
 ```
 
-```{r, echo = FALSE, eval = !on_cluster, results = "asis"}
+```{r, echo = FALSE, results = "asis"}
 cat("<p><center><img src='RNASeq_coverage_chr1.png' /></center></p>\n")
 ```
 
 Methylation, blue corresponds to un-methylation, red corresponds to full-methylation.
 
-```{r, eval = on_cluster, echo = 1:5}
+```{r, eval = on_cluster, fig.keep = "none", echo = 1:5}
 df = read.table(pipe("awk '$1==\"chr1\"' ~/HilbertCurveTest/UCSD.Lung.Bisulfite-Seq.STL002.bed"), sep = "\t")
 col_fun = colorRamp2(c(0, 0.5, 1), c("blue", "white", "red"))
 hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel")
 hc_layer(hc, df, col = col_fun(df[[5]]), mean_mode = "absolute")
 hc_layer(hc, reduce(g), col = "#00000010")
-if(file.exists("methylation_chr1.png")) hc_png(hc, file = "methylation_chr1.png")
+hc_png(hc, file = 'methylation_chr1.png')
 ```
 
-```{r, echo = FALSE, eval = !on_cluster, results = "asis"}
+```{r, echo = FALSE, results = "asis"}
 cat("<p><center><img src='methylation_chr1.png' /></center></p>\n")
 ```
 
@@ -563,24 +553,31 @@ We demonstrated how to visualize one single chromosome through Hilbert curve, bu
 we also want to put all chromosomes into one plot to get rid of reading too many plots simutaneously.
 One solution is to construct a 'huge' chromosome which merges all real chromosomes.
 
-```{r, eval = on_cluseter, echo = 1:5}
-df = read.table(pipe("awk '$1==\"chr1\"' ~/HilbertCurveTest/cnv.txt"), sep = "\t")
+```{r, eval = on_cluster, fig.keep = "none", echo = 1:5}
+df = read.table("~/HilbertCurveTest/cnv.txt", sep = "\t")
 df = df[c(1, 2, 2, 3)]
 hc = GenomicHilbertCurve(chr = paste0("chr", c(1:22, "X", "Y")), level = 9, mode = "pixel")
 col_fun = colorRamp2(c(-0.7, 0, 0.7), c("green", "white", "red"))
 hc_layer(hc, df, col = col_fun(df[[4]]), mean_mode = "absolute", grid_line = 3)
 hc_layer(hc, reduce(g), col = "#00000010")
-if(file.exists("cnv_all_chromosomes.png")) hc_png(hc, file = "cnv_all_chromosomes.png")
+hc_png(hc, file = 'cnv_all_chromosomes.png')
 ```
 
-```{r, echo = FALSE, eval = !on_cluster, results = "asis"}
+```{r, echo = FALSE, results = "asis"}
 cat("<p><center><img src='cnv_all_chromosomes.png' /></center></p>\n")
 ```
 
 Also a map which shows the chromosome positions in Hilbert curve is necessary.
+The map can be directly added as a layer, but it would mixed the plot
 
-```{r}
+```{r, eval = on_cluster}
+# you can use `hc` generated before, the first following line
+# is only used to run wheng generating the vignette
 hc_map(hc)
+```
+
+```{r, echo = FALSE, eval = !on_cluster, results = "asis"}
+cat("<p><center><img src='map_all_chromosomes.png' /></center></p>\n")
 ```
 
 If background is defined as a list of regios, ...
