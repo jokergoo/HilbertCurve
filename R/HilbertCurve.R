@@ -471,9 +471,17 @@ setMethod(f = "hc_points",
 	if(is.null(np)) np = 1
 
 	if(np >= 2) {
-		hc_segmented_points(object, ir, x1 = x1, x2 = x2, gp = gp, np = np, mean_mode = mean_mode, shape = shape)
+		if(missing(ir)) {
+			hc_segmented_points(object, x1 = x1, x2 = x2, gp = gp, np = np, mean_mode = mean_mode, shape = shape)
+		} else {
+			hc_segmented_points(object, ir, gp = gp, np = np, mean_mode = mean_mode, shape = shape)
+		}
 	} else {
-		hc_normal_points(object, ir, x1 = x1, x2 = x2, gp = gp, pch = pch, size = size)
+		if(missing(ir)) {
+			hc_normal_points(object, x1 = x1, x2 = x2, gp = gp, pch = pch, size = size)
+		} else {
+			hc_normal_points(object, ir, gp = gp, pch = pch, size = size)
+		}
 	}
 
 })
