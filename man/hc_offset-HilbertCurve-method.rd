@@ -3,22 +3,18 @@
 \alias{hc_offset}
 \title{
 Adjust positions
-
-\describe{
-  \item{object}{A \code{\link{HilbertCurve-class}} object.}
-  \item{x}{positions.}
-}
 }
 \description{
 Adjust positions
-
-\describe{
-  \item{object}{A \code{\link{HilbertCurve-class}} object.}
-  \item{x}{positions.}
-}
 }
 \usage{
 \S4method{hc_offset}{HilbertCurve}(object, x)
+}
+\arguments{
+
+  \item{object}{A \code{\link{HilbertCurve-class}} object.}
+  \item{x}{positions.}
+
 }
 \details{
 Since internally positions are transformed to positive integers, if input positions
@@ -32,6 +28,6 @@ A positive numeric value
 Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
-hc = HilbertCueve(-100, 100)
+hc = HilbertCurve(-100, 100)
 hc_offset(hc, c(-100, -50, 0, 50, 100))
 }

@@ -28,9 +28,6 @@ options(markdown.HTML.stylesheet = "custom.css")
 
 options(width = 100)
 
-# if it is on the cluster, chunks that need long time will run when generating
-# the vignette
-on_cluster = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz"
 library(HilbertCurve)
 ```
 
@@ -277,15 +274,16 @@ hc_points(hc, x1 = c(0.15, 0.55), x2 = c(0.25, 0.65))
 
 This is also useful to specify the positions with huge values which can not be represented by the `IRagnes` class (e.g. the summation of total length of human chromosomes).
 
-```{r}
+```{r, eval = FALSE}
 # code not run when generating the vignette
 hc = HilbertCurve(1, 1000000000000, level = 4, reference = TRUE)
-hc_points(hc, 400000000000, 600000000000)
+hc_points(hc, x1 = 400000000000, x2 = 600000000000)
 ```
 
 Negative positions are allowed as well.
 
-```{r}
+```{r, eval = FALSE}
+# code not run when generating the vignette
 hc = HilbertCurve(-100, 100, level = 4, reference = TRUE)
 hc_points(hc, x1 = -50, x2 = 50)
 ```
@@ -341,8 +339,8 @@ And of course you can add title and legend to the plot.
 ```{r}
 hc = HilbertCurve(1, 1000, level = 9, mode = "pixel", title = "pixel mode")
 x = sample(1000, 100)
-hc_layer(hc, x1 = x, x2 = x+5, mean_mode = "absolute")
-hc_layer(hc, x1 = 750, x2 = 850, col = "#0000FF20")
+hc_layer(hc, x1 = x, x2 = x+2, mean_mode = "absolute")
+hc_layer(hc, x1 = 750, x2 = 850, col = "#0000FF40")
 ```
 
 Grid lines can be added to the plot for better distinguish blocks in the Hilbert curve.
@@ -411,21 +409,25 @@ hc = HilbertCurve(0, 256^4, mode = "pixel", level = 9, legend = lgd)
 hc_layer(hc, x1 = start, x2 = start + width, col = col[country])
 ```
 
-Duration of Chinese dynasties. Data from http://www.360doc.com/content/11/1123/02/7829717_166641336.shtml
+Duration of Chinese dynasties. Data from http://www.360doc.com/content/11/1123/02/7829717_166641336.shtml.
 
-```{r}
+```{r, eval = FALSE}
+# Following code does not run when building the vignette due to different font family for
+# Chinese in different OS.
 load(system.file("extdata", "chinese_dynasty.RData", package = "HilbertCurve"), )
 
 hc = HilbertCurve(min(chinese_dynasty[[2]]), max(chinese_dynasty[[3]]), 
-    title = "中国朝代（1122 B.C. ~ 1911 A.D.）", 
-    title_gp = gpar(fontsize = 16, fontfamily = "GB1"))
+    title = "Chinese dynasty (1122 B.C. ~ 1911 A.D.)", 
+    title_gp = gpar(fontsize = 16, fontfamily = "Songti SC"))
 hc_segments(hc, x1 = chinese_dynasty[[2]], x2 = chinese_dynasty[[3]], 
     gp = gpar(col = rand_color(nrow(chinese_dynasty), transparency = 0.2), 
         lwd = runif(nrow(chinese_dynasty), min = 1, max = 10)))
 hc_text(hc, x1 = chinese_dynasty[[2]], x2 = chinese_dynasty[[3]], labels = chinese_dynasty[[1]], 
     gp = gpar(fontsize = (chinese_dynasty[[3]] - chinese_dynasty[[2]])/500 * 10 + 8, 
-        fontfamily = "GB1"))
+        fontfamily = "Songti SC"))
 ```
+
+<p><center><img src = "chinese_dynasty.png" /></center></p>
 
 ## GenomicHilbertCurve: specific for genomic data
 
@@ -482,7 +484,7 @@ hc_points(hc, gr, np = 3, gp = gpar(col = col, fill = col))
 
 GC percent on chromosome 1, under "normal" mode:
 
-```{r, eval = on_cluster, echo = 2:6}
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", echo = 2:6}
 png('gc_percent_chr1_points.png', width = 500, height = 500)
 df = read.table(pipe("awk '$1==\"chr1\"' ~/HilbertCurveTest/hg19_gc_percent_window1000.bed"))
 col_fun = colorRamp2(quantile(df[[5]], c(0.1, 0.5, 0.9)), c("green", "#FFFFCC", "red"))
@@ -498,7 +500,7 @@ cat("<p><center><img src='gc_percent_chr1_points.png' /></center></p>\n")
 
 GC percent on chromosome 1, under "pixel" mode:
 
-```{r, eval = on_cluster, fig.keep = "none"}
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
 hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel")
 hc_layer(hc, df, col = col_fun(df[[5]]))
 hc_layer(hc, reduce(g), col = "#00000020")
@@ -513,7 +515,7 @@ Background is not necessary to be whole chromosomes, it can also be a self-defin
 The background can be specified as a `GRanges` object and sent to `background` argument. 
 In following example, only the first half part of chromosome 1 is used.
 
-```{r, eval = on_cluster, fig.keep = "none"}
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
 background = GRanges(seqnames = "chr1", ranges = IRanges(1, ceiling(chr1_len/2)))
 hc = GenomicHilbertCurve(background = background, level = 9, mode = "pixel")
 hc_layer(hc, df, col = col_fun(df[[5]]))
@@ -545,7 +547,7 @@ plot_histone_mark = function(mark) {
 
 H3K27ac histone mark (enhancers):
 
-```{r, eval = on_cluster, fig.keep = "none", echo = 1}
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = 1}
 plot_histone_mark("H3K27ac")
 ```
 
@@ -555,7 +557,7 @@ cat("<p><center><img src='H3K27ac_chr1.png' /></center></p>\n")
 
 H3K36me3 histone mark. (H3K36me3 is found in actively transcribed gene bodies)
 
-```{r, eval = on_cluster, fig.keep = "none", echo = 1}
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = 1}
 plot_histone_mark("H3K36me3")
 ```
 
@@ -565,7 +567,7 @@ cat("<p><center><img src='H3K36me3_chr1.png' /></center></p>\n")
 
 H3K4me3 histone mark. (H3K4me3 is found in actively transcribed promoters, particularly just after the transcription start site)
 
-```{r, eval = on_cluster, fig.keep = "none", echo = 1}
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = 1}
 plot_histone_mark("H3K4me3")
 ```
 
@@ -575,7 +577,7 @@ cat("<p><center><img src='H3K4me3_chr1.png' /></center></p>\n")
 
 H3K9me3 histone mark. (H3K9me3 is found in constitutively repressed genes)
 
-```{r, eval = on_cluster, fig.keep = "none", echo = 1}
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = 1}
 plot_histone_mark("H3K9me3")
 ```
 
@@ -585,7 +587,7 @@ cat("<p><center><img src='H3K9me3_chr1.png' /></center></p>\n")
 
 Coverage for RNAseq.
 
-```{r, eval = on_cluster, fig.keep = "none"}
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
 df = read.table(pipe(qq("awk '$5>0 && $1==\"chr1\"' ~/HilbertCurveTest/UCSD.Lung.mRNA-Seq.STL002.bed")), 
     sep = "\t")
 df[[5]] = log(df[[5]] + 1)
@@ -608,7 +610,7 @@ of using non-CpG bases.
 Following plot shows quite clear patterns for un-methylated regions, fully methylated regions
 and intermediate methylated regions.
 
-```{r, eval = on_cluster, fig.keep = "none"}
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
 df = read.table(pipe("awk '$1==\"chr1\"' ~/HilbertCurveTest/UCSD.Lung.Bisulfite-Seq.STL002.bed"), 
     sep = "\t")
 col_fun = colorRamp2(c(0, 0.5, 1), c("blue", "white", "red"))
@@ -632,7 +634,7 @@ than one background regions in `background argument.
 
 In following examples, copy number ratio for 22 human chromosomes are visualized. Data is from https://www.sanger.ac.uk/research/areas/humangenetics/cnv/highres_discovery.html. Raw data are averaged into 1kb windows to reduce the size of the data.
 
-```{r, eval = on_cluster, fig.keep = "none"}
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
 df = read.table("~/HilbertCurveTest/cnv_1k_window_mean.bed", sep = "\t", stringsAsFactors = FALSE)
 hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel")
 col_fun = colorRamp2(c(-0.7, 0, 0.7), c("green", "white", "red"))
@@ -646,7 +648,7 @@ cat("<p><center><img src='cnv_all_chromosomes.png' /></center></p>\n")
 
 A map which shows the chromosome positions in Hilbert curve is very necessary.
 
-```{r, eval = on_cluster, echo = 2, fig.keep = "none"}
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", echo = 2, fig.keep = "none"}
 png('map_all_chromosomes.png', width = 500, height = 500)
 hc_map(hc)
 invisible(dev.off())
@@ -659,7 +661,7 @@ cat("<p><center><img src='map_all_chromosomes.png' /></center></p>\n")
 If you want to compare several plots simutaneously, you can use `grid.layout()`
 to put them together.
 
-```{r, eval = on_cluster, fig.keep = "none", echo = 2:21}
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = 2:21}
 png('cnv_compare.png', width = 800, height = 800)
 pushViewport(viewport(layout = grid.layout(nr = 2, nc = 2)))
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 1))

@@ -15,7 +15,7 @@ Add points to the Hilbert curve
 \arguments{
 
   \item{object}{a \code{\link{GenomicHilbertCurve-class}} object}
-  \item{gr}{a \code{\link[GenomicRegions]{GRanges}} object}
+  \item{gr}{a \code{\link[GenomicRanges]{GRanges}} object}
   \item{np}{pass to \code{\link{hc_points,HilbertCurve-method}}}
   \item{size}{pass to \code{\link{hc_points,HilbertCurve-method}}}
   \item{pch}{pass to \code{\link{hc_points,HilbertCurve-method}}}
@@ -26,6 +26,9 @@ Add points to the Hilbert curve
 }
 \details{
 It is basically a wrapper of \code{\link{hc_points,HilbertCurve-method}}.
+}
+\value{
+refer to \code{\link{hc_points,HilbertCurve-method}}
 }
 \author{
 Zuguang Gu <z.gu@dkfz.de>

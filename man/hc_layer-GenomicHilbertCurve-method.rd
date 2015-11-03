@@ -14,14 +14,18 @@ Add a new layer to the Hilbert curve
 \arguments{
 
   \item{object}{a \code{\link{GenomicHilbertCurve-class}} object}
-  \item{gr}{a \code{\link[GenomicRegions]{GRanges}} object}
+  \item{gr}{a \code{\link[GenomicRanges]{GRanges}} object}
   \item{col}{pass to \code{\link{hc_layer,HilbertCurve-method}}}
   \item{mean_mode}{pass to \code{\link{hc_layer,HilbertCurve-method}}}
   \item{grid_line}{pass to \code{\link{hc_layer,HilbertCurve-method}}}
+  \item{grid_line_col}{pass to \code{\link{hc_layer,HilbertCurve-method}}}
 
 }
 \details{
 It is basically a wrapper of \code{\link{hc_layer,HilbertCurve-method}}.
+}
+\value{
+refer to \code{\link{hc_layer,HilbertCurve-method}}
 }
 \author{
 Zuguang Gu <z.gu@dkfz.de>

@@ -45,6 +45,9 @@ GenomicHilbertCurve = setClass("GenomicHilbertCurve",
 # If the background region contains more than one categories (e.g. more than one chromosomes), 
 # they are concatenated on a same Hilbert curve.
 #
+# == value
+# A `GenomicHilbertCurve-class` object
+#
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
 #
@@ -110,6 +113,9 @@ GenomicHilbertCurve = function(chr = paste0("chr", c(1:22, "X", "Y")), species =
 # == details
 # It is basically a wrapper of `hc_points,HilbertCurve-method`.
 #
+# == value
+# refer to `hc_points,HilbertCurve-method`
+#
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
 #
@@ -158,6 +164,9 @@ setMethod(f = "hc_points",
 # == details
 # It is basically a wrapper of `hc_rect,HilbertCurve-method`.
 #
+# == value
+# refer to `hc_rect,HilbertCurve-method`
+#
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
 #
@@ -195,6 +204,9 @@ setMethod(f = "hc_rect",
 #
 # == details
 # It is basically a wrapper of `hc_segments,HilbertCurve-method`.
+#
+# == value
+# refer to `hc_segments,HilbertCurve-method`
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -237,6 +249,9 @@ setMethod(f = "hc_segments",
 # == details
 # It is basically a wrapper of `hc_text,HilbertCurve-method`.
 #
+# == value
+# refer to `hc_text,HilbertCurve-method`
+#
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
 #
@@ -245,7 +260,7 @@ setMethod(f = "hc_segments",
 # bed = generateRandomBed(nr = 20)
 # gr = GRanges(seqnames = bed[[1]], ranges = IRanges(bed[[2]], bed[[3]]))
 # hc = GenomicHilbertCurve()
-# hc_segments(hc, gr, labels = letters[1:20])
+# hc_text(hc, gr, labels = letters[1:20])
 #
 setMethod(f = "hc_text",
 	signature = "GenomicHilbertCurve",
@@ -279,6 +294,9 @@ setMethod(f = "hc_text",
 #
 # == details
 # It is basically a wrapper of `hc_layer,HilbertCurve-method`.
+#
+# == value
+# refer to `hc_layer,HilbertCurve-method`
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -331,6 +349,15 @@ setMethod(f = "hc_layer",
 # When multiple genomic categories are draw into one single Hilbert curve, a map which shows the position
 # of different categories on the curve is necessary to correspond to the graphics on the curve.
 #
+# == value
+# A `GenomicHilbertCurve-class` object
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
+# == example
+# hc = GenomicHilbertCurve()
+# hc_map(hc, add = TRUE)
 setMethod(f = "hc_map",
 	signature = "GenomicHilbertCurve",
 	definition = function(object, level = 7, fill = NULL, 

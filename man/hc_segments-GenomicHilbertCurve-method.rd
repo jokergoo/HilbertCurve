@@ -12,12 +12,15 @@ Add line segments to Hilbert curve
 \arguments{
 
   \item{object}{a \code{\link{GenomicHilbertCurve-class}} object}
-  \item{gr}{a \code{\link[GenomicRegions]{GRanges}} object}
+  \item{gr}{a \code{\link[GenomicRanges]{GRanges}} object}
   \item{gp}{pass to \code{\link{hc_segments,HilbertCurve-method}}}
 
 }
 \details{
 It is basically a wrapper of \code{\link{hc_segments,HilbertCurve-method}}.
+}
+\value{
+refer to \code{\link{hc_segments,HilbertCurve-method}}
 }
 \author{
 Zuguang Gu <z.gu@dkfz.de>

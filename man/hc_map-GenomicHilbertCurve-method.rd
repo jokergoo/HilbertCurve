@@ -20,14 +20,20 @@ Draw a map which represents positions of different genomic categories
   \item{labels}{labels of each genomic categories. By default, if the categories is unique for different chromosome,the labels will be the chromosome name or they will be the combination of chromosme names and positions.It is ignored if \code{add} is set to \code{TRUE} and the curve is under 'pixel' mode.}
   \item{labels_gp}{graphic settings for labels}
   \item{add}{whether add the map to the current curve or draw it in a new curve. But notice if \code{add} is set to \code{TRUE},you should set \code{fill} with transparency.}
+  \item{...}{pass to \code{\link{GenomicHilbertCurve}}.}
 
 }
 \details{
 When multiple genomic categories are draw into one single Hilbert curve, a map which shows the position
 of different categories on the curve is necessary to correspond to the graphics on the curve.
 }
+\value{
+A \code{\link{GenomicHilbertCurve-class}} object
+}
+\author{
+Zuguang Gu <z.gu@dkfz.de>
+}
 \examples{
-# There is no example
-NULL
-
+hc = GenomicHilbertCurve()
+hc_map(hc, add = TRUE)
 }

@@ -27,7 +27,7 @@ HilbertCurve(s, e, level = 4, mode = c("normal", "pixel"),
   \item{background}{background color}
   \item{title}{title of the plot.}
   \item{title_gp}{graphic parameters for title. It should be specified by \code{\link[grid]{gpar}}.}
-  \item{legend}{a \code{\link[grid]{grob}} object or a list of \code{\link[grid]{grob}} objects. You can construct a \code{\link{ColorMapping-class}}object and generate a legend, see example section.}
+  \item{legend}{a \code{\link[grid]{grob}} object or a list of \code{\link[grid]{grob}} objects. You can construct a \code{\link[ComplexHeatmap]{ColorMapping-class}}object and generate a legend, see example section.}
 
 }
 \details{
@@ -65,5 +65,5 @@ require(ComplexHeatmap)
 cm = ColorMapping(colors = c("red", "blue"), levels = c("a", "b"))
 legend = color_mapping_legend(cm, plot = FALSE, title = "foo")
 hc = HilbertCurve(1, 100, title = "title", legend = legend)
-hc_segments(hc, 20, 40)
+hc_segments(hc, x1 = 20, x2 = 40)
 }

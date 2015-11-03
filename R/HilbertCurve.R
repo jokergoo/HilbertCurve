@@ -141,7 +141,7 @@ setMethod(f = "unzoom",
 # Zuguang Gu <z.gu@dkfz.de>
 #
 # == example
-# hc = HilbertCueve(-100, 100)
+# hc = HilbertCurve(-100, 100)
 # hc_offset(hc, c(-100, -50, 0, 50, 100))
 #
 setMethod(f = "hc_offset",
@@ -211,7 +211,7 @@ setMethod(f = "hc_offset",
 # cm = ColorMapping(colors = c("red", "blue"), levels = c("a", "b"))
 # legend = color_mapping_legend(cm, plot = FALSE, title = "foo")
 # hc = HilbertCurve(1, 100, title = "title", legend = legend)
-# hc_segments(hc, 20, 40)
+# hc_segments(hc, x1 = 20, x2 = 40)
 HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 	reference = FALSE, reference_gp = gpar(lty = 3, col = "#999999"), 
 	arrow = TRUE, zoom = NULL, newpage = TRUE, 
@@ -469,7 +469,6 @@ setMethod(f = "hc_points",
 	}
 
 	if(is.null(np)) np = 1
-	if(missing(ir)) ir = NULL
 
 	if(np >= 2) {
 		hc_segmented_points(object, ir, x1 = x1, x2 = x2, gp = gp, np = np, mean_mode = mean_mode, shape = shape)
@@ -513,6 +512,12 @@ setMethod(f = "hc_normal_points",
 
 	if(object@MODE == "pixel") {
         stop("`hc_points()` can only be used under 'normal' mode.")
+    }
+
+    if(!missing(ir)) {
+    	if(!inherits(ir, "IRanges")) {
+    		stop("It seems you want to specify positions by one or two numeric vectors, specify them with argument names. (`x1 = ..., x2 = ...`)")
+    	}
     }
 
 	if(missing(ir) || is.null(ir)) {
@@ -605,6 +610,12 @@ setMethod(f = "hc_segmented_points",
         stop("`hc_points()` can only be used under 'normal' mode.")
     }
 
+    if(!missing(ir)) {
+    	if(!inherits(ir, "IRanges")) {
+    		stop("It seems you want to specify positions by one or two numeric vectors, specify them with argument names. (`x1 = ..., x2 = ...`)")
+    	}
+    }
+
     if(missing(ir) || is.null(ir)) {
         if(is.null(x1) || is.null(x2)) {
             stop("You should either specify `ir`, or `x1` and `x2`.")
@@ -654,23 +665,18 @@ setMethod(f = "hc_segmented_points",
     mean_mode = match.arg(mean_mode)[1]
 
     fill = normalize_gp("fill", gp$fill, length(ir))
-    rgb = col2rgb(fill, alpha = TRUE)
-    r = average_in_window(window, ir, mtch, rgb[1, ], mean_mode, 255)
-    g = average_in_window(window, ir, mtch, rgb[2, ], mean_mode, 255)
-    b = average_in_window(window, ir, mtch, rgb[3, ], mean_mode, 255)
-    alpha = rep(max(rgb[4, ]), length(r))
-
-    index = as.numeric(names(r))
-    fill2 = rgb(red = r, green = g, blue = b, alpha = alpha, maxColorValue = 255)
-
+    rgb_fill = col2rgb(fill, alpha = TRUE)
     col = normalize_gp("col", gp$col, length(ir))
-    rgb = col2rgb(col, alpha = TRUE)
-    r = average_in_window(window, ir, mtch, rgb[1, ], mean_mode, 255)
-    g = average_in_window(window, ir, mtch, rgb[2, ], mean_mode, 255)
-    b = average_in_window(window, ir, mtch, rgb[3, ], mean_mode, 255)
-    alpha = rep(max(rgb[4, ]), length(r))
-    col2 = rgb(red = r, green = g, blue = b, alpha = alpha, maxColorValue = 255)
+    rgb_col = col2rgb(col, alpha = TRUE)
 
+    rgb_mat = average_in_window(window, ir, mtch, list(rgb_fill[1, ], rgb_fill[2, ], rgb_fill[3, ], rgb_col[1, ], rgb_col[2, ], rgb_col[3, ]), mean_mode, 255)
+
+    alpha_fill = rep(max(rgb_fill[4, ]), nrow(rgb_mat))
+    fill2 = rgb(red = rgb_mat[,1], green = rgb_mat[,2], blue = rgb_mat[,3], alpha = alpha_fill, maxColorValue = 255)
+	alpha_col = rep(max(rgb_col[4, ]), nrow(rgb_mat))
+    col2 = rgb(red = rgb_mat[,4], green = rgb_mat[,5], blue = rgb_mat[,6], alpha = alpha_col, maxColorValue = 255)
+
+    index = as.numeric(rownames(rgb_mat))
     shape = tapply(shape[mtch[,2]], mtch[, 1], function(x) x[1])
     mid = mid[unique(mtch[, 1]), , drop = FALSE]
 
@@ -709,14 +715,29 @@ setMethod(f = "hc_segmented_points",
 
 # after zooming, ir may overlap
 # it returns a vector having same length as window
+# window = IRanges(1, 10)
+# ir = IRanges(c(1, 4, 7), c(2, 5, 8))
+# mtch = as.matrix(findOverlaps(window, ir))
 average_in_window = function(window, ir, mtch, v, mean_mode, empty_v = 0) {
 
+	if(!is.list(v)) {
+		v = list(v)
+	}
+
+	if(length(empty_v) == 1) {
+		empty_v = rep(empty_v, length(v))
+	}
+
+	v = do.call("cbind", v)
+
  	intersect = pintersect(window[mtch[,1]], ir[mtch[,2]])
- 	v = v[mtch[,2]]
+ 	v = v[mtch[,2], , drop = FALSE]
+ 	n = nrow(v)
+
+ 	ind_list = as.list(tapply(seq_len(n), mtch[, 1], function(x) x))
 
 	if(mean_mode == "w0") {
 		w = width(intersect)
-		x = tapply(w*v, mtch[, 1], sum) / tapply(w, mtch[, 1], sum)
 
 		ir2 = reduce(ir, min.gapwidth = 0)
 		mtch2 = as.matrix(findOverlaps(window, ir2))
@@ -726,19 +747,33 @@ average_in_window = function(window, ir, mtch, v, mean_mode, empty_v = 0) {
 		ind = unique(mtch2[, 1])
 		width_setdiff = width(window[ind]) - width_intersect
 
-		x = (x*width_intersect + empty_v*width_setdiff)/width(window[ind])
+		w2 = width(window[ind])
+		u = matrix(nrow = length(ind_list), ncol = ncol(v))
+		rownames(u) = names(ind_list)
+		for(i in seq_along(ind_list)) {
+			ind = ind_list[[i]]
+			x = colSums(v[ind, , drop = FALSE]*w[ind])/sum(w[ind])
+			u[i, ] = (x*width_intersect[i] + empty_v*width_setdiff[i])/w2[i]
+		}
 
 	} else if(mean_mode == "absolute") {
-		x = tapply(v, mtch[, 1], mean)
+		u = matrix(nrow = length(ind_list), ncol = ncol(v))
+		rownames(u) = names(ind_list)
+		for(i in seq_along(ind_list)) {
+			u[i, ] = colMeans(v[ind_list[[i]], , drop = FALSE])
+		}
 		
 	} else {
 		w = width(intersect)
-		x = tapply(w*v, mtch[, 1], sum) / tapply(w, mtch[, 1], sum)
+		u = matrix(nrow = length(ind_list), ncol = ncol(v))
+		rownames(u) = names(ind_list)
+		for(i in seq_along(ind_list)) {
+			ind = ind_list[[i]]
+			u[i, ] = colSums(v[ind, , drop = FALSE]*w[ind])/sum(w[ind])
+		}
 	}
 
-	x = structure(as.vector(x), names = dimnames(x)[[1]])
-	
-	return(x)
+	return(u)
 }
 
 # == title
@@ -782,6 +817,12 @@ setMethod(f = "hc_rect",
 		stop("`hc_rect()` can only be used under 'normal' mode.")
 	}
 
+	if(!missing(ir)) {
+    	if(!inherits(ir, "IRanges")) {
+    		stop("It seems you want to specify positions by one or two numeric vectors, specify them with argument names. (`x1 = ..., x2 = ...`)")
+    	}
+    }
+
 	if(missing(ir) || is.null(ir)) {
 		if(is.null(x1) || is.null(x2)) {
 			stop("You should either specify `ir`, or `x1` and `x2`.")
@@ -814,12 +855,13 @@ setMethod(f = "hc_rect",
 	fill = normalize_gp("fill", gp$fill, length(ir))
 
 	rgb = col2rgb(fill, alpha = TRUE)
-	r = average_in_window(window, ir, mtch, rgb[1, ], mean_mode, 255)
-	g = average_in_window(window, ir, mtch, rgb[2, ], mean_mode, 255)
-	b = average_in_window(window, ir, mtch, rgb[3, ], mean_mode, 255)
+	rgb_mat = average_in_window(window, ir, mtch, list(rgb[1, ], rgb[2, ], rgb[3, ]), mean_mode, 255)
+	r = rgb_mat[, 1]
+	g = rgb_mat[, 2]
+	b = rgb_mat[, 3]
 	alpha = rep(max(rgb[4, ]), length(r))
 
-	index = as.numeric(names(r))
+	index = as.numeric(rownames(rgb_mat))
 	fill2 = rgb(red = r, green = g, blue = b, alpha = alpha, maxColorValue = 255)
 
 	pos = object@POS
@@ -886,6 +928,12 @@ setMethod(f = "hc_segments",
 	if(object@MODE == "pixel") {
 		stop("`hc_segments()` can only be used under 'normal' mode.")
 	}
+
+	if(!missing(ir)) {
+    	if(!inherits(ir, "IRanges")) {
+    		stop("It seems you want to specify positions by one or two numeric vectors, specify them with argument names. (`x1 = ..., x2 = ...`)")
+    	}
+    }
 
 	if(missing(ir) || is.null(ir)) {
 		if(is.null(x1) || is.null(x2)) {
@@ -1017,6 +1065,12 @@ setMethod(f = "hc_text",
 		stop("`hc_text()` can only be used under 'normal' mode.")
 	}
 
+	if(!missing(ir)) {
+    	if(!inherits(ir, "IRanges")) {
+    		stop("It seems you want to specify positions by one or two numeric vectors, specify them with argument names. (`x1 = ..., x2 = ...`)")
+    	}
+    }
+
 	if(missing(ir) || is.null(ir)) {
 		if(is.null(x1) ) {
 			stop("You should either specify `ir`, or `x1` or `x1` and `x2`.")
@@ -1101,6 +1155,12 @@ setMethod(f = "hc_centered_text",
 	if(object@MODE == "pixel") {
 		stop("`hc_text()` can only be used under 'normal' mode.")
 	}
+
+	if(!missing(ir)) {
+    	if(!inherits(ir, "IRanges")) {
+    		stop("It seems you want to specify positions by one or two numeric vectors, specify them with argument names. (`x1 = ..., x2 = ...`)")
+    	}
+    }
 
 	if(missing(ir) || is.null(ir)) {
 		if(is.null(x1) || is.null(x2)) {
@@ -1234,6 +1294,12 @@ setMethod(f = "hc_layer",
 		stop("`hc_layer()` can only be used under 'pixel' mode.")
 	}
 
+	if(!missing(ir)) {
+    	if(!inherits(ir, "IRanges")) {
+    		stop("It seems you want to specify positions by one or two numeric vectors, specify them as `x1 = ..., x2 = ...`")
+    	}
+    }
+
 	if(missing(ir) || is.null(ir)) {
 		if(is.null(x1) || is.null(x2)) {
 			stop("You should either specify `ir`, or `x1` and `x2`.")
@@ -1267,10 +1333,11 @@ setMethod(f = "hc_layer",
 
 	rgb = col2rgb(col, alpha = TRUE)
 
-	r = average_in_window(window, ir, mtch, rgb[1, ], mean_mode, 255)/255
-	g = average_in_window(window, ir, mtch, rgb[2, ], mean_mode, 255)/255
-	b = average_in_window(window, ir, mtch, rgb[3, ], mean_mode, 255)/255
-	alpha = average_in_window(window, ir, mtch, rgb[4, ], mean_mode, 255)/255
+	rgb_mat = average_in_window(window, ir, mtch, list(rgb[1, ], rgb[2, ], rgb[3, ], rgb[4, ]), mean_mode, 255)
+	r = rgb_mat[, 1]/255
+	g = rgb_mat[, 2]/255
+	b = rgb_mat[, 3]/255
+	alpha = rgb_mat[, 4]/255
 	r[r > 1] = 1
 	g[g > 1] = 1
 	b[b > 1] = 1
@@ -1278,8 +1345,8 @@ setMethod(f = "hc_layer",
 
 	col_index = c(object@POS$x1, object@POS$x2[4^object@LEVEL-1]) + 1
 	row_index = c(object@POS$y1, object@POS$y2[4^object@LEVEL-1]) + 1
-	col_index = col_index[as.numeric(names(r))]
-	row_index = row_index[as.numeric(names(r))]
+	col_index = col_index[as.numeric(rownames(rgb_mat))]
+	row_index = row_index[as.numeric(rownames(rgb_mat))]
 
 	ind = row_index + (col_index - 1)*nrow(object@RGB$red)
 	object@RGB$red[ind] = r*alpha + object@RGB$red[ind] * (1-alpha)
