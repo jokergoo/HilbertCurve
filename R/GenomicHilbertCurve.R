@@ -55,7 +55,7 @@ GenomicHilbertCurve = setClass("GenomicHilbertCurve",
 # hc = GenomicHilbertCurve()
 # hc_points(hc, gr)
 #
-# hc = GenomicHilbertCurve(chr = c("chr1", "chr2'"))
+# hc = GenomicHilbertCurve(chr = c("chr1", "chr2"))
 # hc_points(hc, gr)
 #
 # background = GRanges(seqnames = "chr1", ranges = IRanges(1, 10000000))
@@ -99,7 +99,7 @@ GenomicHilbertCurve = function(chr = paste0("chr", c(1:22, "X", "Y")), species =
 #
 # == param
 # -object a `GenomicHilbertCurve-class` object
-# -gr a `GenomicRegions::GRanges` object
+# -gr a `GenomicRanges::GRanges` object
 # -np pass to `hc_points,HilbertCurve-method`
 # -size pass to `hc_points,HilbertCurve-method`
 # -pch pass to `hc_points,HilbertCurve-method`
@@ -151,7 +151,7 @@ setMethod(f = "hc_points",
 #
 # == param
 # -object a `GenomicHilbertCurve-class` object
-# -gr a `GenomicRegions::GRanges` object
+# -gr a `GenomicRanges::GRanges` object
 # -gp pass to `hc_rect,HilbertCurve-method`
 # -mean_mode pass to `hc_rect,HilbertCurve-method`
 #
@@ -190,7 +190,7 @@ setMethod(f = "hc_rect",
 #
 # == param
 # -object a `GenomicHilbertCurve-class` object
-# -gr a `GenomicRegions::GRanges` object
+# -gr a `GenomicRanges::GRanges` object
 # -gp pass to `hc_segments,HilbertCurve-method`
 #
 # == details
@@ -229,7 +229,7 @@ setMethod(f = "hc_segments",
 #
 # == param
 # -object a `GenomicHilbertCurve-class` object
-# -gr a `GenomicRegions::GRanges` object
+# -gr a `GenomicRanges::GRanges` object
 # -labels pass to `hc_text,HilbertCurve-method`
 # -gp pass to `hc_text,HilbertCurve-method`
 # -... pass to `hc_text,HilbertCurve-method`
@@ -271,10 +271,11 @@ setMethod(f = "hc_text",
 #
 # == param
 # -object a `GenomicHilbertCurve-class` object
-# -gr a `GenomicRegions::GRanges` object
+# -gr a `GenomicRanges::GRanges` object
 # -col pass to `hc_layer,HilbertCurve-method`
 # -mean_mode pass to `hc_layer,HilbertCurve-method`
 # -grid_line pass to `hc_layer,HilbertCurve-method`
+# -grid_line_col pass to `hc_layer,HilbertCurve-method`
 #
 # == details
 # It is basically a wrapper of `hc_layer,HilbertCurve-method`.
@@ -324,6 +325,7 @@ setMethod(f = "hc_layer",
 # -labels_gp graphic settings for labels
 # -add whether add the map to the current curve or draw it in a new curve. But notice if ``add`` is set to ``TRUE``,
 #      you should set ``fill`` with transparency.
+# -... pass to `GenomicHilbertCurve`.
 #
 # == details
 # When multiple genomic categories are draw into one single Hilbert curve, a map which shows the position

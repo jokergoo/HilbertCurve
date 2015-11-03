@@ -28,4 +28,5 @@ importFrom("methods", setClass)
 importFrom("methods", setMethod)
 importFrom("grDevices", col2rgb)
 importFrom("circlize", rand_color)
+importFrom("circlize", read.chromInfo)
 

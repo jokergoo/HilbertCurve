@@ -79,6 +79,9 @@ As shown in the above plots, as level increases, the length of the curve becomes
 more tensely. The number of segments on the Hilbert curve is `4^level - 1`. If a Hilbert curve with level 11 
 is used to map to human chromosome 1, the resolution would be `249250621/4^11` (approximately 60bp).
 
+*Note: for the Hilbert curve which is actually made by HilbertVis package, the axis always starts from left 
+bottom side and ends at the right bottom side.*
+
 Following heatmap shows the distance between elements in the Hilbert curve. From left to right
 and from top to bottom, the order is the natural order of data points on the axis and colors represent 
 the pairwise distance in the 2D space.
@@ -93,7 +96,7 @@ pos = HilbertVis::hilbertCurve(5)
 mat = as.matrix(dist(pos))
 library(ComplexHeatmap)
 
-ht = Heatmap(mat, cluster_rows = FALSE, cluster_columns = FALSE, 
+ht = Heatmap(mat, name = "dist", cluster_rows = FALSE, cluster_columns = FALSE, 
     show_row_names = FALSE, show_column_names = FALSE, 
     heatmap_legend_param = list(title = "euclidean_dist"))
 draw(ht, padding = unit(c(5, 5, 5, 2), "mm"))
@@ -276,6 +279,8 @@ This is also useful to specify the positions with huge values which can not be r
 
 ```{r}
 # code not run when generating the vignette
+hc = HilbertCurve(1, 1000000000000, level = 4, reference = TRUE)
+hc_points(hc, 400000000000, 600000000000)
 ```
 
 Negative positions are allowed as well.
@@ -319,7 +324,7 @@ it is impossible to add or visualize e.g. points on the curve. In this case, the
 mode visualizes each tiny 'segment' as a pixel and maps values to colors. So the Hilbert
 curve with level 11 will generate a PNG figure with resolution of 2048x2048. This is extremely
 useful for visualize genomic data. E.g. If we make a Hilbert curve for human chromosome 1 with
-level 11, then each pixel can represent about 60bp (``249250621/2048/2048``) which is of very high resolution.
+level 11, then each pixel can represent about 60bp (``249250621/2^11/2^11``) which is of very high resolution.
 
 Under 'pixel' mode, every time a new layer is added, 
 the image will be add to the interactive device as a rastered image. 
@@ -336,8 +341,8 @@ And of course you can add title and legend to the plot.
 ```{r}
 hc = HilbertCurve(1, 1000, level = 9, mode = "pixel", title = "pixel mode")
 x = sample(1000, 100)
-hc_layer(hc, x1 = x, x2 = x, mean_mode = "absolute")
-hc_layer(hc, x1 = 750, x2 = 850, col = "#0000FF40")
+hc_layer(hc, x1 = x, x2 = x+5, mean_mode = "absolute")
+hc_layer(hc, x1 = 750, x2 = 850, col = "#0000FF20")
 ```
 
 Grid lines can be added to the plot for better distinguish blocks in the Hilbert curve.
@@ -600,6 +605,9 @@ One thing which is very important here is that methylation is always measured at
 sites, you need to set the mode for averaging to `absolute` to average only on CpG sites instead
 of using non-CpG bases.
 
+Following plot shows quite clear patterns for un-methylated regions, fully methylated regions
+and intermediate methylated regions.
+
 ```{r, eval = on_cluster, fig.keep = "none"}
 df = read.table(pipe("awk '$1==\"chr1\"' ~/HilbertCurveTest/UCSD.Lung.Bisulfite-Seq.STL002.bed"), 
     sep = "\t")
@@ -648,6 +656,9 @@ invisible(dev.off())
 cat("<p><center><img src='map_all_chromosomes.png' /></center></p>\n")
 ```
 
+If you want to compare several plots simutaneously, you can use `grid.layout()`
+to put them together.
+
 ```{r, eval = on_cluster, fig.keep = "none", echo = 2:21}
 png('cnv_compare.png', width = 800, height = 800)
 pushViewport(viewport(layout = grid.layout(nr = 2, nc = 2)))
@@ -673,14 +684,14 @@ pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 2))
 hc_map(hc, title = "map", newpage = FALSE)
 upViewport()
 upViewport()
-dev.off()
+invisible(dev.off())
 ```
 
 ```{r, echo = FALSE, results = "asis"}
 cat("<p><center><img src='cnv_compare.png' /></center></p>\n")
 ```
 
-The map also can be added to the curve, but you need to be careful that
+The map also can be added as an additional layer to the curve, but you need to be careful that
 the map doesn't affect other graphics too much. (I would suggest overlaping
 the map to the curve is not a good idea.)
 

@@ -125,6 +125,7 @@ setMethod(f = "unzoom",
 # == title
 # Adjust positions
 #
+# == param
 # -object A `HilbertCurve-class` object.
 # -x positions.
 #
@@ -171,7 +172,7 @@ setMethod(f = "hc_offset",
 # -background background color
 # -title title of the plot.
 # -title_gp graphic parameters for title. It should be specified by `grid::gpar`.
-# -legend a `grid::grob` object or a list of `grid::grob` objects. You can construct a `ColorMapping-class`
+# -legend a `grid::grob` object or a list of `grid::grob` objects. You can construct a `ComplexHeatmap::ColorMapping-class`
 #         object and generate a legend, see example section.
 #
 # == details
@@ -287,7 +288,7 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 		legend_height = sum(do.call("unit.c", lapply(legend, grobHeight))) + gap*(length(legend)-1)
 		y = unit(0.5, "npc") + legend_height*0.5 
 		for(i in seq_along(legend)) {
-			pushViewport(viewport(x = 0, y = y, height = grobHeight(legend[[i]]), width = grobWidth(legend[[i]]), just = c("left", "top")))
+			pushViewport(viewport(x = unit(2, "mm"), y = y, height = grobHeight(legend[[i]]), width = grobWidth(legend[[i]]), just = c("left", "top")))
 			grid.draw(legend[[i]], )
 			upViewport()
 			y = y - gap - grobHeight(legend[[i]])
@@ -1197,6 +1198,7 @@ grid_arrows = function(x1, y1, x2, y2, length = unit(2, "mm"), angle = 15, only.
 # -grid_line whether add grid lines to show blocks of the Hilber curve. 
 #        It should be an integer number and there will be ``2^(grid_line-1)-1``
 #        grid lines horizontal and vertical.
+# -grid_line_col color for the grid lines
 #
 # == details
 # If you want to add more than one layers to the curve, remember to set colors with transparency.
