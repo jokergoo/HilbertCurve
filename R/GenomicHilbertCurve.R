@@ -37,7 +37,8 @@ GenomicHilbertCurve = setClass("GenomicHilbertCurve",
 # -chr a vector of chromosome names. Note it should have 'chr' prefix. This argument will be ignored
 #      when ``background`` is set.
 # -species abbreviation of species, e.g. 'hg19' or 'mm10'
-# -background the background can be privided as a 'GenomicRanges::GRanges' object.
+# -background the background can be privided as a 'GenomicRanges::GRanges' object. 
+#         It is not very well supported. It assumes that all regions are subset of background regions.
 # -... pass to `HilbertCurve`
 #
 # == details

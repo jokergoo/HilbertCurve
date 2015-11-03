@@ -287,10 +287,10 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 		legend_height = sum(do.call("unit.c", lapply(legend, grobHeight))) + gap*(length(legend)-1)
 		y = unit(0.5, "npc") + legend_height*0.5 
 		for(i in seq_along(legend)) {
-			pushViewport(viewport(x = 0, y = y, height = grobHeight(legend[[i]]), just = c("left", "top")))
-			grid.draw(legend[[i]])
+			pushViewport(viewport(x = 0, y = y, height = grobHeight(legend[[i]]), width = grobWidth(legend[[i]]), just = c("left", "top")))
+			grid.draw(legend[[i]], )
 			upViewport()
-			y = y - gap - grobHeight(grobHeight(legend[[i]]))
+			y = y - gap - grobHeight(legend[[i]])
 		}
 
 		upViewport()
