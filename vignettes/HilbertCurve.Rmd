@@ -76,8 +76,8 @@ As shown in the above plots, as level increases, the length of the curve becomes
 more tensely. The number of segments on the Hilbert curve is `4^level - 1`. If a Hilbert curve with level 11 
 is used to map to human chromosome 1, the resolution would be `249250621/4^11` (approximately 60bp).
 
-*Note: for the Hilbert curve which is actually made by HilbertVis package, the axis always starts from left 
-bottom side and ends at the right bottom side.*
+**Note: for the Hilbert curve which is actually made by HilbertVis package, the axis always starts from left 
+bottom side and ends at the right bottom side.**
 
 Following heatmap shows the distance between elements in the Hilbert curve. From left to right
 and from top to bottom, the order is the natural order of data points on the axis and colors represent 
@@ -256,8 +256,9 @@ With combination of these basic low-level graphic functions, complicated graphic
 hc = HilbertCurve(1, 100, level = 4)
 hc_segments(hc, IRanges(1, 100))   # This is an other way to add background line
 hc_rect(hc, ir, gp = gpar(fill = rand_color(length(ir), transparency = 0.8)))
-hc_points(hc, ir, np = 3)
-hc_text(hc, ir, labels = labels, gp = gpar(fontsize = 16, col = "blue"))
+hc_points(hc, ir, np = 3, gp = gpar(fill = rand_color(length(ir))),
+    shape = sample(c("circle", "square", "triangle", "hexagon", "star"), length(ir), replace = TRUE))
+hc_text(hc, ir, labels = labels, gp = gpar(fontsize = width(ir)*2+5, col = "blue", font = 2))
 ```
 
 ## Non-integer positions
@@ -659,7 +660,7 @@ cat("<p><center><img src='map_all_chromosomes.png' /></center></p>\n")
 ```
 
 If you want to compare several plots simutaneously, you can use `grid.layout()`
-to put them together.
+to put them together. Remember to set `newpage` to `FALSE`.
 
 ```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = 2:21}
 png('cnv_compare.png', width = 800, height = 800)
