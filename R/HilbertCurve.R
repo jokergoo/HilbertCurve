@@ -1267,6 +1267,13 @@ grid_arrows = function(x1, y1, x2, y2, length = unit(2, "mm"), angle = 15, only.
 #        It should be an integer number and there will be ``2^(grid_line-1)-1``
 #        grid lines horizontal and vertical.
 # -grid_line_col color for the grid lines
+# -overlay a function which calculates the overlayed colors. Let's assume the r channel for the layers
+#          which are already added is ``r0``, the r channel for the new layer is ``r`` and the alpha channel
+#          is ``alpha``, the overlayed color is ``r*alpha + r0*(1-alpha)``. This self-defined function
+#          should accept 7 arguments which are: vectors of r, g, b channels which correspond to the layers
+#          that are already added, and r, g, b, alpha channels which corresponds to the new layer. All the 
+#          values are between 0 to 1. The returned value for this function should be list which contains
+#          r, g, b channels which correspond to the overlayed colors.
 #
 # == details
 # If you want to add more than one layers to the curve, remember to set colors with transparency.
@@ -1296,7 +1303,7 @@ setMethod(f = "hc_layer",
 	signature = "HilbertCurve",
 	definition = function(object, ir, x1 = NULL, x2 = x1, col = "red", 
 	mean_mode = c("w0", "absolute", "weighted"), grid_line = 0,
-	grid_line_col = "black") {
+	grid_line_col = "black", overlay = default_overlay) {
 
 	if(object@MODE == "normal") {
 		stop("`hc_layer()` can only be used under 'pixel' mode.")
@@ -1356,10 +1363,24 @@ setMethod(f = "hc_layer",
 	col_index = col_index[as.numeric(rownames(rgb_mat))]
 	row_index = row_index[as.numeric(rownames(rgb_mat))]
 
+	default_overlay = function(r0, g0, b0, r, g, b, alpha) {
+		list(r = r*alpha + r0*(1-alpha),
+			 g = g*alpha + g0*(1-alpha),
+			 b = b*alpha + b0*(1-alpha))
+	}
+
 	ind = row_index + (col_index - 1)*nrow(object@RGB$red)
-	object@RGB$red[ind] = r*alpha + object@RGB$red[ind] * (1-alpha)
-	object@RGB$green[ind] = g*alpha + object@RGB$green[ind] * (1-alpha)
-	object@RGB$blue[ind] = b*alpha + object@RGB$blue[ind] * (1-alpha)
+	# object@RGB$red[ind] = r*alpha + object@RGB$red[ind] * (1-alpha)
+	# object@RGB$green[ind] = g*alpha + object@RGB$green[ind] * (1-alpha)
+	# object@RGB$blue[ind] = b*alpha + object@RGB$blue[ind] * (1-alpha)
+
+	lt = overlay(object@RGB$red[ind],
+		         object@RGB$green[ind],
+		         object@RGB$blue[ind],
+		         r, g, b, alpha)
+	object@RGB$red[ind] = lt[[1]]
+	object@RGB$green[ind] = lt[[2]]
+	object@RGB$blue[ind] = lt[[3]]
 
 	grid_line = as.integer(grid_line)
 	if(grid_line > object@LEVEL) {

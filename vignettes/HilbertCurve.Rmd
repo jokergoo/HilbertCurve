@@ -603,6 +603,39 @@ hc_png(hc, file = 'RNASeq_coverage_chr1.png')
 cat("<p><center><img src='RNASeq_coverage_chr1.png' /></center></p>\n")
 ```
 
+When add gene layer to the plot, actually the final color is calculated based of the transparency
+of the gene layer. But you can self-define how to overlay two layers. In following example, if the
+H3K36me3 marks overlap with gene regions, the color theme becomes orange.
+
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
+df = read.table(pipe(qq("awk '$5>0 && $1==\"chr1\"' ~/HilbertCurveTest/UCSD.Lung.H3K36me3.STL002.bed")), 
+    sep = "\t")
+col_fun = colorRamp2(c(0, quantile(df[[5]], 0.99)), c("white", "red"))
+hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel")
+hc_layer(hc, df, col = col_fun(df[[5]]))
+hc_layer(hc, reduce(g), col = "#00000010", 
+    overlap = function(r0, g0, b0, r, g, b, alpha) {
+        # default overlay
+        r2 = r*alpha + r0*(1-alpha)
+        g2 = g*alpha + g0*(1-alpha)
+        b2 = b*alpha + b0*(1-alpha)
+
+        # if there is peak and covered by gene
+        l = r0 == 1 & r == 0 & g == 0 & b == 0
+        r2[l] = r0[l]
+        g2[l] = g0[l]/2 + 0.5
+        b2[l] = b0[l]
+
+        list(r = r2, g = g2, b = b2)
+    })
+hc_png(hc, qq("H3K36me3_chr1_overlap.png"))
+```
+
+``{r, echo = FALSE, results = "asis"}
+cat("<p><center><img src='H3K36me3_chr1_overlap.png' /></center></p>\n")
+```
+
+
 Methylation, blue corresponds to un-methylation, red corresponds to full-methylation.
 One thing which is very important here is that methylation is always measured at single CpG
 sites, you need to set the mode for averaging to `absolute` to average only on CpG sites instead

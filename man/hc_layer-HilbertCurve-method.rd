@@ -9,7 +9,7 @@ Add a new layer to the Hilbert curve
 \usage{
 \S4method{hc_layer}{HilbertCurve}(object, ir, x1 = NULL, x2 = x1, col = "red",
     mean_mode = c("w0", "absolute", "weighted"), grid_line = 0,
-    grid_line_col = "black")
+    grid_line_col = "black", overlay = default_overlay)
 }
 \arguments{
 
@@ -21,6 +21,7 @@ Add a new layer to the Hilbert curve
   \item{mean_mode}{when a segment in the curve overlaps with intervals in \code{ir}, how to calculate the mean values for this segment. See explanation in \code{\link{hc_points}}.}
   \item{grid_line}{whether add grid lines to show blocks of the Hilber curve. It should be an integer number and there will be \code{2^(grid_line-1)-1}grid lines horizontal and vertical.}
   \item{grid_line_col}{color for the grid lines}
+  \item{overlay}{a function which calculates the overlayed colors. Let's assume the r channel for the layerswhich are already added is \code{r0}, the r channel for the new layer is \code{r} and the alpha channelis \code{alpha}, the overlayed color is \code{r*alpha + r0*(1-alpha)}. This self-defined functionshould accept 7 arguments which are: vectors of r, g, b channels which correspond to the layersthat are already added, and r, g, b, alpha channels which corresponds to the new layer. All the values are between 0 to 1. The returned value for this function should be list which containsr, g, b channels which correspond to the overlayed colors.}
 
 }
 \details{
