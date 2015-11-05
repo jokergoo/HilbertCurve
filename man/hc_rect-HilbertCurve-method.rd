@@ -18,7 +18,7 @@ Add rectangles on Hilbert curve
   \item{x1}{if positions are not integers, they can be set by \code{x1} and \code{x2}.}
   \item{x2}{if positions are not integers, they can be set by \code{x1} and \code{x2}.}
   \item{gp}{graphic parameters for rectangles. It should be specified by \code{\link[grid]{gpar}}.}
-  \item{mean_mode}{when a segment in the curve overlaps with intervals in \code{ir}, how to calculate the mean values for this segment. See explanation in \code{\link{hc_points}}.}
+  \item{mean_mode}{when a segment in the curve overlaps with intervals in \code{ir}, how to calculate  the mean values for this segment. See explanation in \code{\link{hc_points}}.}
 
 }
 \details{

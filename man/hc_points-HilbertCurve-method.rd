@@ -18,11 +18,11 @@ Add points to the Hilbert curve
   \item{ir}{a \code{\link[IRanges]{IRanges}} object.}
   \item{x1}{if positions are not integers, they can be set by \code{x1} and \code{x2}.}
   \item{x2}{if positions are not integers, they can be set by \code{x1} and \code{x2}.}
-  \item{np}{number of points (a circle or a square, ...) that are put in a segment. \code{np} controlsthe mode of how to add the points to the curve. See 'details' section.}
+  \item{np}{number of points (a circle or a square, ...) that are put in a segment. \code{np} controls the mode of how to add the points to the curve. See 'details' section.}
   \item{size}{size of the points. It should be a \code{\link[grid]{unit}} object. Only works if \code{np < 2}}
   \item{pch}{shape of points, used for points if \code{np < 2}.}
   \item{gp}{graphic parameters for points. It should be specified by \code{\link[grid]{gpar}}.}
-  \item{mean_mode}{when a segment in the curve overlaps with intervals in \code{ir} (or \code{x1} and \code{x2}), how to calculate the mean values for this segment (such as the RGB colors). See 'Details' section for a detailed explanation.}
+  \item{mean_mode}{when a segment in the curve overlaps with intervals in \code{ir} (or \code{x1} and \code{x2}), how to calculate  the mean values for this segment (such as the RGB colors). See 'Details' section for a detailed explanation.}
   \item{shape}{shape of points, used for points if \code{np >= 2}. Possible values are "circle", "square", "triangle", "hexagon", "star".}
 
 }

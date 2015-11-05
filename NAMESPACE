@@ -1,6 +1,7 @@
 exportMethods(hc_png)
 exportMethods(hc_normal_points)
 exportMethods(hc_offset)
+export(default_overlay)
 exportMethods(hc_rect)
 exportMethods(hc_map)
 exportMethods(unzoom)

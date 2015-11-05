@@ -9,7 +9,7 @@ Add a new layer to the Hilbert curve
 \usage{
 \S4method{hc_layer}{GenomicHilbertCurve}(object, gr, col = "red",
     mean_mode = c("w0", "absolute", "weighted"), grid_line = 0,
-    grid_line_col = "black")
+    grid_line_col = "black", overlay = default_overlay)
 }
 \arguments{
 
@@ -19,6 +19,7 @@ Add a new layer to the Hilbert curve
   \item{mean_mode}{pass to \code{\link{hc_layer,HilbertCurve-method}}}
   \item{grid_line}{pass to \code{\link{hc_layer,HilbertCurve-method}}}
   \item{grid_line_col}{pass to \code{\link{hc_layer,HilbertCurve-method}}}
+  \item{overlay}{pass to \code{\link{hc_layer,HilbertCurve-method}}}
 
 }
 \details{
