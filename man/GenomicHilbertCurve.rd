@@ -12,9 +12,9 @@ GenomicHilbertCurve(chr = paste0("chr", c(1:22, "X", "Y")), species = "hg19",
 }
 \arguments{
 
-  \item{chr}{a vector of chromosome names. Note it should have 'chr' prefix. This argument will be ignoredwhen \code{background} is set.}
+  \item{chr}{a vector of chromosome names. Note it should have 'chr' prefix. This argument will be ignored when \code{background} is set.}
   \item{species}{abbreviation of species, e.g. 'hg19' or 'mm10'}
-  \item{background}{the background can be privided as a 'GenomicRanges::GRanges' object. It is not very well supported. It assumes that all regions are subset of background regions.}
+  \item{background}{the background can be privided as a 'GenomicRanges::GRanges' object.  It is not very well supported. It assumes that all regions are subset of background regions.}
   \item{...}{pass to \code{\link{HilbertCurve}}}
 
 }

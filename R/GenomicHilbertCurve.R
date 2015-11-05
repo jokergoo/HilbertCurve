@@ -291,6 +291,7 @@ setMethod(f = "hc_text",
 # -mean_mode pass to `hc_layer,HilbertCurve-method`
 # -grid_line pass to `hc_layer,HilbertCurve-method`
 # -grid_line_col pass to `hc_layer,HilbertCurve-method`
+# -overlay pass to `hc_layer,HilbertCurve-method`
 #
 # == details
 # It is basically a wrapper of `hc_layer,HilbertCurve-method`.
@@ -312,7 +313,7 @@ setMethod(f = "hc_layer",
 	signature = "GenomicHilbertCurve",
 	definition = function(object, gr, col = "red", 
 	mean_mode = c("w0", "absolute", "weighted"), grid_line = 0,
-	grid_line_col = "black") {
+	grid_line_col = "black", overlay = default_overlay) {
 
 	if(is.data.frame(gr)) {
 		gr = GRanges(seqnames = gr[[1]], ranges = IRanges(gr[[2]], gr[[3]]))
@@ -326,7 +327,7 @@ setMethod(f = "hc_layer",
 	df = merge_into_one_chr(gr, object@background)
 
 	callNextMethod(object, x1 = df[,1], x2 = df[,2], col = col, mean_mode = mean_mode, 
-		grid_line = grid_line, grid_line_col = grid_line_col)
+		grid_line = grid_line, grid_line_col = grid_line_col, overlay = overlay)
 })
 
 # == title

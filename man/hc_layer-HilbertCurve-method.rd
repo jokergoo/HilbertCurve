@@ -18,10 +18,10 @@ Add a new layer to the Hilbert curve
   \item{x1}{if positions are not integers, they can be set by \code{x1} and \code{x2}.}
   \item{x2}{if positions are not integers, they can be set by \code{x1} and \code{x2}.}
   \item{col}{colors corresponding to intervals in \code{ir} (or combinations of \code{x1} and \code{x2}).}
-  \item{mean_mode}{when a segment in the curve overlaps with intervals in \code{ir}, how to calculate the mean values for this segment. See explanation in \code{\link{hc_points}}.}
-  \item{grid_line}{whether add grid lines to show blocks of the Hilber curve. It should be an integer number and there will be \code{2^(grid_line-1)-1}grid lines horizontal and vertical.}
+  \item{mean_mode}{when a segment in the curve overlaps with intervals in \code{ir}, how to calculate  the mean values for this segment. See explanation in \code{\link{hc_points}}.}
+  \item{grid_line}{whether add grid lines to show blocks of the Hilber curve.  It should be an integer number and there will be \code{2^(grid_line-1)-1} grid lines horizontal and vertical.}
   \item{grid_line_col}{color for the grid lines}
-  \item{overlay}{a function which calculates the overlayed colors. Let's assume the r channel for the layerswhich are already added is \code{r0}, the r channel for the new layer is \code{r} and the alpha channelis \code{alpha}, the overlayed color is \code{r*alpha + r0*(1-alpha)}. This self-defined functionshould accept 7 arguments which are: vectors of r, g, b channels which correspond to the layersthat are already added, and r, g, b, alpha channels which corresponds to the new layer. All the values are between 0 to 1. The returned value for this function should be list which containsr, g, b channels which correspond to the overlayed colors.}
+  \item{overlay}{a function which calculates the overlayed colors. Let's assume the r channel for the layers which are already added is \code{r0}, the r channel for the new layer is \code{r} and the alpha channel is \code{alpha}, the overlayed color is \code{r*alpha + r0*(1-alpha)}. This self-defined function should accept 7 arguments which are: vectors of r, g, b channels which correspond to the layers that are already added, and r, g, b, alpha channels which corresponds to the new layer. All the  values passed into are between 0 to 1. The returned value for this function should be a list which contains r, g, b channels which correspond to the overlayed colors. Note that these 7 arguments only correspond to the pixels which are covered by the new layer.}
 
 }
 \details{

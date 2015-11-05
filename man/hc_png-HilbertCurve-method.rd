@@ -13,7 +13,7 @@ Save Hilbert curve as a PNG figure
 \arguments{
 
   \item{object}{A \code{\link{HilbertCurve-class}} object.}
-  \item{file}{file name. If the suffix of the file name is not \code{.png}, it will be added automatically no matter you like it or not.}
+  \item{file}{file name. If the suffix of the file name is not \code{.png},  it will be added automatically no matter you like it or not.}
 
 }
 \details{

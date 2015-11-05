@@ -57,17 +57,21 @@ Following shows Hilbert curve with level 2, 3, 4, 5:
 grid.newpage()
 pushViewport(viewport(layout = grid.layout(nr = 1, nc = 4)))
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 1))
-HilbertCurve(1, 100, level = 2, reference = TRUE, newpage = FALSE, title = "level = 2")
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, newpage = FALSE, title = "level = 2")
+hc_segments(hc, x1 = 1, x2 = 2, gp = gpar(col = "red", lwd = 2))
 upViewport()
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 2))
-HilbertCurve(1, 100, level = 3, reference = TRUE, newpage = FALSE, title = "level = 3")
+hc = HilbertCurve(1, 64, level = 3, reference = TRUE, newpage = FALSE, title = "level = 3")
+hc_segments(hc, x1 = 1, x2 = 2, gp = gpar(col = "red", lwd = 2))
 upViewport()
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 3))
-HilbertCurve(1, 100, level = 4, reference = TRUE, newpage = FALSE, title = "level = 4")
+hc = HilbertCurve(1, 256, level = 4, reference = TRUE, newpage = FALSE, title = "level = 4")
+hc_segments(hc, x1 = 1, x2 = 2, gp = gpar(col = "red", lwd = 2))
 upViewport()
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 4))
-HilbertCurve(1, 100, level = 5, reference = TRUE, reference_gp = gpar(col = "grey"), 
+hc = HilbertCurve(1, 1024, level = 5, reference = TRUE, reference_gp = gpar(col = "grey"), 
     arrow = FALSE, newpage = FALSE, title = "level = 5")
+hc_segments(hc, x1 = 1, x2 = 2, gp = gpar(col = "red", lwd = 2))
 upViewport()
 upViewport()
 ```
@@ -156,13 +160,18 @@ There are two modes for adding points. Normally, width of intervals are always l
 represented by single points, thus, by default, every interval mapped to the Hilbert curve are segmented
 into several tiny segments and a circle is plotted for every tiny segments.
 
-```{r}
-hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
-hc_points(hc, ir)
+```{r, fig.width = 3, fig.height = 3}
+hc = HilbertCurve(1, 16, level = 4, reference = TRUE, title = "np = 3")
+hc_points(hc, x1 = 1, x2 = 2, np = 3)
 ```
 
 The number of circles used to represent the intervals can be controlled by `np` (number of points per segment).
 `np` controls number of tiny segments for every Hilbert curve segment (e.g. the first horizontal segment in the left bottom in the curve).
+
+```{r}
+hc = HilbertCurve(1, 10)
+```
+
 Graphic parameters can be set by `gp`. Note under this mode, the size of points can only be changed by `np` argument.
 To make it more interesting, you can choose different shapes for the points. There are some pre-defined shapes
 that you can choose from: "circle", "square", "triangle", "hexagon", "star".
@@ -360,6 +369,45 @@ Note only the curve itself is exported.
 hc_png(hc, file = "test.png")
 ```
 
+### Overlay
+
+By default, the color overlay for layers is applied based on the transparency of the new layer.
+Under "pixel" mode, each pixel is represented by red, green and blue colors for which the value is 
+between 0 and 1. When a new layer with transparency color is added, the overlayed RGB is calculated
+as follows (`r0`, `g0` and `b0` correspond to the layer which is already added, `r`, `g`, `b` and `alpha`
+correspond to the layer which is going to be added):
+
+```{r, eval = FALSE}
+r = r*alpha + r0*(1-alpha)
+g = g*alpha + g0*(1-alpha)
+b = b*alpha + b0*(1-alpha)
+```
+
+`hc_layer()` provides a `overlay` argument for which users can supply their own overlay method. This
+may be difficult to use but it is powerful to represent different features. In following example, we 
+change the red regions which are overlapped with the blue regions to green.
+
+```{r}
+hc = HilbertCurve(1, 1000, level = 9, mode = "pixel", title = "pixel mode")
+hc_layer(hc, x1 = x, x2 = x+2, mean_mode = "absolute")
+hc_layer(hc, x1 = 750, x2 = 850, col = "#0000FF40",
+    overlay = function(r0, g0, b0, r, g, b, alpha) {
+        l = r0 > 0 # if there is peak and covered by gene
+        tmp = r0[l]
+        r0[l] = g0[l]
+        g0[l] = tmp  # red -> green, just switch red and green channel
+        
+        default_overlay(r0, g0, b0, r, g, b, alpha)
+    })
+```
+
+The self-defined `overlay` should accept sevel argument for which, `r0`, `g0` and `b0` correspond to the 
+layer which is already added, `r`, `g`, `b` and `alpha` correspond to the layer which are going to be added.
+The elements of e.g. `r` only correspond to the pixels that inside the regions in the new layer.
+
+In later section, we will demonstrate using self-defined overlay method can effectively visualize
+the correspondance between H3K36me3 histone mark and gene body.
+
 ## Examples
 
 Visualize rainbow colors:
@@ -472,7 +520,7 @@ nonmouse = gaps(mouse); nonmouse = nonmouse[strand(nonmouse) == "*"]
 gr = c(mouse, nonmouse)
 col = c(rep("red", length(mouse)), rep("yellow", length(nonmouse)))
 hc = GenomicHilbertCurve(chr = "chr1", level = 6)
-hc_points(hc, gr, np = 3, gp = gpar(col = col, fill = col))
+hc_points(hc, gr, np = 3, gp = gpar(col = NA, fill = col))
 
 load(system.file("extdata", "zebrafish_net.RData", package = "HilbertCurve"))
 seqlengths(zebrafish) = chr1_len
@@ -480,7 +528,7 @@ nonzebrafish = gaps(zebrafish); nonzebrafish = nonzebrafish[strand(nonzebrafish)
 gr = c(zebrafish, nonzebrafish)
 col = c(rep("red", length(zebrafish)), rep("yellow", length(nonzebrafish)))
 hc = GenomicHilbertCurve(chr = "chr1", level = 6)
-hc_points(hc, gr, np = 3, gp = gpar(col = col, fill = col))
+hc_points(hc, gr, np = 3, gp = gpar(col = NA, fill = col))
 ```
 
 GC percent on chromosome 1, under "normal" mode:
@@ -603,35 +651,27 @@ hc_png(hc, file = 'RNASeq_coverage_chr1.png')
 cat("<p><center><img src='RNASeq_coverage_chr1.png' /></center></p>\n")
 ```
 
-When add gene layer to the plot, actually the final color is calculated based of the transparency
-of the gene layer. But you can self-define how to overlay two layers. In following example, if the
-H3K36me3 marks overlap with gene regions, the color theme becomes orange.
+When there are more than one layers added and users want to see the correspondance between different
+genomic features, they can define a color overlay function to enhance the overlapping parts. In following example, when a region for H3K36me3 mark
+is overlapped with gene body, the color theme is changed to orange.
 
 ```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
-df = read.table(pipe(qq("awk '$5>0 && $1==\"chr1\"' ~/HilbertCurveTest/UCSD.Lung.H3K36me3.STL002.bed")), 
+df = read.table(pipe("awk '$5>0 && $1==\"chr1\"' ~/HilbertCurveTest/UCSD.Lung.H3K36me3.STL002.bed"), 
     sep = "\t")
 col_fun = colorRamp2(c(0, quantile(df[[5]], 0.99)), c("white", "red"))
 hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel")
 hc_layer(hc, df, col = col_fun(df[[5]]))
 hc_layer(hc, reduce(g), col = "#00000010", 
-    overlap = function(r0, g0, b0, r, g, b, alpha) {
-        # default overlay
-        r2 = r*alpha + r0*(1-alpha)
-        g2 = g*alpha + g0*(1-alpha)
-        b2 = b*alpha + b0*(1-alpha)
-
-        # if there is peak and covered by gene
-        l = r0 == 1 & r == 0 & g == 0 & b == 0
-        r2[l] = r0[l]
-        g2[l] = g0[l]/2 + 0.5
-        b2[l] = b0[l]
-
-        list(r = r2, g = g2, b = b2)
+    overlay = function(r0, g0, b0, r, g, b, alpha) {
+        l = r0 > 0 # if there is peak and covered by gene
+        g0[l] = g0[l]/2 + 0.5  # red -> orange
+        
+        default_overlay(r0, g0, b0, r, g, b, alpha)
     })
-hc_png(hc, qq("H3K36me3_chr1_overlap.png"))
+hc_png(hc, "H3K36me3_chr1_overlap.png")
 ```
 
-``{r, echo = FALSE, results = "asis"}
+```{r, echo = FALSE, results = "asis"}
 cat("<p><center><img src='H3K36me3_chr1_overlap.png' /></center></p>\n")
 ```
 

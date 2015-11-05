@@ -22,12 +22,12 @@ HilbertCurve(s, e, level = 4, mode = c("normal", "pixel"),
   \item{reference}{whether add reference line on the plot. Only works under 'normal' mode.}
   \item{reference_gp}{graphic settings for the reference line. It should be specified by \code{\link[grid]{gpar}}.}
   \item{arrow}{whether add arrows on the reference line. Only works under 'normal' mode.}
-  \item{zoom}{internally, position are stored as integer values to construct \code{\link[IRanges]{IRanges}} objects to do the intersections with segments on Hilbert curve. To increase the resolutionof the data that maps to the Hilbert curve, the original position would be zoomaccording to the range of the position and the level of Hilbert curve. E.g. if the curve visualizes data ranging from 1 to 2 but level of the curve is set to 4,the positions will be zoomed by ~x2000 so that values link 1.5, 1.555 can be mappedto the curve with more accuracy. You don't need to care the zooming thing, proper zooming factor is calculated automatically.}
+  \item{zoom}{internally, position are stored as integer values to construct \code{\link[IRanges]{IRanges}} objects to do  the intersections with segments on Hilbert curve. To increase the resolution of the data that maps to the Hilbert curve, the original position would be zoom according to the range of the position and the level of Hilbert curve. E.g. if  the curve visualizes data ranging from 1 to 2 but level of the curve is set to 4, the positions will be zoomed by ~x2000 so that values link 1.5, 1.555 can be mapped to the curve with more accuracy. You don't need to care the zooming thing, proper zooming factor is calculated automatically.}
   \item{newpage}{whether call \code{\link[grid]{grid.newpage}} to draw on a new graphic device.}
   \item{background}{background color}
   \item{title}{title of the plot.}
   \item{title_gp}{graphic parameters for title. It should be specified by \code{\link[grid]{gpar}}.}
-  \item{legend}{a \code{\link[grid]{grob}} object or a list of \code{\link[grid]{grob}} objects. You can construct a \code{\link[ComplexHeatmap]{ColorMapping-class}}object and generate a legend, see example section.}
+  \item{legend}{a \code{\link[grid]{grob}} object or a list of \code{\link[grid]{grob}} objects. You can construct a \code{\link[ComplexHeatmap]{ColorMapping-class}} object and generate a legend, see example section.}
 
 }
 \details{

@@ -1272,8 +1272,9 @@ grid_arrows = function(x1, y1, x2, y2, length = unit(2, "mm"), angle = 15, only.
 #          is ``alpha``, the overlayed color is ``r*alpha + r0*(1-alpha)``. This self-defined function
 #          should accept 7 arguments which are: vectors of r, g, b channels which correspond to the layers
 #          that are already added, and r, g, b, alpha channels which corresponds to the new layer. All the 
-#          values are between 0 to 1. The returned value for this function should be list which contains
-#          r, g, b channels which correspond to the overlayed colors.
+#          values passed into are between 0 to 1. The returned value for this function should be a list which contains
+#          r, g, b channels which correspond to the overlayed colors. Note that these 7 arguments
+#          only correspond to the pixels which are covered by the new layer.
 #
 # == details
 # If you want to add more than one layers to the curve, remember to set colors with transparency.
@@ -1348,7 +1349,7 @@ setMethod(f = "hc_layer",
 
 	rgb = col2rgb(col, alpha = TRUE)
 
-	rgb_mat = average_in_window(window, ir, mtch, list(rgb[1, ], rgb[2, ], rgb[3, ], rgb[4, ]), mean_mode, 255)
+	rgb_mat = average_in_window(window, ir, mtch, list(rgb[1, ], rgb[2, ], rgb[3, ], rgb[4, ]), mean_mode, c(255, 255, 255, 0))
 	r = rgb_mat[, 1]/255
 	g = rgb_mat[, 2]/255
 	b = rgb_mat[, 3]/255
@@ -1362,12 +1363,6 @@ setMethod(f = "hc_layer",
 	row_index = c(object@POS$y1, object@POS$y2[4^object@LEVEL-1]) + 1
 	col_index = col_index[as.numeric(rownames(rgb_mat))]
 	row_index = row_index[as.numeric(rownames(rgb_mat))]
-
-	default_overlay = function(r0, g0, b0, r, g, b, alpha) {
-		list(r = r*alpha + r0*(1-alpha),
-			 g = g*alpha + g0*(1-alpha),
-			 b = b*alpha + b0*(1-alpha))
-	}
 
 	ind = row_index + (col_index - 1)*nrow(object@RGB$red)
 	# object@RGB$red[ind] = r*alpha + object@RGB$red[ind] * (1-alpha)
@@ -1485,4 +1480,33 @@ add_raster = function(lt_rgb) {
 		seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "global"))
 		upViewport()
 	#}
+}
+
+# == title
+# Default overlay for adding new layers
+#
+# == param
+# -r0  r channel for the layers that are already added.
+# -g0 g channel for the layers that are already added.
+# -b0 b channel for the layers that are already added.
+# -r r channel for the new layer
+# -g g channel for the new layer
+# -b b channel for the new layer
+# -alpha alpha channel for the new layer
+#
+# == details
+# The default overlay is (take r channel for example) ``r*alpha + r0*(1-alpha)``.
+#
+# == value
+# A list contains overlayed RGB channel.
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
+# == example
+# NULL
+default_overlay = function(r0, g0, b0, r, g, b, alpha = rep(1, length(r0))) {
+	list(r = r*alpha + r0*(1-alpha),
+		 g = g*alpha + g0*(1-alpha),
+		 b = b*alpha + b0*(1-alpha))
 }
