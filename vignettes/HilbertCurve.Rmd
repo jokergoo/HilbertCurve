@@ -160,16 +160,17 @@ There are two modes for adding points. Normally, width of intervals are always l
 represented by single points, thus, by default, every interval mapped to the Hilbert curve are segmented
 into several tiny segments and a circle is plotted for every tiny segments.
 
-```{r, fig.width = 3, fig.height = 3}
-hc = HilbertCurve(1, 16, level = 4, reference = TRUE, title = "np = 3")
-hc_points(hc, x1 = 1, x2 = 2, np = 3)
+```{r}
+hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
+hc_points(hc, ir)
 ```
 
 The number of circles used to represent the intervals can be controlled by `np` (number of points per segment).
 `np` controls number of tiny segments for every Hilbert curve segment (e.g. the first horizontal segment in the left bottom in the curve).
 
-```{r}
-hc = HilbertCurve(1, 10)
+```{r, fig.width = 3, fig.height = 3}
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, title = "np = 3")
+hc_points(hc, x1 = 1, x2 = 2, np = 3)
 ```
 
 Graphic parameters can be set by `gp`. Note under this mode, the size of points can only be changed by `np` argument.
