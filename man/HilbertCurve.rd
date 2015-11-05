@@ -32,22 +32,22 @@ HilbertCurve(s, e, level = 4, mode = c("normal", "pixel"),
 }
 \details{
 This funciton initializes a Hilbert curve with level \code{level} which corresponds 
-to the range between \code{s} and \code{e}.
+ to the range between \code{s} and \code{e}.
 
 Under 'normal' mode, there is a visible Hilbert curve which plays like a folded axis and
-different low-level graphics can be added on according to the coordinate afterward. 
-It only works nice if the level of the Hilbert curve is small (say less than 6).
+ different low-level graphics can be added on according to the coordinate afterward. 
+ It only works nice if the level of the Hilbert curve is small (say less than 6).
 
 When the level is high (e.g. > 10), the whole 2D space will be almost completely filled by the curve and
-it is impossible to add or visualize e.g. points on the curve. In this case, the 'pixel'
-mode visualizes each tiny 'segment' as a pixel and maps values to colors. So the Hilbert
-curve with level 11 will generate a PNG figure with 2048x2048 resolution. This is extremely
-useful for visualize genomic data. E.g. If we make a Hilbert curve for human chromosome 1 with
-level 11, then each pixel can represent 60bp (\code{249250621/2048/2048}) which is of very high resolution.
+ it is impossible to add or visualize e.g. points on the curve. In this case, the 'pixel'
+ mode visualizes each tiny 'segment' as a pixel and maps values to colors. So the Hilbert
+ curve with level 11 will generate a PNG figure with 2048x2048 resolution. This is extremely
+ useful for visualize genomic data. E.g. If we make a Hilbert curve for human chromosome 1 with
+ level 11, then each pixel can represent 60bp (\code{249250621/2048/2048}) which is of very high resolution.
 
 Under 'pixel' mode, if the current device is an interactive deivce, every time a new layer is added, 
-the image will be add to the interactive device as a rastered image. But still you can use \code{\link{hc_png,HilbertCurve-method}}
-to export the plot as PNG file.
+ the image will be add to the interactive device as a rastered image. But still you can use \code{\link{hc_png,HilbertCurve-method}}
+ to export the plot as PNG file.
 
 Notice, \code{s} and \code{e} are not necessary integers, it can be any positive values.
 }
@@ -59,11 +59,11 @@ Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
 HilbertCurve(1, 100, reference = TRUE)
-HilbertCurve(1, 100, level = 5)
-HilbertCurve(1, 100, title = "title")
+ HilbertCurve(1, 100, level = 5)
+ HilbertCurve(1, 100, title = "title")
 require(ComplexHeatmap)
-cm = ColorMapping(colors = c("red", "blue"), levels = c("a", "b"))
-legend = color_mapping_legend(cm, plot = FALSE, title = "foo")
-hc = HilbertCurve(1, 100, title = "title", legend = legend)
-hc_segments(hc, x1 = 20, x2 = 40)
+ cm = ColorMapping(colors = c("red", "blue"), levels = c("a", "b"))
+ legend = color_mapping_legend(cm, plot = FALSE, title = "foo")
+ hc = HilbertCurve(1, 100, title = "title", legend = legend)
+ hc_segments(hc, x1 = 20, x2 = 40)
 }

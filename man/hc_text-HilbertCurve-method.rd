@@ -32,9 +32,9 @@ Zuguang Gu <z.gu@dkfz.de>
 \examples{
 hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
 x = sort(sample(100, 20))
-s = x[1:10*2 - 1]
-e = x[1:10*2]
-ir = IRanges(s, e)
+ s = x[1:10*2 - 1]
+ e = x[1:10*2]
+ ir = IRanges(s, e)
 labels = sample(letters, length(ir), replace = TRUE)
-hc_text(hc, ir, labels = labels)
+ hc_text(hc, ir, labels = labels)
 }

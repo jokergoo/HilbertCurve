@@ -35,5 +35,5 @@ Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
 # see documentation of hc_points
-NULL
+ NULL
 }

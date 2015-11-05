@@ -27,7 +27,7 @@ Add points to the Hilbert curve
 }
 \details{
 Every segment that overlaps to \code{ir} will be segmented into \code{np} parts
-and a circle (or star, ...) is put on every 'small segments'.
+ and a circle (or star, ...) is put on every 'small segments'.
 
 This function is used internally.
 }
@@ -39,5 +39,5 @@ Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
 # see documentation of hc_points
-NULL
+ NULL
 }

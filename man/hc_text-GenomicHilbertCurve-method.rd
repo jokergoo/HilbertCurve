@@ -29,8 +29,8 @@ Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
 require(circlize)
-bed = generateRandomBed(nr = 20)
-gr = GRanges(seqnames = bed[[1]], ranges = IRanges(bed[[2]], bed[[3]]))
-hc = GenomicHilbertCurve()
-hc_text(hc, gr, labels = letters[1:20])
+ bed = generateRandomBed(nr = 20)
+ gr = GRanges(seqnames = bed[[1]], ranges = IRanges(bed[[2]], bed[[3]]))
+ hc = GenomicHilbertCurve()
+ hc_text(hc, gr, labels = letters[1:20])
 }

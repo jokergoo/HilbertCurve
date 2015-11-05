@@ -25,7 +25,7 @@ Draw a map which represents positions of different genomic categories
 }
 \details{
 When multiple genomic categories are draw into one single Hilbert curve, a map which shows the position
-of different categories on the curve is necessary to correspond to the graphics on the curve.
+ of different categories on the curve is necessary to correspond to the graphics on the curve.
 }
 \value{
 A \code{\link{GenomicHilbertCurve-class}} object
@@ -35,5 +35,5 @@ Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
 hc = GenomicHilbertCurve()
-hc_map(hc, add = TRUE)
+ hc_map(hc, add = TRUE)
 }

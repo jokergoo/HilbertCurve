@@ -23,7 +23,7 @@ Add rectangles on Hilbert curve
 }
 \details{
 You cannot set the width or height of the rectangles. Rectangles are always located
-at the turning points of the curve and have width or height are fixed.
+ at the turning points of the curve and have width or height are fixed.
 }
 \value{
 A data frame which contains coordinates for rectangles.
@@ -34,8 +34,8 @@ Zuguang Gu <z.gu@dkfz.de>
 \examples{
 hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
 x = sort(sample(100, 20))
-s = x[1:10*2 - 1]
-e = x[1:10*2]
-ir = IRanges(s, e)
-hc_rect(hc, ir)
+ s = x[1:10*2 - 1]
+ e = x[1:10*2]
+ ir = IRanges(s, e)
+ hc_rect(hc, ir)
 }

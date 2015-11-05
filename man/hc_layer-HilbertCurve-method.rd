@@ -38,10 +38,10 @@ Zuguang Gu <z.gu@dkfz.de>
 \examples{
 hc = HilbertCurve(1, 100, level = 9, mode = "pixel")
 x = sort(sample(100, 20))
-s = x[1:10*2 - 1]
-e = x[1:10*2]
-ir = IRanges(s, e)
+ s = x[1:10*2 - 1]
+ e = x[1:10*2]
+ ir = IRanges(s, e)
 hc_layer(hc, ir)
 hc = HilbertCurve(1, 100, level = 9, mode = "pixel")
-hc_layer(hc, ir, grid_line = 3)
+ hc_layer(hc, ir, grid_line = 3)
 }

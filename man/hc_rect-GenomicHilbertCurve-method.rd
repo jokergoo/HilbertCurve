@@ -29,8 +29,8 @@ Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
 require(circlize)
-bed = generateRandomBed(nr = 100)
-gr = GRanges(seqnames = bed[[1]], ranges = IRanges(bed[[2]], bed[[3]]))
-hc = GenomicHilbertCurve()
-hc_rect(hc, gr, gp = gpar(fill = rand_color(length(gr))))
+ bed = generateRandomBed(nr = 100)
+ gr = GRanges(seqnames = bed[[1]], ranges = IRanges(bed[[2]], bed[[3]]))
+ hc = GenomicHilbertCurve()
+ hc_rect(hc, gr, gp = gpar(fill = rand_color(length(gr))))
 }

@@ -32,8 +32,8 @@ Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
 require(circlize)
-bed = generateRandomBed()
-gr = GRanges(seqnames = bed[[1]], ranges = IRanges(bed[[2]], bed[[3]]))
-hc = GenomicHilbertCurve(mode = "pixel")
-hc_layer(hc, gr, col = rand_color(length(gr)))
+ bed = generateRandomBed()
+ gr = GRanges(seqnames = bed[[1]], ranges = IRanges(bed[[2]], bed[[3]]))
+ hc = GenomicHilbertCurve(mode = "pixel")
+ hc_layer(hc, gr, col = rand_color(length(gr)))
 }

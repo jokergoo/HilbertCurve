@@ -9,8 +9,8 @@ The HilbertCurve class
 }
 \details{
 The \code{\link{GenomicHilbertCurve-class}} is inherited from the \code{\link{HilbertCurve-class}}. Basically
-the structure of this class is almost the same as the \code{\link{HilbertCurve-class}} but with several
-additional slots added to faciliated for visualizing genomic data.
+ the structure of this class is almost the same as the \code{\link{HilbertCurve-class}} but with several
+ additional slots added to faciliated for visualizing genomic data.
 }
 \section{Methods}{
 The \code{\link{GenomicHilbertCurve-class}} provides following methods:

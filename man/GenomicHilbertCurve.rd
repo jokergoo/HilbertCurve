@@ -20,7 +20,7 @@ GenomicHilbertCurve(chr = paste0("chr", c(1:22, "X", "Y")), species = "hg19",
 }
 \details{
 If the background region contains more than one categories (e.g. more than one chromosomes), 
-they are concatenated on a same Hilbert curve.
+ they are concatenated on a same Hilbert curve.
 }
 \value{
 A \code{\link{GenomicHilbertCurve-class}} object
@@ -30,13 +30,13 @@ Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
 require(circlize)
-bed = generateRandomBed()
-gr = GRanges(seqnames = bed[[1]], ranges = IRanges(bed[[2]], bed[[3]]))
-hc = GenomicHilbertCurve()
-hc_points(hc, gr)
+ bed = generateRandomBed()
+ gr = GRanges(seqnames = bed[[1]], ranges = IRanges(bed[[2]], bed[[3]]))
+ hc = GenomicHilbertCurve()
+ hc_points(hc, gr)
 hc = GenomicHilbertCurve(chr = c("chr1", "chr2"))
-hc_points(hc, gr)
+ hc_points(hc, gr)
 background = GRanges(seqnames = "chr1", ranges = IRanges(1, 10000000))
-hc = GenomicHilbertCurve(background = background)
-hc_points(hc, gr)
+ hc = GenomicHilbertCurve(background = background)
+ hc_points(hc, gr)
 }

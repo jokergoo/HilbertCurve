@@ -9,12 +9,12 @@ The HilbertCurve class
 }
 \details{
 Hilbert curve (\url{https://en.wikipedia.org/wiki/Hilbert_curve} ) is a type of space-filling curves
-that fold one dimensional axis into a two dimensional space, but with still keeping the locality.
-It has advantages to visualize data with long axis with high resolution and still keep the locality
-of data points.
+ that fold one dimensional axis into a two dimensional space, but with still keeping the locality.
+ It has advantages to visualize data with long axis with high resolution and still keep the locality
+ of data points.
 
 This package aims to provide an easy and flexible way to visualize data through Hilbert curve.
-The implementation and example figures are based on following sources:
+ The implementation and example figures are based on following sources:
 
 \itemize{
   \item \url{http://mkweb.bcgsc.ca/hilbert/}
