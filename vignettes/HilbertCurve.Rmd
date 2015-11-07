@@ -406,6 +406,43 @@ The self-defined `overlay` should accept sevel argument for which, `r0`, `g0` an
 layer which is already added, `r`, `g`, `b` and `alpha` correspond to the layer which are going to be added.
 The elements of e.g. `r` only correspond to the pixels that inside the regions in the new layer.
 
+**circlize** provides a function `col2value()` which transforms back from colors to the original values. 
+It is usefull to integrate with `overlap` to change the color theme.
+
+In following example, color theme is from white to red.
+
+```{r}
+col_fun = colorRamp2(c(0, 1), c("white", "red"))
+value = runif(length(x))
+hc = HilbertCurve(1, 1000, level = 9, mode = "pixel", title = "pixel mode")
+hc_layer(hc, x1 = x, x2 = x+2, mean_mode = "absolute", col = col_fun(value))
+hc_layer(hc, x1 = 750, x2 = 850, col = "#00000010")
+```
+
+Next we first select the pixels which represent the regions that are already added. Since the background
+is white (red, green and blue channel all have value of 1), we select the non-white pixels. Then we create
+a new color theme which change from white to blue and update the corresponding colors.
+
+```{r}
+hc = HilbertCurve(1, 1000, level = 9, mode = "pixel", title = "pixel mode")
+hc_layer(hc, x1 = x, x2 = x+2, mean_mode = "absolute", col = col_fun(value))
+hc_layer(hc, x1 = 750, x2 = 850, col = "#00000010",
+    overlay = function(r0, g0, b0, r, g, b, alpha) {
+        # non-white areas
+        l = !(r0 == 1 & g0 == 1 & b0 == 1)
+        v = col2value(r0[l], g0[l], b0[l], col_fun = col_fun)
+
+        # new color theme
+        col_fun_new = colorRamp2(c(0, 1), c("white", "blue"))
+        col_new = col_fun_new(v, return_rgb = TRUE)
+        r0[l] = col_new[, 1]
+        g0[l] = col_new[, 2]
+        b0[l] = col_new[, 3]
+
+        default_overlay(r0, g0, b0, r, g, b, alpha)
+    })
+```
+
 In later section, we will demonstrate using self-defined overlay method can effectively visualize
 the correspondance between H3K36me3 histone mark and gene body.
 
