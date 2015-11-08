@@ -744,13 +744,22 @@ One solution is to construct a 'huge' chromosome which merges all real chromosom
 makes it easy. You can specify multiple chromosomes by sending a vector to `chr` argument or specify more
 than one background regions in `background argument.
 
-In following examples, copy number ratio for 22 human chromosomes are visualized. Data is from https://www.sanger.ac.uk/research/areas/humangenetics/cnv/highres_discovery.html. Raw data are averaged into 1kb windows to reduce the size of the data.
+In following examples, copy number loss and gain for 22 human chromosomes are visualized. Data is from (Database of Genomic Variants, CNV map)[http://dgv.tcag.ca/dgv/app/downloads]. 
+
 
 ```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
-df = read.table("~/HilbertCurveTest/cnv_1k_window_mean.bed", sep = "\t", stringsAsFactors = FALSE)
 hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel")
-col_fun = colorRamp2(c(-0.7, 0, 0.7), c("green", "white", "red"))
-hc_layer(hc, df, col = col_fun(df[[4]]), grid_line = 3, grid_line_col = "grey")
+df = read.table("~/HilbertCurveTest/Stringent.Gain.hg19.2015-02-03.txt", header = TRUE, stringsAsFactors = FALSE)
+hc_layer(hc, df, col = "red")
+df = read.table("~/HilbertCurveTest/Stringent.Loss.hg19.2015-02-03.txt", header = TRUE, stringsAsFactors = FALSE)
+hc_layer(hc, df, col = "green", grid_line = 3, grid_line_col = "grey",
+    overlay = function(r0, g0, b0, r, g, b, alpha) {
+        l = !(r0 == 1 & g0 == 1 & b0 == 1)
+        r[l] = 160/255
+        g[l] = 32/255
+        b[l] = 240/255
+        list(r, g, b)
+})
 hc_png(hc, file = 'cnv_all_chromosomes.png')
 ```
 
@@ -773,31 +782,42 @@ cat("<p><center><img src='map_all_chromosomes.png' /></center></p>\n")
 If you want to compare several plots simutaneously, you can use `grid.layout()`
 to put them together. Remember to set `newpage` to `FALSE`.
 
-```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = 2:21}
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = 2:34}
 png('cnv_compare.png', width = 800, height = 800)
-pushViewport(viewport(layout = grid.layout(nr = 2, nc = 2)))
-pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 1))
-hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel", 
-    title = "sample 1", newpage = FALSE)
-hc_layer(hc, df, col = col_fun(df[[4]]), grid_line = 3, grid_line_col = "grey")
-upViewport()
+plot_curve = function(column, ...) {
+    cm = ColorMapping(levels = c("gain", "loss", "both"), color = c("red", "green", "purple"))
+    hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel",
+        title = qq("CNV for @{column}"), ...)
 
-pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 2))
-hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel", 
-    title = "sample 2", newpage = FALSE)
-hc_layer(hc, df, col = col_fun(df[[5]]), grid_line = 3, grid_line_col = "grey")
-upViewport()
+    df = read.table("~/HilbertCurveTest/Stringent.Gain.hg19.2015-02-03.txt", header = TRUE, stringsAsFactors = FALSE)
+    df = df[df[[column]] > 0, , drop = FALSE]
+    hc_layer(hc, df, col = "red")
 
-pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 1))
-hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel", 
-    title = "sample 3", newpage = FALSE)
-hc_layer(hc, df, col = col_fun(df[[6]]), grid_line = 3, grid_line_col = "grey")
-upViewport()
+    df = read.table("~/HilbertCurveTest/Stringent.Loss.hg19.2015-02-03.txt", header = TRUE, stringsAsFactors = FALSE)
+    df = df[df[[column]] > 0, , drop = FALSE]
+    hc_layer(hc, df, col = "green", grid_line = 3, grid_line_col = "grey",
+        overlay = function(r0, g0, b0, r, g, b, alpha) {
+            l = !(r0 == 1 & g0 == 1 & b0 == 1)
+            r[l] = 160/255
+            g[l] = 32/255
+            b[l] = 240/255
+            list(r, g, b)
+    })
+}
+
+pn = c("African", "Asian", "European")
+pushViewport(viewport(layout = grid.layout(nrow = 2, ncol = 2)))
+for(i in seq_along(pn)) {
+    pushViewport(viewport(layout.pos.row = (i-1)%/%2 + 1, layout.pos.col = (i-1)%%2 + 1))
+    plot_curve(pn[i], newpage = FALSE)
+    upViewport()
+}
 
 pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 2))
-hc_map(hc, title = "map", newpage = FALSE)
+hc_map(hc, title = "map for 22 chromosomes", newpage = FALSE)
 upViewport()
 upViewport()
+
 invisible(dev.off())
 ```
 
