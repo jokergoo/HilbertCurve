@@ -477,7 +477,7 @@ grid.text("genomic regions", 0.5, 0.65, just = "bottom")
 For a window on the curve, $n$ is the number of input regions which overlap with the window (it is 3 in the above plot), 
 $w_i$ is the width of the intersected segments (black thick lines), $x_i$ is the value associated with the original regions. 
 
-The “absolute” method which is denoted as $v_a$ and is simple calculated as the mean regardless of the width:
+The "absolute" method which is denoted as $v_a$ and is simple calculated as the mean regardless of the width:
 
 $$ v_a = \frac{\sum_i^n{x_i}}{n} $$
 
@@ -489,11 +489,11 @@ $$ v_w = \frac{\sum_i^n{x_iw_i}}{\sum_i^n{w_i}} $$
 mean methylation in a small window, since methylation is only related with CpG sites while not other bases, non-CpG background
 should be ignored.
 
-The “w0” mode is the weighted mean between the intersected parts and un-intersected parts: 
+The "w0" mode is the weighted mean between the intersected parts and un-intersected parts: 
 
- $$ v_{w0} = \frac{v_wW + v_bW’}{W+W’} $$
+ $$ v_{w0} = \frac{v_wW + v_bW'}{W+W'} $$
 
-for which $W$ is sum of width of the intersected parts and $W’$ is the sum of width for the un-intersected parts. $V_b$ is the value corresponding to the background. E.g when averaging colors which are represented as numeric RGB values, the background value is set to 255 which corresponds to white.
+for which $W$ is sum of width of the intersected parts and $W'$ is the sum of width for the un-intersected parts. $V_b$ is the value corresponding to the background. E.g when averaging colors which are represented as numeric RGB values, the background value is set to 255 which corresponds to white.
 
 ## Examples
 
@@ -584,12 +584,12 @@ hc_text(hc, gr, ...)
 hc_layer(hc, gr, ...)
 ```
 
-One major feature is multiple chromosomes (or genomic categories) can be put onto one same curve.
+One major feature is multiple chromosomes (or more general genomic categories) can be put onto one same curve.
 
 Following illustrates several examples of making genome-level Hilbert curves.
 
 The first example visualizes genes on chromosome 1 ([RefSeq genes for human, hg19](https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=451688581_FoCuggvGvavyfGhdj9sSGrGlnErE&clade=mammal&org=Human&db=hg38&hgta_group=genes&hgta_track=refGene&hgta_table=0&hgta_regionType=genome&position=chr9%3A133252000-133280861&hgta_outputType=primaryTable&hgta_outFileName=)). Here random colors are used
-to represent different genes.
+to distinguish different genes.
 
 ```{r}
 load(system.file("extdata", "refseq_chr1.RData", package = "HilbertCurve"))
@@ -598,7 +598,7 @@ hc = GenomicHilbertCurve(chr = "chr1", level = 5, reference = TRUE,
 hc_segments(hc, g, gp = gpar(lwd = 6, col = rand_color(length(g))))
 ```
 
-Following two figures compare sequence conservations for mouse vs human and zebrafish vs human. Data are from [UCSC Table Browser](http://genome.ucsc.edu/cgi-bin/hgTables?hgsid=434791817_tLOpTRgCwS2hR4uJ2cDjGaHUQEKj&clade=mammal&org=Human&db=hg19&hgta_group=compGeno&hgta_track=placentalChainNet&hgta_table=0&hgta_regionType=genome&position=chr16%3A81839239-81902938&hgta_outputType=wigData&hgta_outFileName=).
+Following two figures how well human chromosome 1 is aligned to mouse and zebrafish. Data are from [UCSC Table Browser](http://genome.ucsc.edu/cgi-bin/hgTables?hgsid=434791817_tLOpTRgCwS2hR4uJ2cDjGaHUQEKj&clade=mammal&org=Human&db=hg19&hgta_group=compGeno&hgta_track=placentalChainNet&hgta_table=0&hgta_regionType=genome&position=chr16%3A81839239-81902938&hgta_outputType=wigData&hgta_outFileName=).
 
 ```{r}
 chr1_len = 249250621
@@ -619,7 +619,8 @@ hc = GenomicHilbertCurve(chr = "chr1", level = 6)
 hc_points(hc, gr, np = 3, gp = gpar(col = NA, fill = col))
 ```
 
-GC percent on chromosome 1, under "normal" mode:
+Next figure visualizes GC percent on chromosome 1, under "normal" mode. The GC content per 1KB window
+is calculated by `hgGcPercent.bin` binary which is downloaded from http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/.
 
 ```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", echo = 2:6}
 png('gc_percent_chr1_points.png', width = 500, height = 500)
@@ -635,7 +636,7 @@ invisible(dev.off())
 cat("<p><center><img src='gc_percent_chr1_points.png' /></center></p>\n")
 ```
 
-GC percent on chromosome 1, under "pixel" mode:
+Or visualize GC percent on chromosome 1, under "pixel" mode:
 
 ```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
 hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel")
@@ -648,9 +649,9 @@ hc_png(hc, file = "gc_percent_chr1.png")
 cat("<p><center><img src='gc_percent_chr1.png' /></center></p>\n")
 ```
 
-Background is not necessary to be whole chromosomes, it can also be a self-defined regions.
-The background can be specified as a `GRanges` object and sent to `background` argument. 
-In following example, only the first half part of chromosome 1 is used.
+Background is not necessary to be the whole chromosomes, it can also be a self-defined regions.
+The background can be specified as a `GRanges` object and pass to `background` argument. 
+In following example, only the first half part of chromosome 1 is used to initialize the curve.
 
 ```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
 background = GRanges(seqnames = "chr1", ranges = IRanges(1, ceiling(chr1_len/2)))
@@ -664,7 +665,7 @@ hc_png(hc, file = "gc_percent_half_chr1.png")
 cat("<p><center><img src='gc_percent_half_chr1.png' /></center></p>\n")
 ```
 
-Following visualizes different histone marks, expression and methylation. Gene layer is added as shadows.
+Following visualizes different histone marks on human chromosome 1. Additionally, gene regions are added as a grey layer.
 Data are from http://genboree.org/EdaccData/Release-9/sample-experiment/Lung/.
 
 Since we are going to plot more than one histome marks, the code for plotting are wrapped as a simple function:
@@ -722,26 +723,10 @@ plot_histone_mark("H3K9me3")
 cat("<p><center><img src='H3K9me3_chr1.png' /></center></p>\n")
 ```
 
-Coverage for RNAseq.
-
-```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
-df = read.table(pipe(qq("awk '$5>0 && $1==\"chr1\"' ~/HilbertCurveTest/UCSD.Lung.mRNA-Seq.STL002.bed")), 
-    sep = "\t")
-df[[5]] = log(df[[5]] + 1)
-col_fun = colorRamp2(c(0, quantile(df[[5]], 0.99)), c("white", "red"))
-hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel")
-hc_layer(hc, df, col = col_fun(df[[5]]))
-hc_layer(hc, reduce(g), col = "#00000010")
-hc_png(hc, file = 'RNASeq_coverage_chr1.png')
-```
-
-```{r, echo = FALSE, results = "asis"}
-cat("<p><center><img src='RNASeq_coverage_chr1.png' /></center></p>\n")
-```
-
 When there are more than one layers added and users want to see the correspondance between different
-genomic features, they can define a color overlay function to enhance the overlapping parts. In following example, when a region for H3K36me3 mark
-is overlapped with gene body, the color theme is changed to purple.
+genomic features, they can define a color overlay function to enhance the visual effects of the overlapping areas. 
+In following example, when regions for H3K36me3 mark
+are overlapped with gene bodies, the color theme is changed to white-purple.
 
 ```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
 df = read.table(pipe("awk '$5>0 && $1==\"chr1\"' ~/HilbertCurveTest/UCSD.Lung.H3K36me3.STL002.bed"), 
@@ -752,10 +737,10 @@ hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel")
 hc_layer(hc, df, col = col_fun(df[[5]]))
 hc_layer(hc, reduce(g), col = "#00000010", 
     overlay = function(r0, g0, b0, r, g, b, alpha) {
-            l = !(r0 == 1 & g0 == 1 & b0 == 1)
-            v = col2value(r0[l], g0[l], b0[l], col_fun = col_fun)
+            l = !(r0 == 1 & g0 == 1 & b0 == 1) # non-white pixels
+            v = col2value(r0[l], g0[l], b0[l], col_fun = col_fun) # the original value
 
-            col_new = col_fun_new(v, return_rgb = TRUE)
+            col_new = col_fun_new(v, return_rgb = TRUE) # the new color theme
             r0[l] = col_new[, 1]
             g0[l] = col_new[, 2]
             b0[l] = col_new[, 3]
@@ -769,11 +754,12 @@ hc_png(hc, "H3K36me3_chr1_overlap.png")
 cat("<p><center><img src='H3K36me3_chr1_overlap.png' /></center></p>\n")
 ```
 
-Visualizing methylation. Blue corresponds to un-methylation, red corresponds to full-methylation.
+Next figure visualizs methylation on human chromosome 1. Blue corresponds to un-methylation and red corresponds to full-methylation.
 One thing which is very important here is that methylation is always measured at single CpG
-sites, you need to set the mode for averaging to `absolute` to average only on CpG sites.
+sites, so the mode for averaging should be set to `absolute` in order to sumarize mean methylation values only on CpG sites.
+Data are from http://genboree.org/EdaccData/Release-9/sample-experiment/Lung/.
 
-Following plot shows quite clear patterns for un-methylated regions, fully methylated regions
+The methylation plot shows quite clear patterns for un-methylated regions which are small and sharp, fully methylated regions
 and intermediate methylated regions.
 
 ```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
@@ -793,12 +779,14 @@ cat("<p><center><img src='methylation_chr1.png' /></center></p>\n")
 ### Put multiple chromosomes in one plot
 
 We demonstrated how to visualize one single chromosome through Hilbert curve, but sometimes
-we also want to put all chromosomes into one plot to get rid of reading too many plots simutaneously.
-One solution is to construct a 'huge' chromosome which merges all real chromosomes. `GenomicHilbertCurve()`
+we also want to put all chromosomes into one plot to get a full view of the genome.
+One solution is to construct a 'huge fake' chromosome which merges all real chromosomes. `GenomicHilbertCurve()`
 makes it easy. You can specify multiple chromosomes by sending a vector to `chr` argument or specify more
-than one background regions in `background argument.
+than one background regions in `background` argument.
 
-In following examples, copy number loss and gain for 22 human chromosomes are visualized. Data is from (Database of Genomic Variants, CNV map)[http://dgv.tcag.ca/dgv/app/downloads]. 
+In following examples, copy number loss and gain for 22 human chromosomes are visualized. Also color for the overlapping
+regions between layer for gain events and layer for loss events is changed to purple by defining `overlay` argument.
+Data is from (Database of Genomic Variants, CNV map)[http://dgv.tcag.ca/dgv/app/downloads]. 
 
 
 ```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
@@ -821,7 +809,8 @@ hc_png(hc, file = 'cnv_all_chromosomes.png')
 cat("<p><center><img src='cnv_all_chromosomes.png' /></center></p>\n")
 ```
 
-A map which shows the chromosome positions in Hilbert curve is very necessary.
+A map which shows the chromosome positions in Hilbert curve is very necessary for knowing which part
+in the curve represents which chromosome.
 
 ```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", echo = 2, fig.keep = "none"}
 png('map_all_chromosomes.png', width = 500, height = 500)
@@ -834,7 +823,7 @@ cat("<p><center><img src='map_all_chromosomes.png' /></center></p>\n")
 ```
 
 If you want to compare several plots simutaneously, you can use `grid.layout()`
-to put them together. Remember to set `newpage` to `FALSE`.
+to put them together. Remember to set `newpage` to `FALSE` in `HilbertCurve()` or `GenomicHilbertCurve()`.
 
 ```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = 2:34}
 png('cnv_compare.png', width = 800, height = 800)
