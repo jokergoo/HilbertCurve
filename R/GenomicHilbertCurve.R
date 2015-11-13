@@ -1,11 +1,11 @@
 
 # == title
-# The HilbertCurve class
+# The GenomicHilbertCurve class
 #
 # == details
 # The `GenomicHilbertCurve-class` is inherited from the `HilbertCurve-class`. Basically
 # the structure of this class is almost the same as the `HilbertCurve-class` but with several
-# additional slots added to faciliated for visualizing genomic data.
+# additional slots added to facilitate visualizing genomic data.
 #
 # == Methods
 # The `GenomicHilbertCurve-class` provides following methods:
@@ -15,8 +15,8 @@
 # - `hc_segments,GenomicHilbertCurve-method`: add lines;
 # - `hc_rect,GenomicHilbertCurve-method`: add rectangles;
 # - `hc_text,GenomicHilbertCurve-method`: add text;
-# - `hc_layer,GenomicHilbertCurve-method`: add layers;
-# - `hc_map,GenomicHilbertCurve-method`: show the map of chromosomes.
+# - `hc_layer,GenomicHilbertCurve-method`: add layers undel "pixel" mode;
+# - `hc_map,GenomicHilbertCurve-method`: show the map of different categories on the curve.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -37,13 +37,14 @@ GenomicHilbertCurve = setClass("GenomicHilbertCurve",
 # -chr a vector of chromosome names. Note it should have 'chr' prefix. This argument will be ignored
 #      when ``background`` is set.
 # -species abbreviation of species, e.g. 'hg19' or 'mm10'
-# -background the background can be privided as a 'GenomicRanges::GRanges' object. 
-#         It is not very well supported. It assumes that all regions are subset of background regions.
+# -background the background can be provided as a 'GenomicRanges::GRanges' object. 
+#         It is not very well supported. It assumes that all regions which will be specified in 
+#         `hc_layer,GenomicHilbertCurve-method` are subsets of background regions.
 # -... pass to `HilbertCurve`
 #
 # == details
 # If the background region contains more than one categories (e.g. more than one chromosomes), 
-# they are concatenated on a same Hilbert curve.
+# they are concatenated onto a same Hilbert curve.
 #
 # == value
 # A `GenomicHilbertCurve-class` object
@@ -102,7 +103,7 @@ GenomicHilbertCurve = function(chr = paste0("chr", c(1:22, "X", "Y")), species =
 #
 # == param
 # -object a `GenomicHilbertCurve-class` object
-# -gr a `GenomicRanges::GRanges` object
+# -gr a `GenomicRanges::GRanges` object which contains the genomic regions to be mapped to the curve
 # -np pass to `hc_points,HilbertCurve-method`
 # -size pass to `hc_points,HilbertCurve-method`
 # -pch pass to `hc_points,HilbertCurve-method`
@@ -114,7 +115,7 @@ GenomicHilbertCurve = function(chr = paste0("chr", c(1:22, "X", "Y")), species =
 # It is basically a wrapper of `hc_points,HilbertCurve-method`.
 #
 # == value
-# refer to `hc_points,HilbertCurve-method`
+# Refer to `hc_points,HilbertCurve-method`
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -157,7 +158,7 @@ setMethod(f = "hc_points",
 #
 # == param
 # -object a `GenomicHilbertCurve-class` object
-# -gr a `GenomicRanges::GRanges` object
+# -gr a `GenomicRanges::GRanges` object which contains the genomic regions to be mapped to the curve
 # -gp pass to `hc_rect,HilbertCurve-method`
 # -mean_mode pass to `hc_rect,HilbertCurve-method`
 #
@@ -165,7 +166,7 @@ setMethod(f = "hc_points",
 # It is basically a wrapper of `hc_rect,HilbertCurve-method`.
 #
 # == value
-# refer to `hc_rect,HilbertCurve-method`
+# Refer to `hc_rect,HilbertCurve-method`
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -199,14 +200,14 @@ setMethod(f = "hc_rect",
 #
 # == param
 # -object a `GenomicHilbertCurve-class` object
-# -gr a `GenomicRanges::GRanges` object
+# -gr a `GenomicRanges::GRanges` object which contains the genomic regions to be mapped to the curve
 # -gp pass to `hc_segments,HilbertCurve-method`
 #
 # == details
 # It is basically a wrapper of `hc_segments,HilbertCurve-method`.
 #
 # == value
-# refer to `hc_segments,HilbertCurve-method`
+# Refer to `hc_segments,HilbertCurve-method`
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -241,7 +242,7 @@ setMethod(f = "hc_segments",
 #
 # == param
 # -object a `GenomicHilbertCurve-class` object
-# -gr a `GenomicRanges::GRanges` object
+# -gr a `GenomicRanges::GRanges` object which contains the genomic regions to be mapped to the curve
 # -labels pass to `hc_text,HilbertCurve-method`
 # -gp pass to `hc_text,HilbertCurve-method`
 # -... pass to `hc_text,HilbertCurve-method`
@@ -250,7 +251,7 @@ setMethod(f = "hc_segments",
 # It is basically a wrapper of `hc_text,HilbertCurve-method`.
 #
 # == value
-# refer to `hc_text,HilbertCurve-method`
+# Refer to `hc_text,HilbertCurve-method`
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -286,7 +287,7 @@ setMethod(f = "hc_text",
 #
 # == param
 # -object a `GenomicHilbertCurve-class` object
-# -gr a `GenomicRanges::GRanges` object
+# -gr a `GenomicRanges::GRanges` object which contains the genomic regions to be mapped to the curve
 # -col pass to `hc_layer,HilbertCurve-method`
 # -mean_mode pass to `hc_layer,HilbertCurve-method`
 # -grid_line pass to `hc_layer,HilbertCurve-method`
@@ -297,7 +298,7 @@ setMethod(f = "hc_text",
 # It is basically a wrapper of `hc_layer,HilbertCurve-method`.
 #
 # == value
-# refer to `hc_layer,HilbertCurve-method`
+# Refer to `hc_layer,HilbertCurve-method`
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -331,23 +332,23 @@ setMethod(f = "hc_layer",
 })
 
 # == title
-# Draw a map which represents positions of different genomic categories
+# Draw a map which represents positions of different genomic categories on the curve
 #
 # == param
 # -object a `GenomicHilbertCurve-class` object
-# -level Since a map does not need to have too high resolution, a value of around 6 would be enough. 
-#        It is ignored if ``add`` is set to ``TRUE``.
-# -fill colors for differnet genomic categories (current you cannot adjust the style of the borders)
-# -labels labels of each genomic categories. By default, if the categories is unique for different chromosome,
-#          the labels will be the chromosome name or they will be the combination of chromosme names and positions.
-#          It is ignored if ``add`` is set to ``TRUE`` and the curve is under 'pixel' mode.
+# -level Since a map does not need to have high resolution, a value of around 6 would be enough. 
+#        If ``add`` is set to ``TRUE``, ``level`` will be enforced to have the same level in the current Hilbert curve.
+# -fill colors for different genomic categories (current you cannot adjust the style of the borders)
+# -labels label for each genomic category. By default, if the category is unique for different chromosome,
+#          the label will be the chromosome name, or else they will be the combination of chromosme names and positions.
+#          It is ignored if the curve is under 'pixel' mode.
 # -labels_gp graphic settings for labels
-# -add whether add the map to the current curve or draw it in a new curve. But notice if ``add`` is set to ``TRUE``,
-#      you should set ``fill`` with transparency.
+# -add whether add the map to the current curve or draw it in a new graphic device. Notice if ``add`` is set to ``TRUE``,
+#      you should set ``fill`` with transparency so that it will not hide your original plot.
 # -... pass to `GenomicHilbertCurve`.
 #
 # == details
-# When multiple genomic categories are draw into one single Hilbert curve, a map which shows the position
+# When multiple genomic categories are drawn into one single Hilbert curve, a map which shows the positions
 # of different categories on the curve is necessary to correspond to the graphics on the curve.
 #
 # == value
@@ -357,8 +358,16 @@ setMethod(f = "hc_layer",
 # Zuguang Gu <z.gu@dkfz.de>
 #
 # == example
+# require(circlize)
+# bed = generateRandomBed(nr = 100)
+# gr = GRanges(seqnames = bed[[1]], ranges = IRanges(bed[[2]], bed[[3]]))
 # hc = GenomicHilbertCurve()
-# hc_map(hc, add = TRUE)
+# hc_points(hc, gr, gp = gpar(fill = rand_color(length(gr))))
+# # add it in the same graphic device
+# hc_map(hc, fill = rand_color(24, transparency = 0.5), add = TRUE)
+#
+# # or open a new graphic device
+# hc_map(hc, fill = rand_color(24))
 setMethod(f = "hc_map",
 	signature = "GenomicHilbertCurve",
 	definition = function(object, level = 7, fill = NULL, 

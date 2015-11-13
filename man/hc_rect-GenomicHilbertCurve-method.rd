@@ -13,7 +13,7 @@ Add rectangles on Hilbert curve
 \arguments{
 
   \item{object}{a \code{\link{GenomicHilbertCurve-class}} object}
-  \item{gr}{a \code{\link[GenomicRanges]{GRanges}} object}
+  \item{gr}{a \code{\link[GenomicRanges]{GRanges}} object which contains the genomic regions to be mapped to the curve}
   \item{gp}{pass to \code{\link{hc_rect,HilbertCurve-method}}}
   \item{mean_mode}{pass to \code{\link{hc_rect,HilbertCurve-method}}}
 
@@ -22,15 +22,15 @@ Add rectangles on Hilbert curve
 It is basically a wrapper of \code{\link{hc_rect,HilbertCurve-method}}.
 }
 \value{
-refer to \code{\link{hc_rect,HilbertCurve-method}}
+Refer to \code{\link{hc_rect,HilbertCurve-method}}
 }
 \author{
 Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
 require(circlize)
- bed = generateRandomBed(nr = 100)
- gr = GRanges(seqnames = bed[[1]], ranges = IRanges(bed[[2]], bed[[3]]))
- hc = GenomicHilbertCurve()
- hc_rect(hc, gr, gp = gpar(fill = rand_color(length(gr))))
+bed = generateRandomBed(nr = 100)
+gr = GRanges(seqnames = bed[[1]], ranges = IRanges(bed[[2]], bed[[3]]))
+hc = GenomicHilbertCurve()
+hc_rect(hc, gr, gp = gpar(fill = rand_color(length(gr))))
 }

@@ -29,6 +29,6 @@ Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
 hc = HilbertCurve(1, 2)
- z = zoom(hc, 1.5)
- unzoom(hc, z)
+z = zoom(hc, 1.5)
+unzoom(hc, z)
 }
