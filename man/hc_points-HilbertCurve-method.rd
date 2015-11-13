@@ -45,8 +45,8 @@ Following illustrates different settings for \code{mean_mode}:
     weighted: (100*4 + 80*3 + 60*3)/(4 + 3 + 3)
     w0:       (100*4 + 80*3 + 60*3 + 0*6)/16  }
 
-So which mode to use depends on specific scenario. If the background is not of interest, \code{\link{absolute}} and \code{\link{weighted}}
-modes may be proper and if the value also needs to be averaged with background, \code{\link{w0}} is the proper choice.
+So which mode to use depends on specific scenario. If the background is not of interest, \code{absolute} and \code{weighted}
+modes may be proper and if the value also needs to be averaged with background, \code{w0} is the proper choice.
 
 Graphic parameters is always represented as numeric values (e.g. colors can be converted into numeric RGB values) 
 and they will be averaged according to above rules.
