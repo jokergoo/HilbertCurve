@@ -1,3 +1,9 @@
+CHANGES in VERSION 1.1.1
+
+* add functions specific for genomic data visualization
+
+========================================
+
 CHANGES in VERSION 0.99.3
 
 * transparency is also averaged
