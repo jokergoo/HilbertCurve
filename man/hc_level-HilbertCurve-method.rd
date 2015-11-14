@@ -24,6 +24,7 @@ Zuguang Gu <z.gu@dkfz.de>
 \examples{
 hc = HilbertCurve(1, 100)
 hc_level(hc)
+
 hc = HilbertCurve(1, 100, level = 5)
 hc_level(hc)
 }

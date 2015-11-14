@@ -13,15 +13,15 @@ Zoom original positions
 \arguments{
 
   \item{object}{A \code{\link{HilbertCurve-class}} object.}
-  \item{x}{positions.}
+  \item{x}{original positions.}
 
 }
 \details{
-Internally, position are stored as integer values. To increase the resolution
-of the data that maps to the Hilbert curve, the original position would be zoom
-according to the range of the position and the level of Hilbert curve. E.g. if 
+Internally, position are stored as integer values. To better map the data to the Hilbert curve, 
+the original positions are zoomed
+according to the range and the level of Hilbert curve. E.g. if 
 the curve visualizes data ranging from 1 to 2 but level of the curve is set to 4,
-the positions will be zoomed by ~x2000 so that values link 1.5, 1.555 can be mapped
+the positions will be zoomed by ~x2000 so that values like 1.5, 1.555 can be mapped
 to the curve with more accuracy.
 
 The function is used internally.
