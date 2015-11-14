@@ -17,9 +17,8 @@ increase_plot_index = function() {
 #
 # == details
 # Hilbert curve (https://en.wikipedia.org/wiki/Hilbert_curve ) is a type of space-filling curves
-# that fold one dimensional axis into a two dimensional space, but with still keeping the locality.
-# It has advantages to visualize data with long axis with high resolution and still keep the locality
-# of data points.
+# that folds one-dimensional axis into a two-dimensional space, but still keeps the locality.
+# It has advantages to visualize data with long axis with high resolution.
 #
 # This package aims to provide an easy and flexible way to visualize data through Hilbert curve.
 # The implementation and example figures are based on following sources:
@@ -36,8 +35,11 @@ increase_plot_index = function() {
 # - `hc_segments,HilbertCurve-method`: add lines;
 # - `hc_rect,HilbertCurve-method`: add rectangles;
 # - `hc_text,HilbertCurve-method`: add text;
-# - `hc_layer,HilbertCurve-method`: add layers;
-# - `hc_png,HilbertCurve-method`: save plot as png format.
+# - `hc_layer,HilbertCurve-method`: add layers, works under "pixel" mode;
+# - `hc_png,HilbertCurve-method`: save plot as PNG format, works under "pixel" mode.
+#
+# == seealso
+# The `GenomicHilbertCurve-class` inherits `HilbertCurve-class` and is designed specifically for handling genomic data.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -53,7 +55,8 @@ HilbertCurve = setClass("HilbertCurve",
 		ZOOM = "numeric",
 		MODE = "character",
 		RGB = "environment",
-		LEVEL = "integer"
+		LEVEL = "integer",
+		OFFSET = "numeric"
 ))
 
 # == title
@@ -61,14 +64,14 @@ HilbertCurve = setClass("HilbertCurve",
 #
 # == param
 # -object A `HilbertCurve-class` object.
-# -x positions.
+# -x original positions.
 #
 # == details
-# Internally, position are stored as integer values. To increase the resolution
-# of the data that maps to the Hilbert curve, the original position would be zoom
-# according to the range of the position and the level of Hilbert curve. E.g. if 
+# Internally, position are stored as integer values. To better map the data to the Hilbert curve, 
+# the original positions are zoomed
+# according to the range and the level of Hilbert curve. E.g. if 
 # the curve visualizes data ranging from 1 to 2 but level of the curve is set to 4,
-# the positions will be zoomed by ~x2000 so that values link 1.5, 1.555 can be mapped
+# the positions will be zoomed by ~x2000 so that values like 1.5, 1.555 can be mapped
 # to the curve with more accuracy.
 #
 # The function is used internally.
@@ -119,26 +122,60 @@ setMethod(f = "unzoom",
 })
 
 # == title
+# Adjust positions
+#
+# == param
+# -object A `HilbertCurve-class` object.
+# -x positions.
+#
+# == details
+# Since internally positions are transformed to positive integers, if input positions
+# are specified as negative values when initialize the Hilbert curve, a shift will be recorded
+# internally and positions are transformed to positive value automatically.
+#
+# == value
+# A positive numeric value
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
+# == example
+# hc = HilbertCurve(-100, 100)
+# hc_offset(hc, c(-100, -50, 0, 50, 100))
+#
+setMethod(f = "hc_offset",
+	signature = "HilbertCurve",
+	definition = function(object, x) {
+	x - object@OFFSET
+})
+
+# == title
 # Initialize a Hilbert curve
 #
 # == param
-# -s position that will be mapped to the start of the Hilbert curve. It should be a positive number.
-# -e position that will be mapped to the end of the Hilbert curve. It should be a positive number.
-# -level level of the Hilbert curve. There will by ``4^level`` segments in the Hilbert curve.
-# -mode make it like a normal R plot or write the plot directly into png file. See 'details' for explanation.
-# -reference whether add reference line on the plot. Only works under 'normal' mode.
+# -s position that will be mapped to the start of the Hilbert curve.
+# -e position that will be mapped to the end of the Hilbert curve.
+# -level level of the Hilbert curve. There will by ``4^level - 1`` segments in the curve.
+# -mode "normal" mode is used for low ``level`` value and "pixel" mode is always used for high ``level`` value,
+#       so the "normal" mode is always for low-resolution visualization while "pixel" mode is used for high-resolution visualization.
+#       See 'details' for explanation.
+# -reference whether add reference line on the plot. Only works under 'normal' mode. The reference line
+#            is only used for letting users know how the curve folds.
+# -reference_gp graphic settings for the reference line. It should be specified by `grid::gpar`.
 # -arrow whether add arrows on the reference line. Only works under 'normal' mode.
-# -zoom internally, position are stored as integer values. To increase the resolution
-#            of the data that maps to the Hilbert curve, the original position would be zoom
-#            according to the range of the position and the level of Hilbert curve. E.g. if 
-#            the curve visualizes data ranging from 1 to 2 but level of the curve is set to 4,
-#            the positions will be zoomed by ~x2000 so that values link 1.5, 1.555 can be mapped
-#            to the curve with more accuracy. Proper zooming factor is calculated automatically.
+# -zoom Internally, position are stored as integer values. To better map the data to the Hilbert curve, 
+#       the original positions are zoomed
+#       according to the range and the level of Hilbert curve. E.g. if 
+#       the curve visualizes data ranging from 1 to 2 but level of the curve is set to 4,
+#       the positions will be zoomed by ~x2000 so that values like 1.5, 1.555 can be mapped
+#       to the curve with more accuracy. You don't need to care the zooming thing, 
+#       proper zooming factor is calculated automatically.
 # -newpage whether call `grid::grid.newpage` to draw on a new graphic device.
-# -background background color, only used under 'pixel' mode.
+# -background background color, currently please don't modify this value.
 # -title title of the plot.
-# -title_gp graphical parameters for title. It should be specified by `grid::gpar`.
-# -legend a `grid::grob` object or a list of `grid::grob` objects.
+# -title_gp graphic parameters for the title. It should be specified by `grid::gpar`.
+# -legend a `grid::grob` object or a list of `grid::grob` objects. You can construct a `ComplexHeatmap::ColorMapping-class`
+#         object and generate a legend, see in the Example section.
 #
 # == details
 # This funciton initializes a Hilbert curve with level ``level`` which corresponds 
@@ -156,7 +193,10 @@ setMethod(f = "unzoom",
 # level 11, then each pixel can represent 60bp (``249250621/2048/2048``) which is of very high resolution.
 #
 # Under 'pixel' mode, if the current device is an interactive deivce, every time a new layer is added, 
-# the image will be add to the interactive device as a rastered image.
+# the image will be add to the interactive device as a rastered image. But still you can use `hc_png,HilbertCurve-method`
+# to export the plot as PNG file.
+#
+# Notice, ``s`` and ``e`` are not necessarily to be integers, it can be any values (e.g. numeric or even negative values).
 #
 # == value
 # A `HilbertCurve-class` object.
@@ -170,20 +210,31 @@ setMethod(f = "unzoom",
 # HilbertCurve(1, 100, title = "title")
 #
 # require(ComplexHeatmap)
-# cm = ColorMapping(colors = c("red", "blue"), 
-#     levels = c("a", "b"))
+# cm = ColorMapping(colors = c("red", "blue"), levels = c("a", "b"))
 # legend = color_mapping_legend(cm, plot = FALSE, title = "foo")
-# HilbertCurve(1, 100, title = "title", legend = legend)
-#
+# hc = HilbertCurve(1, 100, title = "title", legend = legend)
+# hc_segments(hc, x1 = 20, x2 = 40)
 HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
-	reference = FALSE, arrow = TRUE, zoom = NULL, newpage = TRUE, 
+	reference = FALSE, reference_gp = gpar(lty = 3, col = "#999999"), 
+	arrow = TRUE, zoom = NULL, newpage = TRUE, 
 	background = "white", title = NULL, title_gp = gpar(fontsize = 16), 
 	legend = list()) {
 
 	hc = new("HilbertCurve")
 	level = as.integer(level)
 
-	if(is.null(zoom)) zoom = ceiling(10*(4^level-1)/(e - s))
+	if(s > e) {
+		stop("`s` must be smaller than `e`.")
+	}
+	if(s < 0) {
+		hc@OFFSET = s
+	} else {
+		hc@OFFSET = 0
+	}
+	s = hc_offset(hc, s)
+	e = hc_offset(hc, e)
+
+	if(is.null(zoom)) zoom = 10*(4^level-1)/(e - s)
 	hc@ZOOM = zoom
 
 	pos = hilbertCurve(level)
@@ -239,23 +290,24 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 		legend_height = sum(do.call("unit.c", lapply(legend, grobHeight))) + gap*(length(legend)-1)
 		y = unit(0.5, "npc") + legend_height*0.5 
 		for(i in seq_along(legend)) {
-			pushViewport(viewport(x = 0, y = y, height = grobHeight(legend[[i]]), just = c("left", "top")))
+			pushViewport(viewport(x = unit(2, "mm"), y = y, height = grobHeight(legend[[i]]), width = grobWidth(legend[[i]]), just = c("left", "top")))
 			grid.draw(legend[[i]])
 			upViewport()
-			y = y - gap - grobHeight(grobHeight(legend[[i]]))
+			y = y - gap - grobHeight(legend[[i]])
 		}
 
 		upViewport()
 	}
 
 	pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 1))
+	grid.rect(gp = gpar(fill = background, col = NA))
 
 	size = min(unit.c(convertHeight(unit(1, "npc"), "mm"), convertWidth(unit(1, "npc"), "mm")))
 	pushViewport(viewport(name = paste0("hilbert_curve_", get_plot_index()), xscale = c(-0.5, 2^level - 0.5), yscale = c(-0.5, sqrt(n)-0.5), width = size, height = size))
 		
 	if(mode == "normal") {
 		if(reference) {
-			grid.segments(hc@POS$x1, hc@POS$y1, hc@POS$x2, hc@POS$y2, default.units = "native", gp = gpar(lty = 3, col = "#999999"))
+			grid.segments(hc@POS$x1, hc@POS$y1, hc@POS$x2, hc@POS$y2, default.units = "native", gp = reference_gp)
 			
 			# grid.points(hc@POS$x1[1], hc@POS$y1[1], default.units = "native", gp = gpar(col = "#CCCCCC", cex = 0.5))
 			# grid.points(hc@POS$x2, hc@POS$y2, default.units = "native", gp = gpar(col = "#CCCCCC", cex = 0.5))
@@ -280,7 +332,7 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 
 	}
 
-	
+	# message(strwrap("If your regions are mostly very small, consider to set 'mean_mode' to 'absolute' when using `hc_points()`, `hc_rect()` and `hc_layer()`."))
 
 	return(invisible(hc))
 }
@@ -298,7 +350,8 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 # Zuguang Gu <z.gu@dkfz.de>
 #
 # == example
-# NULL
+# hc = HilbertCurve(1, 100)
+# hc
 #
 setMethod(f = "show",
 	signature = "HilbertCurve",
@@ -338,38 +391,44 @@ setMethod(f = "hc_level",
 # == param
 # -object A `HilbertCurve-class` object.
 # -ir a `IRanges::IRanges` object.
-# -x1 if positions are not integers, they can be set by ``x1`` and ``x2``.
-# -x2 if positions are not integers, they can be set by ``x1`` and ``x2``.
+# -x1 if start positions are not integers, they can be set by ``x1``.
+# -x2 if end positions are not integers, they can be set by ``x2``.
 # -np number of points (a circle or a square, ...) that are put in a segment. ``np`` controls
-#     the mode of how to add the points to the curve. See 'details' section.
-# -size size of the points. It should be a `grid::unit` object. Only works if ``np < 2``
-# -pch shape of points, used for points if ``np < 2``.
-# -gp graphical parameters for points. It should be specified by `grid::gpar`.
-# -mean_mode when a segment in the curve overlaps with intervals in ``ir``, how to calculate 
-#       the mean values for this segment (such as the RGB colors). See 'Details' section for a detailed explanation.
-# -shape shape of points, used for points if ``np >= 2``.
+#     the mode of how to add the points to the curve. See 'Details' section.
+# -size size of the points. It should be a `grid::unit` object. Only works if ``np <= 1``
+# -pch shape of points, used for points if ``np <= 1``.
+# -gp graphic parameters for points. It should be specified by `grid::gpar`.
+# -mean_mode when ``np >= 2``, each segment on the curve is split into ``np`` windows and each window
+#           actually represents an interval in the axis. When overlapping input intervals to the windows
+#           on the curve and when the window can not completely cover the input intervals, some averaging method should
+#           be applied to get a more accurate estimation for the value in the window. Here the HilbertCurve package
+#           provides three modes: "w0", "weighted" and "absolute" which calculate the mean value in the window
+#           with respect to different scenarios. See 'Details' section and the vignette for more informative explanation.
+# -shape shape of points, used for points if ``np >= 2``. Possible values are "circle", "square", "triangle", "hexagon", "star".
 #
 # == details
-# If ``np`` is set to a value less than 2 or ``NULL``, points will be added at the middle points in ``ir`` (or ``x1``, ``x2``).
-# If ``np`` is set to a value larger or equal to 2, every segment that overlaps to ``ir`` will be segmented into ``np`` parts
-# and a circle (or star, ...) is put on every 'small segments'.
+# If ``np`` is set to 1 or ``NULL``, points will be added in the middle for each interval in ``ir`` (or ``x1``, ``x2``).
+#
+# If ``np`` is set to a value larger or equal to 2, every segment on the curve will be split by ``np`` points (e.g. circles).
+# In this case, each point actually represent a window on the curve and when the window is not fully covered by
+# the input intervals, there are three different metrics to average the values in the window.
 #
 # Following illustrates different settings for ``mean_mode``:
 #
-#        100    80     60    values in ir (e.g. red compoment for colors)
+#        100    80     60    values in ir
 #     ++++++   +++   +++++   ir
 #       ================     window (width = 16)
 #         4     3     3      overlap
 #
 #     absolute: (100 + 80 + 60)/3
 #     weighted: (100*4 + 80*3 + 60*3)/(4 + 3 + 3)
-#     w0:       (100*4 + 80*3 + 60*3)/16
+#     w0:       (100*4 + 80*3 + 60*3 + 0*6)/16
 #
-# So use of the mode depends on specific scenario. For example, if ``ir`` corresponds to positions of genes,
-# then the mode of ``w0`` is perhaps a good choise. If ``ir`` corresponds to positions of CpG sites which is
-# has width of 1 and most of the time is sparse in genomic windows, then ``absolute`` is a correct choice.
+# So which mode to use depends on specific scenario. If the background is not of interest, ``absolute`` and ``weighted``
+# modes may be proper and if the value also needs to be averaged with background, ``w0`` is the proper choice.
 # 
-# Graphical parameters can be set as a vector and they will be averaged according to above rules.
+# Graphic parameters is always represented as numeric values (e.g. colors can be converted into numeric RGB values) 
+# and they will be averaged according to above rules.
 #
 # Internally, it will depatch to `hc_normal_points,HilbertCurve-method` or `hc_segmented_points,HilbertCurve-method`
 # depending on the value of ``np``.
@@ -408,22 +467,29 @@ setMethod(f = "hc_level",
 #
 setMethod(f = "hc_points",
 	signature = "HilbertCurve",
-	definition = function(object, ir, x1 = NULL, x2 = NULL, 
+	definition = function(object, ir, x1 = NULL, x2 = x1, 
 	np = max(c(2, 10 - hc_level(object))), size = unit(1, "char"), 
 	pch = 1, gp = gpar(), mean_mode = c("w0", "absolute", "weighted"),
-	shape = c("circle", "square", "triangle", "hexagon", "star")) {
+	shape = "circle") {
 
 	if(object@MODE == "pixel") {
 		stop("`hc_points()` can only be used under 'normal' mode.")
 	}
 
 	if(is.null(np)) np = 1
-	if(missing(ir)) ir = NULL
 
 	if(np >= 2) {
-		hc_segmented_points(object, ir, x1 = x1, x2 = x2, gp = gp, np = np, mean_mode = mean_mode, shape = shape)
+		if(missing(ir)) {
+			hc_segmented_points(object, x1 = x1, x2 = x2, gp = gp, np = np, mean_mode = mean_mode, shape = shape)
+		} else {
+			hc_segmented_points(object, ir, gp = gp, np = np, mean_mode = mean_mode, shape = shape)
+		}
 	} else {
-		hc_normal_points(object, ir, x1 = x1, x2 = x2, gp = gp, pch = pch, size = size)
+		if(missing(ir)) {
+			hc_normal_points(object, x1 = x1, x2 = x2, gp = gp, pch = pch, size = size)
+		} else {
+			hc_normal_points(object, ir, gp = gp, pch = pch, size = size)
+		}
 	}
 
 })
@@ -434,14 +500,14 @@ setMethod(f = "hc_points",
 # == param
 # -object A `HilbertCurve-class` object.
 # -ir a `IRanges::IRanges` object.
-# -x1 if positions are not integers, they can be set by ``x1`` and ``x2``.
-# -x2 if positions are not integers, they can be set by ``x1`` and ``x2``.
+# -x1 if start positions are not integers, they can be set by ``x1``.
+# -x2 if end positions are not integers, they can be set by ``x2``.
 # -size size of the points. It should be a `grid::unit` object.
 # -pch shape of points.
-# -gp graphical parameters for points. It should be specified by `grid::gpar`.
+# -gp graphic parameters for points. It should be specified by `grid::gpar`.
 #
 # == details
-# Points are added at the middle of the intervals in ``ir``.
+# Points are added at the middle of the intervals in ``ir`` (or ``x1`` and ``x2``).
 #
 # This function is used internally.
 #
@@ -457,30 +523,42 @@ setMethod(f = "hc_points",
 #
 setMethod(f = "hc_normal_points",
 	signature = "HilbertCurve",
-	definition = function(object, ir, x1 = NULL, x2 = NULL, gp = gpar(), 
+	definition = function(object, ir, x1 = NULL, x2 = x1, gp = gpar(), 
 	pch = 1, size = unit(1, "char")) {
+
+	if(object@MODE == "pixel") {
+        stop("`hc_points()` can only be used under 'normal' mode.")
+    }
+
+    if(!missing(ir)) {
+    	if(!inherits(ir, "IRanges")) {
+    		stop("It seems you want to specify positions by one or two numeric vectors, specify them with argument names. (`x1 = ..., x2 = ...`)")
+    	}
+    }
 
 	if(missing(ir) || is.null(ir)) {
 		if(is.null(x1) ) {
 			stop("You should either specify `ir`, or `x1` or `x1` and `x2`.")
 		} else if(!is.null(x1) && !is.null(x2)) {
+			x1 = hc_offset(object, x1)
+			x2 = hc_offset(object, x2)
 			ir = IRanges(start = round(zoom(object, (x1+x2)/2)),
 				         end = round(zoom(object, (x1+x2)/2)))
-		} else if(!is.null(x1) && is.null(x2)) {
-			ir = IRanges(start = round(zoom(object, x1)),
-				         end = round(zoom(object, x1)))
 		}
 	} else {
+		ir = IRanges(hc_offset(object, start(ir)),
+			         hc_offset(object, end(ir)))
 		ir = IRanges(start = zoom(object, (start(ir) + end(ir))/2),
 		             end = zoom(object, (start(ir) + end(ir))/2))
 	}
-
-	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
 
 	od = order(ir)
 	ir = ir[od]
 
 	mtch = as.matrix(findOverlaps(object@BINS, ir))
+	if(nrow(mtch) == 0) {
+		return(invisible(NULL))
+	}
 	l = duplicated(mtch[,2])
 	mtch = mtch[!l, , drop = FALSE]
 
@@ -495,6 +573,8 @@ setMethod(f = "hc_normal_points",
 
 	x1 = pos$x2 - (pos$x2 - pos$x1)*(er1 - sr)/(er1 - sr1)
 	y1 = pos$y2 - (pos$y2 - pos$y1)*(er1 - sr)/(er1 - sr1)
+
+	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
 
 	grid.points(x1, y1, default.units = "native", gp = gp, pch = pch, size = size)	
 
@@ -511,8 +591,8 @@ setMethod(f = "hc_normal_points",
 # == param
 # -object A `HilbertCurve-class` object.
 # -ir a `IRanges::IRanges` object.
-# -x1 if positions are not integers, they can be set by ``x1`` and ``x2``.
-# -x2 if positions are not integers, they can be set by ``x1`` and ``x2``.
+# -x1 if start positions are not integers, they can be set by ``x1``.
+# -x2 if end positions are not integers, they can be set by ``x2``.
 # -np number of points (a circle or a square, ...) that are put in a segment.
 # -gp graphical parameters for points. It should be specified by `grid::gpar`.
 # -mean_mode when a segment in the curve overlaps with intervals in ``ir``, how to calculate 
@@ -520,8 +600,7 @@ setMethod(f = "hc_normal_points",
 # -shape shape of points. Possible values are "circle", "square", "triangle", "hexagon", "star".
 #
 # == details
-# Every segment that overlaps to ``ir`` will be segmented into ``np`` parts
-# and a circle (or star, ...) is put on every 'small segments'.
+# Every segment on the curve will be split by ``np`` points.
 #
 # This function is used internally.
 #
@@ -536,130 +615,180 @@ setMethod(f = "hc_normal_points",
 # NULL
 #
 setMethod(f = "hc_segmented_points",
-	signature = "HilbertCurve",
-	definition = function(object, ir, x1 = NULL, x2 = NULL, gp = gpar(), 
-	np = max(c(2, 10 - hc_level(object))),
-	mean_mode = c("w0", "absolute", "weighted"), 
-	shape = c("circle", "square", "triangle", "hexagon", "star")) {
+    signature = "HilbertCurve",
+    definition = function(object, ir, x1 = NULL, x2 = NULL, gp = gpar(), 
+    np = max(c(2, 10 - hc_level(object))),
+    mean_mode = c("w0", "absolute", "weighted"), 
+    shape = "circle") {
 
-	if(missing(ir) || is.null(ir)) {
-		if(is.null(x1) || is.null(x2)) {
-			stop("You should either specify `ir`, or `x1` and `x2`.")
-		} else {
-			ir = IRanges(start = round(zoom(object, x1)),
-				         end = round(zoom(object, x2)))
-		}
-	} else {
-		ir = IRanges(start = zoom(object, start(ir)),
-	                 end = zoom(object, end(ir)))
-	}
+    if(object@MODE == "pixel") {
+        stop("`hc_points()` can only be used under 'normal' mode.")
+    }
 
-	col = normalize_gp("col", gp$col, length(ir))
-	fill = normalize_gp("fill", gp$fill, length(ir))
+    if(!missing(ir)) {
+    	if(!inherits(ir, "IRanges")) {
+    		stop("It seems you want to specify positions by one or two numeric vectors, specify them with argument names. (`x1 = ..., x2 = ...`)")
+    	}
+    }
 
-	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
+    if(missing(ir) || is.null(ir)) {
+        if(is.null(x1) || is.null(x2)) {
+            stop("You should either specify `ir`, or `x1` and `x2`.")
+        } else {
+            x1 = hc_offset(object, x1)
+            x2 = hc_offset(object, x2)
+            ir = IRanges(start = round(zoom(object, x1)),
+                         end = round(zoom(object, x2)))
+        }
+    } else {
+        ir = IRanges(hc_offset(object, start(ir)),
+                     hc_offset(object, end(ir)))
+        ir = IRanges(start = zoom(object, start(ir)),
+                     end = zoom(object, end(ir)))
+    }
 
-	mtch = as.matrix(findOverlaps(object@BINS, ir))
-	r = pintersect(object@BINS[mtch[,1]], ir[mtch[,2]])
-	l = width(r) > 1
-	r = r[l]
-	mtch = mtch[l, , drop = FALSE]
+    col = normalize_gp("col", gp$col, length(ir))
+    fill = normalize_gp("fill", gp$fill, length(ir))
+    if(length(shape) == 1) {
+        shape = rep(shape, length(ir))
+    }
 
-	r1 = object@BINS[mtch[,1]]
-	pos = object@POS[mtch[,1], ]
-	col = col[mtch[,2]]
-	fill = fill[mtch[,2]]
+    bin_width = width(object@BINS[1])
+    bin_radius = bin_width/(2*(np-1))
+    breaks = seq(object@RANGE[1] - bin_radius, object@RANGE[2] + bin_radius, length = (4^object@LEVEL)*(np-1)+1)
+    radius = 1/(2*(np-1))
+    s = breaks[-length(breaks)]
+    e = breaks[-1]
+    s[1] = s[1] + bin_radius
+    e[length(e)] = e[length(e)] - bin_radius
+    window = IRanges(start = round(s), end = round(e))
 
-	sr1 = start(r1)
-	sr = start(r)
-	er1 = end(r1)
-	er = end(r)
+    mid = apply(object@POS, 1, function(v) {
+        x = seq(v[1], v[3], length = np)
+        y = seq(v[2], v[4], length = np)
+        data.frame(x = x[-1], y = y[-1])
+    })
+    mid = do.call("rbind", mid)
+    mid = rbind(c(object@POS[1, 1], object@POS[1, 2]), mid)
 
-	x1 = pos$x2 - (pos$x2 - pos$x1)*(er1 - sr)/(er1 - sr1)
-	y1 = pos$y2 - (pos$y2 - pos$y1)*(er1 - sr)/(er1 - sr1)
-	x2 = pos$x2 - (pos$x2 - pos$x1)*(er1 - er)/(er1 - sr1)
-	y2 = pos$y2 - (pos$y2 - pos$y1)*(er1 - er)/(er1 - sr1)
+    mtch = as.matrix(findOverlaps(window, ir))
+    if(nrow(mtch) == 0) {
+    	return(invisible(NULL))
+    }
+    
+    # colors correspond to mean value for each window
+    mean_mode = match.arg(mean_mode)[1]
 
-	#grid.segments(x1, y1, x2, y2, default.units = "native", gp = gpar(lwd = 2, col = "red"))
-	shape = match.arg(shape)[1]
-	xx = numeric()
-	yy = numeric()
-	for(i in seq_along(x1)) {
-		if(pos$x1[i] == pos$x2[i]) {
-			x = rep(pos$x1[i], np)
-		} else if(pos$x1[i] > pos$x2[i]) {
-			x = seq(pos$x1[i], pos$x2[i], by = -1/(np-1))
-		} else {
-			x = seq(pos$x1[i], pos$x2[i], by = 1/(np-1))
-		}
-		if(pos$y1[i] == pos$y2[i]) {
-			y = rep(pos$y1[i], np)
-		} else if(pos$y1[i] > pos$y2[i]) {
-			y = seq(pos$y1[i], pos$y2[i], by = -1/(np-1))
-		} else {
-			y = seq(pos$y1[i], pos$y2[i], by = 1/(np-1))
-		}
+    fill = normalize_gp("fill", gp$fill, length(ir))
+    rgb_fill = col2rgb(fill, alpha = TRUE)
+    col = normalize_gp("col", gp$col, length(ir))
+    rgb_col = col2rgb(col, alpha = TRUE)
 
-		l = x >= min(c(x1[i], x2[i])) & x <= max(c(x1[i], x2[i])) &
-		    y >= min(c(y1[i], y2[i])) & y <= max(c(y1[i], y2[i]))
-		x = x[l]
-		y = y[l]
+    rgb_mat = average_in_window(window, ir, mtch, list(rgb_fill[1, ], rgb_fill[2, ], rgb_fill[3, ], rgb_col[1, ], rgb_col[2, ], rgb_col[3, ]), mean_mode, 255)
 
-		if(length(x)) {
-			r = 1/(np-1)/2
-			if(shape == "circle") {
-				grid.circle(x, y, r = 1/(np-1)/2, default.units = "native", gp = gpar(fill = fill[i], col = col[i]))
-			} else if(shape == "square") {
-				grid.rect(x, y, width = 2*r, height = 2*r, default.units = "native", gp = gpar(fill = fill[i], col = col[i]))
-			} else if(shape == "triangle") {
-				grid.polygon(c(x, x-2*r*tan(pi/6), x+2*r*tan(pi/6)), 
-					c(y+r, y-r, y-r), id = rep(seq_along(x), 3), default.units = "native", gp = gpar(fill = fill[i], col = col[i]))
-			} else if(shape == "hexagon") {
-				grid.polygon(rep(cos(0:5 * pi/3)*r, length(x)) + rep(x, each = 6),
-					         rep(sin(0:5 * pi/3)*r, length(y)) + rep(y, each = 6),
-					         id = rep(seq_along(x), each = 6),
-					         default.units = "native", gp = gpar(fill = fill[i], col = col[i]))
-			} else if(shape == "star") {
-				r2 = cos(pi/10)*tan(pi/20)/(tan(pi/20) + tan(pi/10)) * r
-				grid.polygon(rep(sin(0:9*pi/5 + pi*0)*rep(c(r,r2), 5), length(x)) + rep(x, each = 10),
-					         rep(cos(0:9*pi/5 + pi*0)*rep(c(r,r2), 5), length(y)) + rep(y, each = 10),
-					         id = rep(seq_along(x), each = 10),
-					         default.units = "native", gp = gpar(fill = fill[i], col = col[i]))
-			}
+    alpha_fill = rep(max(rgb_fill[4, ]), nrow(rgb_mat))
+    fill2 = rgb(red = rgb_mat[,1], green = rgb_mat[,2], blue = rgb_mat[,3], alpha = alpha_fill, maxColorValue = 255)
+	alpha_col = rep(max(rgb_col[4, ]), nrow(rgb_mat))
+    col2 = rgb(red = rgb_mat[,4], green = rgb_mat[,5], blue = rgb_mat[,6], alpha = alpha_col, maxColorValue = 255)
 
-			xx = c(xx, x)
-			yy = c(yy, y)
-		}
-	}
-	
-	seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "global"))
-	upViewport()
+    index = as.numeric(rownames(rgb_mat))
+    shape = tapply(shape[mtch[,2]], mtch[, 1], function(x) x[1])
+    mid = mid[unique(mtch[, 1]), , drop = FALSE]
 
-	df = data.frame(x = xx, y = yy, r = rep(1/(np-1)/2, length(xx)))
-	return(invisible(df))
+    seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
+    for(s in unique(shape)) {
+        l = shape == s
+        x = mid[l, 1]
+        y = mid[l, 2]
+        if(s == "circle") {
+            grid.circle(x, y, r = radius, default.units = "native", gp = gpar(fill = fill2[l], col = col2[l]))
+        } else if(s == "square") {
+            grid.rect(x, y, width = 2*radius, height = 2*radius, default.units = "native", gp = gpar(fill = fill2[l], col = col2[l]))
+        } else if(s == "triangle") {
+            grid.polygon(c(x, x-2*radius*tan(pi/6), x+2*radius*tan(pi/6)), 
+                c(y+radius, y-radius, y-radius), id = rep(seq_along(x), 3), default.units = "native", gp = gpar(fill = fill2[l], col = col2[l]))
+        } else if(s == "hexagon") {
+            grid.polygon(rep(cos(0:5 * pi/3)*radius, length(x)) + rep(x, each = 6),
+                         rep(sin(0:5 * pi/3)*radius, length(y)) + rep(y, each = 6),
+                         id = rep(seq_along(x), each = 6),
+                         default.units = "native", gp = gpar(fill = fill2[l], col = col2[l]))
+        } else if(s == "star") {
+            r2 = cos(pi/10)*tan(pi/20)/(tan(pi/20) + tan(pi/10)) * radius
+            grid.polygon(rep(sin(0:9*pi/5 + pi*0)*rep(c(radius,r2), 5), length(x)) + rep(x, each = 10),
+                         rep(cos(0:9*pi/5 + pi*0)*rep(c(radius,r2), 5), length(y)) + rep(y, each = 10),
+                         id = rep(seq_along(x), each = 10),
+                         default.units = "native", gp = gpar(fill = fill2[l], col = col2[l]))
+        }
+    }
+
+    seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "global"))
+    upViewport()
+
+    df = cbind(mid, radius = rep(radius, nrow(mid)))
+    return(invisible(df))
 })
 
+# after zooming, ir may overlap
+# it returns a vector having same length as window
+# window = IRanges(1, 10)
+# ir = IRanges(c(1, 4, 7), c(2, 5, 8))
+# mtch = as.matrix(findOverlaps(window, ir))
 average_in_window = function(window, ir, mtch, v, mean_mode, empty_v = 0) {
- 	intersect = pintersect(window[mtch[,1]], ir[mtch[,2]])
- 	v = v[mtch[,2]]
 
-	if(mean_mode == "w0") {
-		p = (width(intersect)-1)/(width(window[mtch[,1]])-1)
-		x = tapply(p*v, mtch[, 1], sum)
-		sum_p = tapply(p, mtch[, 1], sum)
-		x2 = (1-sum_p)*empty_v
-		x = x + x2
-	} else if(mean_mode == "absolute") {
-		x = tapply(v, mtch[, 1], mean)
-		
-	} else {
-		w = width(intersect)-1
-		x = tapply(w*v, mtch[, 1], sum) / tapply(w, mtch[, 1], sum)
+	if(!is.list(v)) {
+		v = list(v)
 	}
 
-	x = structure(as.vector(x), names = dimnames(x)[[1]])
-	
-	return(x)
+	if(length(empty_v) == 1) {
+		empty_v = rep(empty_v, length(v))
+	}
+
+	v = do.call("cbind", v)
+
+ 	intersect = pintersect(window[mtch[,1]], ir[mtch[,2]])
+ 	v = v[mtch[,2], , drop = FALSE]
+ 	n = nrow(v)
+
+ 	ind_list = as.list(tapply(seq_len(n), mtch[, 1], function(x) x))
+
+	if(mean_mode == "w0") {
+		w = width(intersect)
+
+		ir2 = reduce(ir, min.gapwidth = 0)
+		mtch2 = as.matrix(findOverlaps(window, ir2))
+		intersect2 = pintersect(window[mtch2[, 1]], ir2[mtch2[, 2]])
+
+		width_intersect = tapply(width(intersect2), mtch2[, 1], sum)
+		ind = unique(mtch2[, 1])
+		width_setdiff = width(window[ind]) - width_intersect
+
+		w2 = width(window[ind])
+		u = matrix(nrow = length(ind_list), ncol = ncol(v))
+		rownames(u) = names(ind_list)
+		for(i in seq_along(ind_list)) {
+			ind = ind_list[[i]]
+			x = colSums(v[ind, , drop = FALSE]*w[ind])/sum(w[ind])
+			u[i, ] = (x*width_intersect[i] + empty_v*width_setdiff[i])/w2[i]
+		}
+
+	} else if(mean_mode == "absolute") {
+		u = matrix(nrow = length(ind_list), ncol = ncol(v))
+		rownames(u) = names(ind_list)
+		for(i in seq_along(ind_list)) {
+			u[i, ] = colMeans(v[ind_list[[i]], , drop = FALSE])
+		}
+		
+	} else {
+		w = width(intersect)
+		u = matrix(nrow = length(ind_list), ncol = ncol(v))
+		rownames(u) = names(ind_list)
+		for(i in seq_along(ind_list)) {
+			ind = ind_list[[i]]
+			u[i, ] = colSums(v[ind, , drop = FALSE]*w[ind])/sum(w[ind])
+		}
+	}
+
+	return(u)
 }
 
 # == title
@@ -668,15 +797,16 @@ average_in_window = function(window, ir, mtch, v, mean_mode, empty_v = 0) {
 # == param
 # -object A `HilbertCurve-class` object.
 # -ir a `IRanges::IRanges` object.
-# -x1 if positions are not integers, they can be set by ``x1`` and ``x2``.
-# -x2 if positions are not integers, they can be set by ``x1`` and ``x2``.
-# -gp graphical parameters for rectangles. It should be specified by `grid::gpar`.
-# -mean_mode when a segment in the curve overlaps with intervals in ``ir``, how to calculate 
-#       the mean values for this segment. See explanation in `hc_points`.
+# -x1 if start positions are not integers, they can be set by ``x1``.
+# -x2 if end positions are not integers, they can be set by ``x2``.
+# -gp graphic parameters for rectangles. It should be specified by `grid::gpar`.
+# -mean_mode when a segment in the curve can not be overlapped with intervals in ``ir``, how to calculate 
+#       the mean values for this segment. See explanation in `hc_points,HilbertCurve-method`.
 #
 # == details
-# You cannot set the width or height of the rectangles. Rectangles are always located
-# at the turning points and have width or height equal to the length of the segments.
+# You cannot set the width or height of the rectangles. It is always fixed.
+#
+# It can be thought as the low-resolution version of `hc_layer,HilbertCurve-method`.
 #
 # == value
 # A data frame which contains coordinates for rectangles.
@@ -703,19 +833,27 @@ setMethod(f = "hc_rect",
 		stop("`hc_rect()` can only be used under 'normal' mode.")
 	}
 
+	if(!missing(ir)) {
+    	if(!inherits(ir, "IRanges")) {
+    		stop("It seems you want to specify positions by one or two numeric vectors, specify them with argument names. (`x1 = ..., x2 = ...`)")
+    	}
+    }
+
 	if(missing(ir) || is.null(ir)) {
 		if(is.null(x1) || is.null(x2)) {
 			stop("You should either specify `ir`, or `x1` and `x2`.")
 		} else {
+			x1 = hc_offset(object, x1)
+			x2 = hc_offset(object, x2)
 			ir = IRanges(start = round(zoom(object, x1)),
 				         end = round(zoom(object, x2)))
 		}
 	} else {
+		ir = IRanges(hc_offset(object, start(ir)),
+			         hc_offset(object, end(ir)))
 		ir = IRanges(start = zoom(object, start(ir)),
 	                 end = zoom(object, end(ir)))
 	}
-
-	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
 
 	s = start(object@BINS)
 	e = end(object@BINS)
@@ -723,6 +861,9 @@ setMethod(f = "hc_rect",
 	window = IRanges(start = c(s[1], mid), end = c(mid, e[length(e)]))
 		
 	mtch = as.matrix(findOverlaps(window, ir))
+	if(nrow(mtch) == 0) {
+		return(invisible(NULL))
+	}
 	
 	# colors correspond to mean value for each window
 	mean_mode = match.arg(mean_mode)[1]
@@ -730,24 +871,26 @@ setMethod(f = "hc_rect",
 	fill = normalize_gp("fill", gp$fill, length(ir))
 
 	rgb = col2rgb(fill, alpha = TRUE)
-
-	r = average_in_window(window, ir, mtch, rgb[1, ], mean_mode, 255)
-	g = average_in_window(window, ir, mtch, rgb[2, ], mean_mode, 255)
-	b = average_in_window(window, ir, mtch, rgb[3, ], mean_mode, 255)
+	rgb_mat = average_in_window(window, ir, mtch, list(rgb[1, ], rgb[2, ], rgb[3, ]), mean_mode, 255)
+	r = rgb_mat[, 1]
+	g = rgb_mat[, 2]
+	b = rgb_mat[, 3]
 	alpha = rep(max(rgb[4, ]), length(r))
 
-	index = as.numeric(names(r))
+	index = as.numeric(rownames(rgb_mat))
 	fill2 = rgb(red = r, green = g, blue = b, alpha = alpha, maxColorValue = 255)
 
 	pos = object@POS
 	n = 4^object@LEVEL
+
+	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
 
 	if(n %in% index) {
 		ind = setdiff(index, n)
 		grid.rect(pos$x1[ind], pos$y1[ind], width = 1, height = 1, default.units = "native", gp = gpar(fill = fill2[-length(fill2)], col = NA, lineend = "butt", linejoin = "mitre"))
 		df = data.frame(x = pos$x1[ind], y = pos$y1[ind])
 
-		grid.rect(pos$x2[n], pos$y2[n], width = 1, height = 1, default.units = "native", gp = gpar(fill = fill2[length(fill2)], col = NA, lineend = "butt", linejoin = "mitre"))
+		grid.rect(pos$x2[n-1], pos$y2[n-1], width = 1, height = 1, default.units = "native", gp = gpar(fill = fill2[length(fill2)], col = NA, lineend = "butt", linejoin = "mitre"))
 		df = data.frame(x = c(df$x, pos$x2[n]), y = c(df$y, pos$y2[n]))
 	} else {
 		grid.rect(pos$x1[index], pos$y1[index], width = 1, height = 1, default.units = "native", gp = gpar(fill = fill2, col = NA, lineend = "butt", linejoin = "mitre"))
@@ -773,9 +916,9 @@ normalize_gp = function(name = NULL, value = NULL, length = NULL) {
 # == param
 # -object A `HilbertCurve-class` object.
 # -ir a `IRanges::IRanges` object.
-# -x1 if positions are not integers, they can be set by ``x1`` and ``x2``.
-# -x2 if positions are not integers, they can be set by ``x1`` and ``x2``.
-# -gp graphical parameters for lines. It should be specified by `grid::gpar`.
+# -x1 if start positions are not integers, they can be set by ``x1``.
+# -x2 if end positions are not integers, they can be set by ``x2``.
+# -gp graphic parameters for lines. It should be specified by `grid::gpar`.
 #
 # == value
 # A data frame which contains coordinates for segments.
@@ -802,14 +945,24 @@ setMethod(f = "hc_segments",
 		stop("`hc_segments()` can only be used under 'normal' mode.")
 	}
 
+	if(!missing(ir)) {
+    	if(!inherits(ir, "IRanges")) {
+    		stop("It seems you want to specify positions by one or two numeric vectors, specify them with argument names. (`x1 = ..., x2 = ...`)")
+    	}
+    }
+
 	if(missing(ir) || is.null(ir)) {
 		if(is.null(x1) || is.null(x2)) {
 			stop("You should either specify `ir`, or `x1` and `x2`.")
 		} else {
+			x1 = hc_offset(object, x1)
+			x2 = hc_offset(object, x2)
 			ir = IRanges(start = round(zoom(object, x1)),
 				         end = round(zoom(object, x2)))
 		}
 	} else {
+		ir = IRanges(hc_offset(object, start(ir)),
+			         hc_offset(object, end(ir)))
 		ir = IRanges(start = zoom(object, start(ir)),
 	                 end = zoom(object, end(ir)))
 	}
@@ -818,28 +971,30 @@ setMethod(f = "hc_segments",
 	if(length(gp$lwd) == 1) gp$lwd = rep(gp$lwd, length(ir))
 	if(length(gp$col) == 1) gp$col = rep(gp$col, length(ir))
 
-	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
-
 	mtch = as.matrix(findOverlaps(object@BINS, ir))
+	if(nrow(mtch) == 0) {
+		return(invisible(NULL))
+	}
 	r = pintersect(object@BINS[mtch[,1]], ir[mtch[,2]])
-	l = width(r) > 1
-	r = r[l]
-	mtch = mtch[l, , drop = FALSE]
+	# l = width(r) > 1
+	# r = r[l]
+	# mtch = mtch[l, , drop = FALSE]
 
+	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
 	df = tapply(seq_len(nrow(mtch)), mtch[, 2], function(ind) {
-		i1 = mtch[ind, 1]
-		i2 = mtch[ind[1], 2]
+		i1 = mtch[ind, 1]  ## index for BINS
+		i2 = mtch[ind[1], 2]  ## index for ir
 
-		r = r[ind]
-		r1 = object@BINS[i1]
-		pos = object@POS[i1, ,drop = FALSE]
+		r = r[ind]  # intersected part
+		r1 = object@BINS[i1]  # BIN part
+		pos = object@POS[i1, ,drop = FALSE]  # pos on  the 2D space
 
 		sr1 = start(r1)
 		sr = start(r)
 		er1 = end(r1)
 		er = end(r)
 
-		er[er == er1] = er[er == er1] + 1
+		#er[er == er1] = er[er == er1] + 1
 
 		x1 = pos$x2 - (pos$x2 - pos$x1)*(er1 - sr)/(er1 - sr1)
 		y1 = pos$y2 - (pos$y2 - pos$y1)*(er1 - sr)/(er1 - sr1)
@@ -893,10 +1048,13 @@ setMethod(f = "hc_segments",
 # -ir a `IRanges::IRanges` object that contains positions of text. Basically,
 #     the middle point of the interval will be the position of the text.
 # -labels text corresponding to intervals in ``ir``.
-# -x1 if positions are not integers, they can be set by ``x1`` and ``x2``.
-# -x2 if positions are not integers, they can be set by ``x1`` and ``x2``.
-# -gp graphical parameters for text. It should be specified by `grid::gpar`.
+# -x1 if start positions are not integers, they can be set by ``x1``.
+# -x2 if end positions are not integers, they can be set by ``x2``.
+# -gp graphic parameters for text. It should be specified by `grid::gpar`.
 # -... pass to `grid::grid.text`. E.g. you can set text justification by ``just`` here.
+#
+# == details
+# The text is added in the middle of each interval in ``ir``.
 #
 # == value
 # A data frame which contains coordinates for text.
@@ -917,34 +1075,43 @@ setMethod(f = "hc_segments",
 #
 setMethod(f = "hc_text",
 	signature = "HilbertCurve",
-	definition = function(object, ir, labels, x1 = NULL, x2 = NULL, gp = gpar(), ...) {
+	definition = function(object, ir, labels, x1 = NULL, x2 = x1, gp = gpar(), ...) {
 
 	if(object@MODE == "pixel") {
 		stop("`hc_text()` can only be used under 'normal' mode.")
 	}
 
+	if(!missing(ir)) {
+    	if(!inherits(ir, "IRanges")) {
+    		stop("It seems you want to specify positions by one or two numeric vectors, specify them with argument names. (`x1 = ..., x2 = ...`)")
+    	}
+    }
+
 	if(missing(ir) || is.null(ir)) {
 		if(is.null(x1) ) {
 			stop("You should either specify `ir`, or `x1` or `x1` and `x2`.")
 		} else if(!is.null(x1) && !is.null(x2)) {
+			x1 = hc_offset(object, x1)
+			x2 = hc_offset(object, x2)
 			ir = IRanges(start = round(zoom(object, (x1+x2)/2)),
 				         end = round(zoom(object, (x1+x2)/2)))
-		} else if(!is.null(x1) && is.null(x2)) {
-			ir = IRanges(start = round(zoom(object, x1)),
-				         end = round(zoom(object, x1)))
 		}
 	} else {
+		ir = IRanges(hc_offset(object, start(ir)),
+			         hc_offset(object, end(ir)))
 		ir = IRanges(start = zoom(object, (start(ir) + end(ir))/2),
 		             end = zoom(object, (start(ir) + end(ir))/2))
 	}
-
-	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
 
 	od = order(ir)
 	ir = ir[od]
 	labels = labels[od]
 
 	mtch = as.matrix(findOverlaps(object@BINS, ir))
+	if(nrow(mtch) == 0) {
+		return(invisible(NULL))
+	}
+
 	l = duplicated(mtch[,2])
 	mtch = mtch[!l, , drop = FALSE]
 
@@ -961,6 +1128,8 @@ setMethod(f = "hc_text",
 	x1 = pos$x2 - (pos$x2 - pos$x1)*(er1 - sr)/(er1 - sr1)
 	y1 = pos$y2 - (pos$y2 - pos$y1)*(er1 - sr)/(er1 - sr1)
 
+	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
+
 	grid.text(labels, x1, y1, default.units = "native", gp = gp, ...)	
 	
 	df = data.frame(x = x1, y = y1, labels = labels, stringsAsFactors = FALSE)
@@ -969,6 +1138,103 @@ setMethod(f = "hc_text",
 	upViewport()
 	
 	return(invisible(df))
+})
+
+# == title
+# Add text to the center of the block
+#
+# == param
+# -object A `HilbertCurve-class` object.
+# -ir a `IRanges::IRanges` object that contains positions of text. Basically,
+#     the middle point of the interval will be the position of the text.
+# -labels text corresponding to intervals in ``ir``.
+# -x1 if start positions are not integers, they can be set by ``x1``.
+# -x2 if end positions are not integers, they can be set by ``x2``.
+# -gp graphical parameters for text. It should be specified by `grid::gpar`.
+# -... pass to `grid::grid.text`. E.g. you can set text justification by ``just`` here.
+#
+# == details
+# If the interval is long enough that it represents as a block in the curve, the corresponding
+# label is put approximately at center of the block.
+#
+# It is quite experimental and only used internally.
+#
+# == value
+# ``NULL``
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
+# == example
+# hc = HilbertCurve(1, 10)
+# hc_rect(hc, x1 = c(1, 3, 7), x2 = c(3, 7, 10), gp = gpar(fill = 2:5))
+# hc_centered_text(hc, x1 = 1, x2 = 3, labels = "A")
+# hc_centered_text(hc, x1 = 3, x2 = 7, labels = "B")
+# hc_centered_text(hc, x1 = 7, x2 = 10, labels = "C")
+setMethod(f = "hc_centered_text",
+	signature = "HilbertCurve",
+	definition = function(object, ir, labels, x1 = NULL, x2 = NULL, gp = gpar(), ...) {
+
+	if(object@MODE == "pixel") {
+		stop("`hc_text()` can only be used under 'normal' mode.")
+	}
+
+	if(!missing(ir)) {
+    	if(!inherits(ir, "IRanges")) {
+    		stop("It seems you want to specify positions by one or two numeric vectors, specify them with argument names. (`x1 = ..., x2 = ...`)")
+    	}
+    }
+
+	if(missing(ir) || is.null(ir)) {
+		if(is.null(x1) || is.null(x2)) {
+			stop("You should either specify `ir`, or `x1` and `x2`.")
+		} else {
+			x1 = hc_offset(object, x1)
+			x2 = hc_offset(object, x2)
+			ir = IRanges(start = round(zoom(object, x1)),
+				         end = round(zoom(object, x2)))
+		}
+	} else {
+		ir = IRanges(hc_offset(object, start(ir)),
+			         hc_offset(object, end(ir)))
+		ir = IRanges(start = zoom(object, start(ir)),
+	                 end = zoom(object, end(ir)))
+	}
+
+	mtch = as.matrix(findOverlaps(object@BINS, ir))
+	if(nrow(mtch) == 0) {
+		return(invisible(NULL))
+	}
+
+	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
+
+	lapply(seq_along(unique(mtch[, 2])), function(i) {
+		ind = mtch[mtch[, 2] == i, 1]
+		pos = object@POS[ind, ]
+		pos = cbind(pos[, 1:2], pos[nrow(pos), 3:4])
+		h1 = hist(pos[, 1], plot = FALSE)
+		i1 = which(h1$counts >= quantile(h1$counts, 0.8))
+		ind_ir = reduce(IRanges(i1, i1))
+		selected = ind_ir[which.max(width(ind_ir))[1]]
+		i1 = start(selected)
+		i2 = end(selected)
+		x = mean(h1$mids[i1:i2])
+
+		h1 = hist(pos[, 2], plot = FALSE)
+		i1 = which(h1$counts >= quantile(h1$counts, 0.8))
+		ind_ir = reduce(IRanges(i1, i1))
+		selected = ind_ir[which.max(width(ind_ir))[1]]
+		i1 = start(selected)
+		i2 = end(selected)
+		y = mean(h1$mids[i1:i2])
+		
+		grid.text(labels[i], x, y, default.units = "native", gp = gp, ...)
+	})
+
+	seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "global"))
+	upViewport()
+	
+	return(invisible(NULL))
 })
 
 # add arrow at (x2, y2) and x1 -> x2
@@ -1007,19 +1273,31 @@ grid_arrows = function(x1, y1, x2, y2, length = unit(2, "mm"), angle = 15, only.
 # == param
 # -object A `HilbertCurve-class` object.
 # -ir a `IRanges::IRanges` object.
-# -x1 if positions are not integers, they can be set by ``x1`` and ``x2``.
-# -x2 if positions are not integers, they can be set by ``x1`` and ``x2``.
-# -col colors corresponding to intervals in ``ir`` (or combinations of ``x1`` and ``x2``).
-# -mean_mode when a segment in the curve overlaps with intervals in ``ir``, how to calculate 
-#       the mean values for this segment. See explanation in `hc_points`.
+# -x1 if start positions are not integers, they can be set by ``x1``.
+# -x2 if end positions are not integers, they can be set by ``x2``.
+# -col colors corresponding to intervals in ``ir`` (or ``x1`` and ``x2``).
+# -mean_mode when a segment in the curve can not be overlapped with intervals in ``ir``, how to calculate 
+#       the mean values for this segment. See explanation in `hc_points,HilbertCurve-method`.
 # -grid_line whether add grid lines to show blocks of the Hilber curve. 
 #        It should be an integer number and there will be ``2^(grid_line-1)-1``
 #        grid lines horizontal and vertical.
+# -grid_line_col color for the grid lines
+# -overlay a function which calculates the overlayed colors. Let's assume the red channel for the layers
+#          which are already in the plot is ``r0``, the R channel for the new layer is ``r`` and the alpha channel
+#          is ``alpha``, the overlayed color is calculated as ``r*alpha + r0*(1-alpha)``. This self-defined function
+#          should accept 7 arguments which are: vectors of r, g, b channels which correspond to the layers
+#          that are already in the plot, and r, g, b, alpha channels which corresponds to the new layer. All the 
+#          values passed into are between 0 to 1. The returned value for this function should be a list which contains
+#          r, g, b channels which correspond to the overlayed colors. Note that these 7 arguments
+#          only correspond to the pixels which are covered by the new layer.
 #
 # == details
-# If you want to add more than one layers to the curve, remember to set colors transparent.
+# If you want to add more than one layers to the curve, remember to set colors with transparency.
 #
 # This function only works under 'pixel' mode.
+#
+# ``overlay`` argument is useful to change color themes for the overlapped areas, please refer to the vignette
+# to see examples of how to swith color themes in easy ways.
 #
 # == value
 # No value is returned.
@@ -1042,21 +1320,32 @@ grid_arrows = function(x1, y1, x2, y2, length = unit(2, "mm"), angle = 15, only.
 #
 setMethod(f = "hc_layer",
 	signature = "HilbertCurve",
-	definition = function(object, ir, x1 = NULL, x2 = NULL, col = "red", 
-	mean_mode = c("w0", "absolute", "weighted"), grid_line = 0) {
+	definition = function(object, ir, x1 = NULL, x2 = x1, col = "red", 
+	mean_mode = c("w0", "absolute", "weighted"), grid_line = 0,
+	grid_line_col = "black", overlay = default_overlay) {
 
 	if(object@MODE == "normal") {
 		stop("`hc_layer()` can only be used under 'pixel' mode.")
 	}
 
+	if(!missing(ir)) {
+    	if(!inherits(ir, "IRanges")) {
+    		stop("It seems you want to specify positions by one or two numeric vectors, specify them as `x1 = ..., x2 = ...`")
+    	}
+    }
+
 	if(missing(ir) || is.null(ir)) {
 		if(is.null(x1) || is.null(x2)) {
 			stop("You should either specify `ir`, or `x1` and `x2`.")
 		} else {
+			x1 = hc_offset(object, x1)
+			x2 = hc_offset(object, x2)
 			ir = IRanges(start = round(zoom(object, x1)),
 				         end = round(zoom(object, x2)))
 		}
 	} else {
+		ir = IRanges(hc_offset(object, start(ir)),
+			         hc_offset(object, end(ir)))
 		ir = IRanges(start = zoom(object, start(ir)),
 	                 end = zoom(object, end(ir)))
 	}
@@ -1067,6 +1356,9 @@ setMethod(f = "hc_layer",
 	window = IRanges(start = c(s[1], mid), end = c(mid, e[length(e)]))
 		
 	mtch = as.matrix(findOverlaps(window, ir))
+	if(nrow(mtch) == 0) {
+		return(invisible(NULL))
+	}
 	
 	# colors correspond to mean value for each window
 	mean_mode = match.arg(mean_mode)[1]
@@ -1075,10 +1367,11 @@ setMethod(f = "hc_layer",
 
 	rgb = col2rgb(col, alpha = TRUE)
 
-	r = average_in_window(window, ir, mtch, rgb[1, ], mean_mode, 255)/255
-	g = average_in_window(window, ir, mtch, rgb[2, ], mean_mode, 255)/255
-	b = average_in_window(window, ir, mtch, rgb[3, ], mean_mode, 255)/255
-	alpha = average_in_window(window, ir, mtch, rgb[4, ], mean_mode, 255)/255
+	rgb_mat = average_in_window(window, ir, mtch, list(rgb[1, ], rgb[2, ], rgb[3, ], rgb[4, ]), mean_mode, c(255, 255, 255, 0))
+	r = rgb_mat[, 1]/255
+	g = rgb_mat[, 2]/255
+	b = rgb_mat[, 3]/255
+	alpha = rgb_mat[, 4]/255
 	r[r > 1] = 1
 	g[g > 1] = 1
 	b[b > 1] = 1
@@ -1086,13 +1379,21 @@ setMethod(f = "hc_layer",
 
 	col_index = c(object@POS$x1, object@POS$x2[4^object@LEVEL-1]) + 1
 	row_index = c(object@POS$y1, object@POS$y2[4^object@LEVEL-1]) + 1
-	col_index = col_index[as.numeric(names(r))]
-	row_index = row_index[as.numeric(names(r))]
+	col_index = col_index[as.numeric(rownames(rgb_mat))]
+	row_index = row_index[as.numeric(rownames(rgb_mat))]
 
 	ind = row_index + (col_index - 1)*nrow(object@RGB$red)
-	object@RGB$red[ind] = r*alpha + object@RGB$red[ind] * (1-alpha)
-	object@RGB$green[ind] = g*alpha + object@RGB$green[ind] * (1-alpha)
-	object@RGB$blue[ind] = b*alpha + object@RGB$blue[ind] * (1-alpha)
+	# object@RGB$red[ind] = r*alpha + object@RGB$red[ind] * (1-alpha)
+	# object@RGB$green[ind] = g*alpha + object@RGB$green[ind] * (1-alpha)
+	# object@RGB$blue[ind] = b*alpha + object@RGB$blue[ind] * (1-alpha)
+
+	lt = overlay(object@RGB$red[ind],
+		         object@RGB$green[ind],
+		         object@RGB$blue[ind],
+		         r, g, b, alpha)
+	object@RGB$red[ind] = lt[[1]]
+	object@RGB$green[ind] = lt[[2]]
+	object@RGB$blue[ind] = lt[[3]]
 
 	grid_line = as.integer(grid_line)
 	if(grid_line > object@LEVEL) {
@@ -1101,15 +1402,16 @@ setMethod(f = "hc_layer",
 
 	if(grid_line > 1) {
 		grid = 2^(grid_line-1)
+		grid_line_col = col2rgb(grid_line_col)/255
 		n = ncol(object@RGB$red)
 		for(i in 1:(grid-1)) {
-			object@RGB$red[round(n/grid*i), ] = 0
-			object@RGB$green[round(n/grid*i), ] = 0
-			object@RGB$blue[round(n/grid*i), ] = 0
+			object@RGB$red[round(n/grid*i), ] = grid_line_col[1]
+			object@RGB$green[round(n/grid*i), ] = grid_line_col[2]
+			object@RGB$blue[round(n/grid*i), ] = grid_line_col[3]
 			
-			object@RGB$red[, round(n/grid*i)] = 0
-			object@RGB$green[, round(n/grid*i)] = 0
-			object@RGB$blue[, round(n/grid*i)] = 0
+			object@RGB$red[, round(n/grid*i)] = grid_line_col[1]
+			object@RGB$green[, round(n/grid*i)] = grid_line_col[2]
+			object@RGB$blue[, round(n/grid*i)] = grid_line_col[3]
 		}
 	}
 
@@ -1155,7 +1457,7 @@ setMethod(f = "hc_png",
 	definition = function(object, file = "Rplot.png") {
 
 	if(object@MODE == "normal") {
-		stop("`hc_save()` can only be used under 'pixel' mode.")
+		stop("`hc_png()` can only be used under 'pixel' mode.")
 	}
 
 	red = object@RGB$red
@@ -1196,4 +1498,34 @@ add_raster = function(lt_rgb) {
 		seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "global"))
 		upViewport()
 	#}
+}
+
+# == title
+# Default overlay for adding new layers
+#
+# == param
+# -r0  red channel for the layers that are already in the plot.
+# -g0 green channel for the layers that are already in the plot.
+# -b0 blue channel for the layers that are already in the plot.
+# -r red channel for the new layer
+# -g green channel for the new layer
+# -b blue channel for the new layer
+# -alpha alpha channel for the new layer
+#
+# == details
+# The default overlay is (take red channel for example) ``r*alpha + r0*(1-alpha)``.
+#
+# == value
+# A list contains overlayed RGB channel.
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
+# == example
+# # red (1, 0, 0) overlay to the grey (0.5, 0.5, 0.5) with 0.5 transparency
+# default_overlay(1, 0, 0, 0.5, 0.5, 0.5, 0.5)
+default_overlay = function(r0, g0, b0, r, g, b, alpha = rep(1, length(r0))) {
+	list(r = r*alpha + r0*(1-alpha),
+		 g = g*alpha + g0*(1-alpha),
+		 b = b*alpha + b0*(1-alpha))
 }

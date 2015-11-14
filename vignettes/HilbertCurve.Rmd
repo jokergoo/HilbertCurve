@@ -1,9 +1,9 @@
 <!--
 %\VignetteEngine{knitr}
-%\VignetteIndexEntry{Making Hilbert Curve}
+%\VignetteIndexEntry{Making 2D Hilbert Curve}
 -->
 
-Making Hilbert Curve
+Making 2D Hilbert Curve
 ========================================
 
 **Author**: Zuguang Gu ( z.gu@dkfz.de )
@@ -27,14 +27,18 @@ knitr::opts_chunk$set(
 options(markdown.HTML.stylesheet = "custom.css")
 
 options(width = 100)
+
+library(HilbertCurve)
 ```
 
+## Introduction
+
 [Hilbert curve](https://en.wikipedia.org/wiki/Hilbert_curve) is a type of space-filling curves
-that fold one dimensional axis into a two dimensional space, but with still keeping the locality.
+that folds one dimensional axis into a two dimensional space, but with still keeping the locality.
 It has advantages to visualize data with long axis in following two aspects:
 
-1. greatly improve resolution for the visualization;
-2. easy to visualize clusters because generally data points in the cluster will also be close in the Hilbert curve. 
+1. greatly improve resolution of the visualization;
+2. easy to visualize clusters because generally data points in the axis will also be close in the 2D space. 
 
 This package aims to provide an easy and flexible way to visualize data through Hilbert curve.
 The implementation and example figures are based on following sources:
@@ -44,7 +48,7 @@ The implementation and example figures are based on following sources:
 - http://bioconductor.org/packages/devel/bioc/html/HilbertVis.html
 
 ```{r}
-suppressPackageStartupMessages(library(HilbertCurve))
+library(HilbertCurve)
 library(circlize)
 set.seed(12345)
 ```
@@ -55,27 +59,40 @@ Following shows Hilbert curve with level 2, 3, 4, 5:
 grid.newpage()
 pushViewport(viewport(layout = grid.layout(nr = 1, nc = 4)))
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 1))
-HilbertCurve(1, 100, level = 2, reference = TRUE, newpage = FALSE, title = "level = 2")
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, newpage = FALSE, title = "level = 2")
+hc_segments(hc, x1 = 1, x2 = 2, gp = gpar(col = "red", lwd = 2))
 upViewport()
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 2))
-HilbertCurve(1, 100, level = 3, reference = TRUE, newpage = FALSE, title = "level = 3")
+hc = HilbertCurve(1, 64, level = 3, reference = TRUE, newpage = FALSE, title = "level = 3")
+hc_segments(hc, x1 = 1, x2 = 2, gp = gpar(col = "red", lwd = 2))
 upViewport()
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 3))
-HilbertCurve(1, 100, level = 4, reference = TRUE, newpage = FALSE, title = "level = 4")
+hc = HilbertCurve(1, 256, level = 4, reference = TRUE, newpage = FALSE, title = "level = 4")
+hc_segments(hc, x1 = 1, x2 = 2, gp = gpar(col = "red", lwd = 2))
 upViewport()
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 4))
-HilbertCurve(1, 100, level = 5, reference = TRUE, arrow = FALSE, newpage = FALSE, title = "level = 5")
+hc = HilbertCurve(1, 1024, level = 5, reference = TRUE, reference_gp = gpar(col = "grey"), 
+    arrow = FALSE, newpage = FALSE, title = "level = 5")
+hc_segments(hc, x1 = 1, x2 = 2, gp = gpar(col = "red", lwd = 2))
 upViewport()
 upViewport()
 ```
 
-Following heatmap shows distance between elements in the Hilbert curve. From left to right
-and from top to bottom, the order is the natural order of data points and colors correspond 
-to the distance for pair distance in the Hilbert curve.
-Basically, if data points are close in the one dimensional axis, they also have small 
-distance in the Hilbert curve (regions around diagonals)
+As shown in the above plots, as level increases, the length of the curve becomes longer and the curve folds
+more tensely. The number of segments on the Hilbert curve is `4^level - 1`. If a Hilbert curve with level 11 
+is used to map to human chromosome 1, the resolution would be `249250621/4^11` (approximately 60bp).
 
-```{r, fig.width = 7}
+**Note: for the Hilbert curve which is actually made by HilbertVis package, the axis always starts from left 
+bottom side and ends at the right bottom side.**
+
+### Locality
+
+Take a Hilbert curve with level 5 for example, assuming there are 1024 data points located on the curve evenly.
+we calculate the pairwise distance between data points in the 2D space and visualize
+it as heatmap. The numbers on x-axis (top) and y-axis (left) illustrate the position of 
+data points in the original 1D axis.
+
+```{r}
 library(HilbertVis)
 pos = HilbertVis::hilbertCurve(5)
 mat = as.matrix(dist(pos))
@@ -87,7 +104,7 @@ ht = Heatmap(mat, name = "dist", cluster_rows = FALSE, cluster_columns = FALSE,
 draw(ht, padding = unit(c(5, 5, 5, 2), "mm"))
 decorate_heatmap_body("dist", {
     grid.segments(c(0.25, 0.5, 0.75, 0, 0, 0), c(0, 0, 0, 0.25, 0.5, 0.75), 
-	      c(0.25, 0.5, 0.75, 1, 1, 1), c(1, 1, 1, 0.25, 0.5, 0.75), gp = gpar(lty = 2))
+          c(0.25, 0.5, 0.75, 1, 1, 1), c(1, 1, 1, 0.25, 0.5, 0.75), gp = gpar(lty = 2))
     grid.text(rev(c(256, 512, 768, 1024)), 0, c(0, 256, 512, 768)/1024, just = "bottom", 
         rot = 90, gp = gpar(fontsize = 10))
     grid.text(c(1, 256, 512, 768, 1024), c(1, 256, 512, 768, 1024)/1024, 1, just = "bottom",
@@ -95,22 +112,34 @@ decorate_heatmap_body("dist", {
 })
 ```
 
+Basically, from the heatmap, data points which are close in the 1D axis are still close in the 2D space
+(illustrated in the areas around diagonals).
+
+Also there are some data points in (1, 256) which are close to data points in (768, 1024)(bottom left or top right area in the heatmap),
+but it is only because the curve folds back. This exception can be easily distinguished 
+by adding assistant grid lines or if users are clear with the structure of the curve.
+
 ## Basic settings
+
+The **HilbertCurve** package provides a rather simple way to display the data in the form of Hilbert
+curve. It hides all the technical parts and users only need to think that they are adding graphics on a novel axis
+based on specifying positions.
 
 Generally, customizing a Hilbert curve follows following steps:
 
 ```{r, eval = FALSE}
-hc = HilbertCurve(...)
-hc_points(hc, ...)
-hc_rect(hc, ...)
-hc_segments(hc, ...)
-hc_text(hc, ...)
+hc = HilbertCurve(...)  # initialize the curve
+hc_points(hc, ...)      # add points 
+hc_rect(hc, ...)        # add rectangles
+hc_segments(hc, ...)    # add lines
+hc_text(hc, ...)        # add text
 ```
 
-`HilbertCurve()` is a constructor function and initializes the Hilbert curve. Here the start
-and end position that correspond to the two ends of the Hilbert curve are specified 
-as well as the level of the Hilbert curve. The function
-returns a `HilbertCurve` class instance and it can be used to add more graphics later.
+`HilbertCurve()` is a constructor function and initializes the Hilbert curve. Following
+example means initializing a Hilbert curve with level 4 which maps data ranging from 1 to 100.
+The function returns a `HilbertCurve` class instance and it can be used to add more graphics later.
+
+`reference` argument here is only used to show the structure of the curve.
 
 ```{r, eval = FALSE}
 hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
@@ -119,7 +148,8 @@ hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
 The curve can be though as a folded axis. When the coordinate for this folded axis is
 initialized, low-level graphics can be added with specifying the positions.
 
-Before we demonstrate low-level functions, first we generate a random regions by **IRanges** package.
+There are several ways to specify the "positions" of the data points. First let's generate 
+a random regions by **IRanges** package.
 
 ```{r}
 x = sort(sample(100, 20))
@@ -129,29 +159,45 @@ ir = IRanges(s, e)
 ir
 ```
 
+Here `ir` contains intervals which are composed by positive integers. In later sections, 
+you will see negative and numeric intervals are supported as well.
+
 ### Points
 
-There are two modes for adding points. By default, every segment in the Hilbert curve are segmented
-into several small segments and a circle is plotted at every small segments.
+There are two modes for adding points. Normally, intervals are always long in the curve and can not be sufficiently
+represented by single points, thus, by default, a list of e.g. circles split the intervals.
 
 ```{r}
 hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
 hc_points(hc, ir)
 ```
 
-The number of circles in the small segment can be controlled by `np` and graphical parameters 
-can be set by `gp`. Note under this mode, the size of points can only be changed by `np` argument.
-This mode is useful if you have long regions.
+The number of circles used to represent the intervals can be controlled by `np` (number of points per segment).
+`np` controls number of tiny segments that split every Hilbert curve segment (e.g. the first horizontal segment in the left bottom in the curve). Following plot is under `np = 3`.
+
+```{r, fig.width = 3, fig.height = 3}
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, title = "np = 3")
+hc_points(hc, x1 = 1, x2 = 2, np = 3)
+```
+
+Graphic parameters can be set by `gp`. Note under this mode, the size of points can only be controled by `np` argument.
+To make it more interesting, you can choose different shapes for the points. There are some pre-defined shapes
+that you can choose from: "circle", "square", "triangle", "hexagon", "star".
 
 ```{r}
 hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
-hc_points(hc, ir, np = 3, gp = gpar(fill = rand_color(length(ir))))
+hc_points(hc, ir, np = 3, gp = gpar(fill = rand_color(length(ir))),
+    shape = sample(c("circle", "square", "triangle", "hexagon", "star"), length(ir), replace = TRUE))
 ```
 
-Here such circles are not real points in R, they are polygons actually. There are some pre-defined shapes
-that you can choose from: "circle", "square", "triangle", "hexagon", "star".
+In above figure, you may notice for some intervals, the color is more light in the ends. This is because the interval represented
+by the circle in the end is not fully covered by user's intervals, thus, averaging is applied here. E.g. if only
+the half interval represented by the circle is covered by user's interval and the color for this circle is set to red,
+then after the averaging, the color would be semi-red (#FF8080). Averaging is very important when you visualize
+the genome with zooming and you can find more detailed explanation in the **Averaging** section.
 
-If `np` is set less than 2 or `NULL`, the points will be plotted at the center of every interval in `ir`.
+If `np` is set to 1 or `NULL`, there will be second mode for adding points that 
+the points are plotted at the center of every interval in `ir`.
 In this case, `size` argument is used to control the size of the points. This mode is useful
 if you have a lot of small regions.
 
@@ -166,109 +212,86 @@ Adding segments is straightforward.
 
 ```{r}
 hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
-hc_segments(hc, ir)
+hc_segments(hc, ir, gp = gpar(lwd = 5))
 ```
 
 ### Rectangles
 
-Adding rectangles is straightforward. Note You cannot set the width or height of the rectangles. Rectangles are always located
-at the turning points and have width or height equal to the length of the segments.
+Adding rectangles is straightforward. Note You cannot set the width or height of the rectangles. 
+They are fixed and more like pixel-style squares. If you really want to use rectangles with different
+length to represent the intervals, you can use `hc_segments()` by setting proper `lwd` value (see
+the example of RefSeq genes in later sections).
 
 ```{r}
 hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
-hc_rect(hc, ir)
+hc_rect(hc, ir, gp = gpar(fill = "#FF000080"))
 ```
 
-As you can see some rectangles are not full red. It is because these segments in the curve do not
-full cover regions in `ir`, Averaging is applied in such segments. Actually it is also applicable
-for the 'segmented circle' mode for `hc_points`.
-
-Graphical values that correspond to `ir` are always represented as numeric values, such as size of points,
-width of lines or even colors which can be converted to numeric RGB values. If a segment in the Hilbert
-curve can not full overlap with some intervals in `ir`, these numeric parameters can be averaged.
-
-There are three different modes for averaging which are controlled by `mean_mode` argument.
-Following illustrates different settings for `mean_mode`:
-
-```
-      100     80    60     values in ir (e.g. red compoment for colors)
-    ++++++   +++   +++++   ir
-      ================     window (width = 16)
-       4      3     3      overlap
-
-    absolute: (100 + 80 + 60)/3
-    weighted: (100*4 + 80*3 + 60*3)/(4 + 3 + 3)
-    w0:       (100*4 + 80*3 + 60*3)/16
-```
-
-So use of the mode depends on specific scenario. For example, if `ir` corresponds to positions of genes,
-then the mode of `w0` is perhaps a good choise. If `ir` corresponds to positions of CpG sites which is
-has width of 1 and most of the time is sparse in genomic windows, then `absolute` is a correct choice.
+As you can see some rectangles are not full red as well. It is also because of averaging. See **Averaging** 
+sections for explanation.
 
 ### Text
 
-Adding texts is straightforward. Note text is added at the center of each interval in `ir`.
+Adding texts is straightforward. Text is always added at the center of each interval in `ir`.
 
 ```{r}
 hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
 labels = sample(letters, length(ir), replace = TRUE)
-hc_text(hc, ir, labels = labels)
+hc_text(hc, ir, labels = labels, gp = gpar(fontsize = width(ir)*2+5))
 ```
 
 ### Combine low-level functions
 
-With combination of these basic graphic functions, complicated graphics can be easily made:
+With combination of these basic low-level graphic functions, complicated graphics can be easily made:
 
 ```{r}
 hc = HilbertCurve(1, 100, level = 4)
-hc_segments(hc, IRanges(1, 100))   # background line
-hc_rect(hc, ir)
-hc_points(hc, ir, np = 3)
-hc_text(hc, ir, labels = labels, gp = gpar(fontsize = 16, col = "blue"))
+hc_segments(hc, IRanges(1, 100))   # This is an other way to add background line
+hc_rect(hc, ir, gp = gpar(fill = rand_color(length(ir), transparency = 0.8)))
+hc_points(hc, ir, np = 3, gp = gpar(fill = rand_color(length(ir))),
+    shape = sample(c("circle", "square", "triangle", "hexagon", "star"), length(ir), replace = TRUE))
+hc_text(hc, ir, labels = labels, gp = gpar(fontsize = width(ir)*2+5, col = "blue", font = 2))
 ```
 
 ## Non-integer positions
 
-It doesn't matter if your positions are integers or not. Internally, rounding and zooming are applied
-to ensure the accuracy.
+It doesn't matter if your positions are integers or not. Internally, adjustment are automatically applied.
 
-Since the positions are not integers, you can specify the positions by `x1` and `x2`. All low-level graphical
-funtions accept `x1` and `x2`.
+When positions are not integers, you can specify the positions by `x1` and `x2`. 
+All low-level graphical funtions accept `x1` and `x2`.
 
 ```{r}
 hc = HilbertCurve(0.1, 0.8, level = 4, reference = TRUE)
 hc_points(hc, x1 = c(0.15, 0.55), x2 = c(0.25, 0.65))
 ```
 
-## Add title and legends
+This is also useful to specify the positions with huge values which can not be represented by the `IRagnes` class (e.g. the summation of total length of human chromosomes).
 
-Title are allowed by setting `title` argument. 
-Legend can be passed to `legend` argument in `HilbertCurve()` as a `grob` object or a list of `grob` objects.
-`ColorMapping` class in **ComplexHeatmap** package or `legendGrob()` in **grid** package can be used to create
-a legend `grob`. Or you can consider to use `frameGrob()` and `packGrob()` to build a legend from ground.
+```{r, eval = FALSE}
+# code not run when generating the vignette
+hc = HilbertCurve(1, 1000000000000, level = 4, reference = TRUE)
+hc_points(hc, x1 = 400000000000, x2 = 600000000000)
+```
 
-Because width and height are enforced to be equal for the Hilbert curve, sometimes you may see blank spaces around
-the curve.
+Negative positions are allowed as well.
 
-```{r}
-value = runif(length(ir))
-col_fun = colorRamp2(c(0, 1), c("white", "red"))
-cm = ColorMapping(col_fun = col_fun)
-legend = color_mapping_legend(cm, plot = FALSE, title = "value")
-hc = HilbertCurve(1, 100, reference = TRUE, title = "points", legend = legend)
-hc_points(hc, ir, np = 3, gp = gpar(fill = col_fun(value)))
+```{r, eval = FALSE}
+# code not run when generating the vignette
+hc = HilbertCurve(-100, 100, level = 4, reference = TRUE)
+hc_points(hc, x1 = -50, x2 = 50)
 ```
 
 ## Pixel mode
 
+The pixel mode can be thought as a high resolution version of `hc_rect()`.
 When the level is high (e.g. > 10), the whole 2D space will be almost completely filled by the curve and
 it is impossible to add or visualize e.g. points on the curve. In this case, the 'pixel'
 mode visualizes each tiny 'segment' as a pixel and maps values to colors. So the Hilbert
-curve with level 11 will generate a PNG figure with 2048x2048 resolution. This is extremely
+curve with level 11 will generate a PNG figure with resolution of 2048x2048. This is extremely
 useful for visualize genomic data. E.g. If we make a Hilbert curve for human chromosome 1 with
-level 11, then each pixel can represent 60bp (``249250621/2048/2048``) which is of very high resolution.
+level 11, then each pixel can represent about 60bp (``249250621/2^11/2^11``) which is of very high resolution.
 
-Under 'pixel' mode, if the current device is an interactive deivce, every time a new layer is added, 
+Under 'pixel' mode, every time a new layer is added, 
 the image will be add to the interactive device as a rastered image. 
 
 ```{r}
@@ -276,21 +299,201 @@ hc = HilbertCurve(1, 100, level = 9, mode = "pixel")
 hc_layer(hc, ir)
 ```
 
-Since you can only use color to map to other values, there is only one graphical setting `col`. 
-You can add more than one layers, just remember to set transparent colors. And of course you can add title and legend to the plot.
-Grid lines can be added to the plot for better distinguish blocks in the Hilbert curve.
+Since color is only used to map to values, there is only one graphic setting `col`. 
+You can add more than one layers, and just remember to set transparent colors for the additional layers. 
+And of course you can add title and legend to the plot.
 
 ```{r}
-hc = HilbertCurve(1, 100, level = 9, mode = "pixel", title = "pixel mode", legend = legend)
-hc_layer(hc, ir, col = col_fun(value), grid_line = 2)
-hc_layer(hc, x1 = 75, x2 = 85, col = "#0000FF10")
+hc = HilbertCurve(1, 1000, level = 9, mode = "pixel")
+x = sample(1000, 100)
+hc_layer(hc, x1 = x, x2 = x+2, mean_mode = "absolute")
+hc_layer(hc, x1 = 750, x2 = 850, col = "#0000FF40")
 ```
 
-The Hilbert curve can be save as PNG figure by `hc_png()`, with resolution `2^level x 2^level`.
+Grid lines can be added to the plot for better distinguishing blocks in the Hilbert curve.
+The 2D space will be split into `2^(grid_line-1)` rows and `2^(grid_line-1)` columns.
+
+```{r}
+hc = HilbertCurve(1, 100, level = 9, mode = "pixel")
+hc_layer(hc, ir, grid_line = 3)
+```
+
+The Hilbert curve can be save as PNG figure by `hc_png()` with resolution `2^level x 2^level`.
+Note only the curve itself is exported.
 
 ```{r, eval = FALSE}
+# code not run, only for demonstration
 hc_png(hc, file = "test.png")
 ```
+
+### Overlay
+
+By default, the color overlay for layers is applied based on the transparency of the new layer.
+Under "pixel" mode, each pixel is represented by red, green and blue colors for which the value is 
+between 0 and 1. When a new layer with transparency color is added, the overlayed RGB is calculated
+as follows (`r0`, `g0` and `b0` correspond to the layer which is already added, `r`, `g`, `b` and `alpha`
+correspond to the layer which is going to be added). The method is implemented in `default_overlay()` function.
+
+```{r, eval = FALSE}
+r = r*alpha + r0*(1-alpha)
+g = g*alpha + g0*(1-alpha)
+b = b*alpha + b0*(1-alpha)
+```
+
+`hc_layer()` provides a `overlay` argument for which users can supply their own overlay method. This
+may be difficult to use but it is powerful for representing different features. In following example, we 
+change the red regions which are overlapped with the blue regions to green.
+
+```{r}
+hc = HilbertCurve(1, 1000, level = 9, mode = "pixel", title = "pixel mode")
+hc_layer(hc, x1 = x, x2 = x+2, mean_mode = "absolute")
+hc_layer(hc, x1 = 750, x2 = 850, col = "#0000FF40",
+    overlay = function(r0, g0, b0, r, g, b, alpha) {
+        l = r0 > 0 # if the pixel is red
+        tmp = r0[l]
+        r0[l] = g0[l]
+        g0[l] = tmp  # red -> green, just switch red and green channel
+        
+        default_overlay(r0, g0, b0, r, g, b, alpha)
+    })
+```
+
+The self-defined `overlay` should accept seven arguments for which, `r0`, `g0` and `b0` correspond to RGB channles for the 
+layers which are already added, `r`, `g`, `b` and `alpha` correspond to the layer which are going to be added.
+The elements of e.g. `r`, `g`, `b` only correspond to the pixels that are covered by the regions in the new layer.
+
+**circlize** provides a function `col2value()` which transforms back from colors to the original values (it can be thought
+as the reversed function of `colorRamp2()`). 
+It is usefull to integrate with `overlay` to change the color theme.
+
+In following example, default color theme is white-red.
+
+```{r}
+col_fun = colorRamp2(c(0, 1), c("white", "red"))
+value = runif(length(x))
+hc = HilbertCurve(1, 1000, level = 9, mode = "pixel", title = "pixel mode")
+hc_layer(hc, x1 = x, x2 = x+2, mean_mode = "absolute", col = col_fun(value))
+hc_layer(hc, x1 = 750, x2 = 850, col = "#00000010")
+```
+
+Next we change the color theme in the overlapped areas to white-blue. To do this,
+we first select the pixels that correspond to regions that have been already added.
+Since background color is white, non-white pixels correspond to the regions that
+have beed added. Then transform back to the original values by `col2value()` and finally change to 
+another color theme.
+
+```{r}
+hc = HilbertCurve(1, 1000, level = 9, mode = "pixel", title = "pixel mode")
+hc_layer(hc, x1 = x, x2 = x+2, mean_mode = "absolute", col = col_fun(value))
+hc_layer(hc, x1 = 750, x2 = 850, col = "#00000010",
+    # remember r0, g0, ... only correspond to the pixels in the grey area
+    overlay = function(r0, g0, b0, r, g, b, alpha) {
+        # non-white areas
+        l = !(r0 == 1 & g0 == 1 & b0 == 1)
+        v = col2value(r0[l], g0[l], b0[l], col_fun = col_fun)
+
+        # new color theme
+        col_fun_new = colorRamp2(c(0, 1), c("white", "blue"))
+        col_new = col_fun_new(v, return_rgb = TRUE)
+        r0[l] = col_new[, 1]
+        g0[l] = col_new[, 2]
+        b0[l] = col_new[, 3]
+
+        default_overlay(r0, g0, b0, r, g, b, alpha)
+    })
+```
+
+In later section, we will demonstrate using self-defined overlay method can effectively visualize
+the correspondance between H3K36me3 histone mark and gene body.
+
+## Add title and legends
+
+Title can be set by the `title` argument. 
+Legend can be passed to `legend` argument in `HilbertCurve()` as a `grob` object or a list of `grob` objects.
+Basically, colors are the main aesthetic mappings to values, thus, `ColorMapping` class in **ComplexHeatmap** package 
+can be very helpful to create a legend `grob`. Also you can consider `legendGrob()` in **grid** package.
+
+Because width and height are enforced to be equal for the Hilbert curve, sometimes you may see blank spaces around
+the curve.
+
+```{r}
+value = runif(length(ir))
+col_fun = colorRamp2(c(0, 1), c("white", "red"))
+cm1 = ColorMapping(col_fun = col_fun)
+legend1 = color_mapping_legend(cm1, plot = FALSE, title = "continuous")
+
+cm2 = ColorMapping(levels = c("A", "B"), color = c("#00FF0080", "#0000FF80"))
+legend2 = color_mapping_legend(cm2, plot = FALSE, title = "discrete")
+
+legend = list(legend1, legend2)
+
+hc = HilbertCurve(1, 100, reference = TRUE, title = "points", legend = legend)
+hc_points(hc, ir, np = 3, gp = gpar(fill = col_fun(value)))
+hc_rect(hc, ir, gp = gpar(fill = sample(c("#00FF0020", "#0000FF20"), length(ir), replace = TRUE)))
+```
+
+Under "pixel" mode, the curve will also be shown on the interactive device as raster image, thus, title
+and legends can be added as well.
+
+```{r}
+col_fun = colorRamp2(c(0, 1), c("white", "red"))
+cm = ColorMapping(col_fun = col_fun)
+lgd = color_mapping_legend(cm, title = "value", plot = FALSE)
+value = runif(length(x))
+hc = HilbertCurve(1, 1000, level = 9, mode = "pixel", title = "pixel mode", legend = lgd)
+hc_layer(hc, x1 = x, x2 = x+2, mean_mode = "absolute", col = col_fun(value))
+```
+
+## Averaging models
+
+**Note: this "averaging" concept is very important. If you have unexpected plot, try other `mean_mode` option.**
+
+When using points or rectangles under "normal" mode, or using pixels under "pixel" mode, each point/rectangle/pixel
+is mapped to a small window in the genome. When overlapping certain genomic regions to the curve, 
+and when the window is not full covered by the input regions, proper averaging method should 
+be applied to summarize the value in the window. 
+
+Depending on different scenarios, **HilbertCurve** provides three metrics for averaging. 
+
+The overlapping model is illustrated in following plot. The red line in the bottom represents the 
+small window on the Hilbert curve. Black lines on the top are the parts of input regions that overlap
+with the window. The thick lines indicate the intersected part between the input regions and the window.
+
+```{r, fig.height = 3, echo = FALSE}
+library(grid)
+grid.lines(c(0.1, 0.9), c(0.3, 0.3), gp = gpar(col = "red", lwd = 4))
+grid.text("window on the curve", 0.5, 0.25, just = "top", gp = gpar(col = "red"))
+grid.lines(c(0, 0.2), c(0.6, 0.6))
+grid.lines(c(0.3, 0.5), c(0.6, 0.6))
+grid.lines(c(0.7, 1), c(0.6, 0.6))
+grid.lines(c(0.1, 0.2), c(0.6, 0.6), gp = gpar(lwd = 4))
+grid.lines(c(0.3, 0.5), c(0.6, 0.6), gp = gpar(lwd = 4))
+grid.lines(c(0.7, 0.9), c(0.6, 0.6), gp = gpar(lwd = 4))
+grid.lines(c(0.1, 0.1), c(0, 1), gp = gpar(lty = 2, col = "grey"))
+grid.lines(c(0.9, 0.9), c(0, 1), gp = gpar(lty = 2, col = "grey"))
+grid.text("genomic regions", 0.5, 0.65, just = "bottom")
+```
+
+For a window on the curve, $n$ is the number of input regions which overlap with the window (it is 3 in the above plot), 
+$w_i$ is the width of the intersected segments (black thick lines), $x_i$ is the value associated with the original regions. 
+
+The "absolute" method which is denoted as $v_a$ and is simple calculated as the mean regardless of the width:
+
+$$ v_a = \frac{\sum_i^n{x_i}}{n} $$
+
+The "weighted" method which is denoted as $v_w$ is the mean weighted by the width of intersections: 
+
+$$ v_w = \frac{\sum_i^n{x_iw_i}}{\sum_i^n{w_i}} $$
+
+"Absolute" and "weighted" mode should be applied when background information is not of interest. E.g. when summarizing
+mean methylation in a small window, since methylation is only related with CpG sites while not other bases, non-CpG background
+should be ignored.
+
+The "w0" mode is the weighted mean between the intersected parts and un-intersected parts: 
+
+ $$ v_{w0} = \frac{v_wW + v_bW'}{W+W'} $$
+
+for which $W$ is sum of width of the intersected parts and $W'$ is the sum of width for the un-intersected parts. $V_b$ is the value corresponding to the background. E.g when averaging colors which are represented as numeric RGB values, the background value is set to 255 which corresponds to white.
 
 ## Examples
 
@@ -299,167 +502,382 @@ Visualize rainbow colors:
 ```{r}
 col = rainbow(100)
 hc = HilbertCurve(1, 100, level = 5)
-ir = IRanges(start = 1:99, end = 2:100)
-hc_points(hc, ir, np = 4, gp = gpar(col = col, fill = col))
+hc_points(hc, x1 = 1:99, x2 = 2:100, np = 3, gp = gpar(col = col, fill = col))
 ```
 
-Genes on chromosome 1 (RefSeq genes for human, hg19). Here random colors are used
-to represent to different genes.
+or use the rectangles:
+
+```{r}
+hc = HilbertCurve(1, 100, level = 5)
+hc_rect(hc, x1 = 1:99, x2 = 2:100, gp = gpar(col = col, fill = col))
+```
+
+Reproduce [http://datadrivensecurity.info/blog/posts/2015/Jan/mapping-ipv4-address-in-hilbert-space/](the visualization for IPv4 address). The CIDR data is from http://www.iwik.org/ipcountry/.
+
+```{r, fig.width = 8, fig.height = 7}
+library(ComplexHeatmap)
+library(RColorBrewer)
+
+load(system.file("extdata", "cidr_list.RData", package = "HilbertCurve"))
+
+cidr_list = cidr_list[sapply(cidr_list, length) > 0]
+
+country = rep(names(cidr_list), times = sapply(cidr_list, length))
+
+ip = unlist(cidr_list, "r")
+
+# convert ip address to numbers
+mat = t(as.matrix(data.frame(lapply(strsplit(ip, "\\.|/"), as.numeric))))
+start = mat[, 1]*256^3 + mat[, 2]*256^2 + mat[, 3]*256 + mat[, 4]
+width = sapply(mat[, 5], function(x) strtoi(paste(rep(1, 32 - x), collapse = ""), base = 2))
+
+# top 8 countries
+col = structure(rep("grey", length(cidr_list)), names = names(cidr_list))
+top8_rate = sort(tapply(width, country, sum), decreasing = TRUE)[1:8]/256^4
+top8 = names(top8_rate)
+col[top8] = brewer.pal(8, "Set1")
+top8_rate = paste0(round(top8_rate*100), "%")
+
+# this is the part of using HilbertCurve package
+cm = ColorMapping(levels = c(top8, "Others"), color = c(col[top8], "grey"))
+lgd = color_mapping_legend(cm, title = "Top8 countries", 
+    labels = c(paste(top8, top8_rate), "Others"), plot = FALSE)
+hc = HilbertCurve(0, 256^4, mode = "pixel", level = 9, legend = lgd)
+hc_layer(hc, x1 = start, x2 = start + width, col = col[country])
+```
+
+Duration of Chinese dynasties. Data from http://www.360doc.com/content/11/1123/02/7829717_166641336.shtml.
+
+```{r, eval = FALSE}
+# Following code does not run when building the vignette due to different font family for
+# Chinese in different OS.
+load(system.file("extdata", "chinese_dynasty.RData", package = "HilbertCurve"), )
+
+hc = HilbertCurve(min(chinese_dynasty[[2]]), max(chinese_dynasty[[3]]), 
+    title = "Chinese dynasty (1122 B.C. ~ 1911 A.D.)", 
+    title_gp = gpar(fontsize = 16, fontfamily = "Songti SC"))
+hc_segments(hc, x1 = chinese_dynasty[[2]], x2 = chinese_dynasty[[3]], 
+    gp = gpar(col = rand_color(nrow(chinese_dynasty), transparency = 0.2), 
+        lwd = runif(nrow(chinese_dynasty), min = 1, max = 10)))
+hc_text(hc, x1 = chinese_dynasty[[2]], x2 = chinese_dynasty[[3]], labels = chinese_dynasty[[1]], 
+    gp = gpar(fontsize = (chinese_dynasty[[3]] - chinese_dynasty[[2]])/500 * 10 + 8, 
+        fontfamily = "Songti SC"))
+```
+
+<p><center><img src = "chinese_dynasty.png" /></center></p>
+
+## GenomicHilbertCurve: specific for genomic data
+
+To make it easy with genomic data which is always stored as a data frame or a `GRanges` object,
+the package provides specific class and functions to deal with it. `GenomicHilbertCurve()` initializes the 
+Hilbert curve by specifying chromosomes or specific background regions. After that, the data
+frame or `GRanges` object which contains genomic positions can be mapped to the curve.
+
+Following functions are depatched to the `GenomicHilbertCurve` class, and the second argument
+should be a data frame (which is in bed-format) or a `GRanges` object.
+
+```{r, eval = FALSE}
+hc_points(hc, gr, ...)
+hc_rect(hc, gr, ...)
+hc_segments(hc, gr, ...)
+hc_text(hc, gr, ...)
+hc_layer(hc, gr, ...)
+```
+
+One major feature is multiple chromosomes (or more general genomic categories) can be put onto one same curve.
+
+Following illustrates several examples of making genome-level Hilbert curves.
+
+The first example visualizes genes on chromosome 1 ([RefSeq genes for human, hg19](https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=451688581_FoCuggvGvavyfGhdj9sSGrGlnErE&clade=mammal&org=Human&db=hg38&hgta_group=genes&hgta_track=refGene&hgta_table=0&hgta_regionType=genome&position=chr9%3A133252000-133280861&hgta_outputType=primaryTable&hgta_outFileName=)). Here random colors are used
+to distinguish different genes.
+
+```{r}
+load(system.file("extdata", "refseq_chr1.RData", package = "HilbertCurve"))
+hc = GenomicHilbertCurve(chr = "chr1", level = 5, reference = TRUE, 
+    reference_gp = gpar(lty = 1, col = "grey"), arrow = FALSE)
+hc_segments(hc, g, gp = gpar(lwd = 6, col = rand_color(length(g))))
+```
+
+Following two figures how well human chromosome 1 is aligned to mouse and zebrafish. Data are from [UCSC Table Browser](http://genome.ucsc.edu/cgi-bin/hgTables?hgsid=434791817_tLOpTRgCwS2hR4uJ2cDjGaHUQEKj&clade=mammal&org=Human&db=hg19&hgta_group=compGeno&hgta_track=placentalChainNet&hgta_table=0&hgta_regionType=genome&position=chr16%3A81839239-81902938&hgta_outputType=wigData&hgta_outFileName=).
 
 ```{r}
 chr1_len = 249250621
-load(paste0(system.file("extdata", package = "HilbertCurve"), "/refseq_chr1.RData"))
-hc = HilbertCurve(1, chr1_len, level = 5)
-hc_segments(hc, IRanges(start = 1, end = chr1_len), gp = gpar(col = "grey"))
-hc_segments(hc, ranges(g), gp = gpar(lwd = unit(6, "mm"), col = rand_color(length(g))))
+load(system.file("extdata", "mouse_net.RData", package = "HilbertCurve"))
+seqlengths(mouse) = chr1_len # it is only used to extract the complement
+nonmouse = gaps(mouse); nonmouse = nonmouse[strand(nonmouse) == "*"]
+gr = c(mouse, nonmouse)
+col = c(rep("red", length(mouse)), rep("yellow", length(nonmouse)))
+hc = GenomicHilbertCurve(chr = "chr1", level = 6)
+hc_points(hc, gr, np = 3, gp = gpar(col = NA, fill = col))
+
+load(system.file("extdata", "zebrafish_net.RData", package = "HilbertCurve"))
+seqlengths(zebrafish) = chr1_len
+nonzebrafish = gaps(zebrafish); nonzebrafish = nonzebrafish[strand(nonzebrafish) == "*"]
+gr = c(zebrafish, nonzebrafish)
+col = c(rep("red", length(zebrafish)), rep("yellow", length(nonzebrafish)))
+hc = GenomicHilbertCurve(chr = "chr1", level = 6)
+hc_points(hc, gr, np = 3, gp = gpar(col = NA, fill = col))
 ```
 
-Following two figures compare sequence conservations. Data are from [here](http://genome.ucsc.edu/cgi-bin/hgTables?hgsid=434791817_tLOpTRgCwS2hR4uJ2cDjGaHUQEKj&clade=mammal&org=Human&db=hg19&hgta_group=compGeno&hgta_track=placentalChainNet&hgta_table=0&hgta_regionType=genome&position=chr16%3A81839239-81902938&hgta_outputType=wigData&hgta_outFileName=).
+Next figure visualizes GC percent on chromosome 1, under "normal" mode. The GC content per 1KB window
+is calculated by `hgGcPercent.bin` binary which is downloaded from http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/.
 
-```{r}
-load(paste0(system.file("extdata", package = "HilbertCurve"), "/mouse_net.RData"))
-hc = HilbertCurve(1, chr1_len, level = 6)
-ir1 = ranges(mouse)
-ir2 = setdiff(IRanges(1, chr1_len), ir1)
-ir = c(ir1, ir2)
-col = c(rep("red", length(ir1)), rep("yellow", length(ir2)))
-hc_points(hc, ir, np = 3, gp = gpar(col = col, fill = col))
-
-load(paste0(system.file("extdata", package = "HilbertCurve"), "/zebrafish_net.RData"))
-hc = HilbertCurve(1, chr1_len, level = 6)
-ir1 = ranges(zebrafish)
-ir2 = setdiff(IRanges(1, chr1_len), ir1)
-ir = c(ir1, ir2)
-col = c(rep("red", length(ir1)), rep("yellow", length(ir2)))
-hc_points(hc, ir, np = 3, gp = gpar(col = col, fill = col))
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", echo = 2:6}
+png('gc_percent_chr1_points.png', width = 500, height = 500)
+df = read.table(pipe("awk '$1==\"chr1\"' ~/HilbertCurveTest/hg19_gc_percent_window1000.bed"))
+col_fun = colorRamp2(quantile(df[[5]], c(0.1, 0.5, 0.9)), c("green", "#FFFFCC", "red"))
+hc = GenomicHilbertCurve(chr = "chr1", level = 6)
+hc_points(hc, df, np = 3, gp = gpar(fill = col_fun(df[[5]]), col = col_fun(df[[5]])))
+hc_rect(hc, reduce(g), gp = gpar(fill = "#00000020", col = NA))
+invisible(dev.off())
 ```
 
-GC percent on chromosome 1, under "normal" mode:
-
-```{r, eval = FALSE}
-df = read.table(pipe("awk '$1==\"chr1\"' /path-to/hg19_gc_percent_window1000.bed"))
-col_fun = colorRamp2(c(0, 500, 1000), c("green", "#FFFFCC", "red"))
-png("gc_percent_chr1_points.png", width = 500, height = 500)
-hc = HilbertCurve(1, chr1_len, level = 6)
-hc_points(hc, IRanges(df[[2]], df[[3]]), np = 3, gp = gpar(fill = col_fun(df[[5]]), col = col_fun(df[[5]])))
-hc_rect(hc, reduce(ranges(g)), gp = gpar(fill = "#00000020", col = "#00000020"))
-dev.off()
+```{r, echo = FALSE, results = "asis"}
+cat("<p><center><img src='gc_percent_chr1_points.png' /></center></p>\n")
 ```
 
-<p><center><img src="gc_percent_chr1_points.png" /></center></p>
+Or visualize GC percent on chromosome 1, under "pixel" mode:
 
-GC percent on chromosome 1, under "pixel" mode:
-
-```{r, eval = FALSE}
-hc = HilbertCurve(1, chr1_len, level = 9, mode = "pixel")
-hc_layer(hc, IRanges(df[[2]], df[[3]]), col = col_fun(df[[5]]))
-hc_layer(hc, reduce(ranges(g)), col = "#00000020")
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
+hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel")
+hc_layer(hc, df, col = col_fun(df[[5]]))
+hc_layer(hc, reduce(g), col = "#00000020")
 hc_png(hc, file = "gc_percent_chr1.png")
 ```
 
-<p><center><img src="gc_percent_chr1.png" /></center></p>
+```{r, echo = FALSE, results = "asis"}
+cat("<p><center><img src='gc_percent_chr1.png' /></center></p>\n")
+```
 
-Following data are from http://genboree.org/EdaccData/Release-9/sample-experiment/Lung/
+Background is not necessary to be the whole chromosomes, it can also be a self-defined regions.
+The background can be specified as a `GRanges` object and pass to `background` argument. 
+In following example, only the first half part of chromosome 1 is used to initialize the curve.
 
-First is the distribution of histone marks as well as the gene regions (shadow).
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
+background = GRanges(seqnames = "chr1", ranges = IRanges(1, ceiling(chr1_len/2)))
+hc = GenomicHilbertCurve(background = background, level = 9, mode = "pixel")
+hc_layer(hc, df, col = col_fun(df[[5]]))
+hc_layer(hc, reduce(g), col = "#00000020")
+hc_png(hc, file = "gc_percent_half_chr1.png")
+```
 
-```{r, eval = FALSE}
+```{r, echo = FALSE, results = "asis"}
+cat("<p><center><img src='gc_percent_half_chr1.png' /></center></p>\n")
+```
+
+Following visualizes different histone marks on human chromosome 1. Additionally, gene regions are added as a grey layer.
+Data are from http://genboree.org/EdaccData/Release-9/sample-experiment/Lung/.
+
+Since we are going to plot more than one histome marks, the code for plotting are wrapped as a simple function:
+
+```{r}
 library(GetoptLong)
-
-for(mark in c("H3K27ac", "H3K36me3", "H3K4me3", "H3K9me3")) {
-	df = read.table(pipe(qq("awk '$5>0 && $1==\"chr1\"' /path-to/UCSD.Lung.@{mark}.STL002.bed")), sep = "\t")
+plot_histone_mark = function(mark) {
+	df = read.table(pipe(qq("awk '$5>0 && $1==\"chr1\"' ~/HilbertCurveTest/UCSD.Lung.@{mark}.STL002.bed")), 
+        sep = "\t")
 	col_fun = colorRamp2(c(0, quantile(df[[5]], 0.99)), c("white", "red"))
-	hc = HilbertCurve(1, chr1_len, level = 9, mode = "pixel")
-	hc_layer(hc, IRanges(df[[2]], df[[3]]), col = col_fun(df[[5]]))
-  hc_layer(hc, reduce(ranges(g)), col = "#00000010")
-	hc_png(hc, file = qq("@{mark}_chr1.png"))
+	hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel")
+	hc_layer(hc, df, col = col_fun(df[[5]]))
+    hc_layer(hc, reduce(g), col = "#00000010")
+    hc_png(hc, qq("@{mark}_chr1.png"))
 }
 ```
 
-H3K27ac histone mark:
+H3K27ac histone mark (enhancers):
 
-<p><center><img src="H3K27ac_chr1.png" /></center></p>
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = 1}
+plot_histone_mark("H3K27ac")
+```
+
+```{r, echo = FALSE, results = "asis"}
+cat("<p><center><img src='H3K27ac_chr1.png' /></center></p>\n")
+```
 
 H3K36me3 histone mark. (H3K36me3 is found in actively transcribed gene bodies)
 
-<p><center><img src="H3K36me3_chr1.png" /></center></p>
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = 1}
+plot_histone_mark("H3K36me3")
+```
+
+```{r, echo = FALSE, results = "asis"}
+cat("<p><center><img src='H3K36me3_chr1.png' /></center></p>\n")
+```
 
 H3K4me3 histone mark. (H3K4me3 is found in actively transcribed promoters, particularly just after the transcription start site)
 
-<p><center><img src="H3K4me3_chr1.png" /></center></p>
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = 1}
+plot_histone_mark("H3K4me3")
+```
+
+```{r, echo = FALSE, results = "asis"}
+cat("<p><center><img src='H3K4me3_chr1.png' /></center></p>\n")
+```
 
 H3K9me3 histone mark. (H3K9me3 is found in constitutively repressed genes)
 
-<p><center><img src="H3K9me3_chr1.png" /></center></p>
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = 1}
+plot_histone_mark("H3K9me3")
+```
 
-Coverage for RNAseq.
+```{r, echo = FALSE, results = "asis"}
+cat("<p><center><img src='H3K9me3_chr1.png' /></center></p>\n")
+```
 
-```{r, eval = FALSE}
-df = read.table(pipe(qq("awk '$5>0 && $1==\"chr1\"' /path-to/UCSD.Lung.mRNA-Seq.STL002.bed")), sep = "\t")
-df[[5]] = log(df[[5]] + 1)
+When there are more than one layers added and users want to see the correspondance between different
+genomic features, they can define a color overlay function to enhance the visual effects of the overlapping areas. 
+In following example, when regions for H3K36me3 mark
+are overlapped with gene bodies, the color theme is changed to white-purple.
+
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
+df = read.table(pipe("awk '$5>0 && $1==\"chr1\"' ~/HilbertCurveTest/UCSD.Lung.H3K36me3.STL002.bed"), 
+    sep = "\t")
 col_fun = colorRamp2(c(0, quantile(df[[5]], 0.99)), c("white", "red"))
-hc = HilbertCurve(1, chr1_len, level = 9, mode = "pixel")
-hc_layer(hc, IRanges(df[[2]], df[[3]]), col = col_fun(df[[5]]))
-hc_layer(hc, reduce(ranges(g)), col = "#00000010")
-hc_png(hc, file = qq("RNASeq_coverage_chr1.png"))
+col_fun_new = colorRamp2(c(0, quantile(df[[5]], 0.99)), c("white", "purple"))
+hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel")
+hc_layer(hc, df, col = col_fun(df[[5]]))
+hc_layer(hc, reduce(g), col = "#00000010", 
+    overlay = function(r0, g0, b0, r, g, b, alpha) {
+            l = !(r0 == 1 & g0 == 1 & b0 == 1) # non-white pixels
+            v = col2value(r0[l], g0[l], b0[l], col_fun = col_fun) # the original value
+
+            col_new = col_fun_new(v, return_rgb = TRUE) # the new color theme
+            r0[l] = col_new[, 1]
+            g0[l] = col_new[, 2]
+            b0[l] = col_new[, 3]
+
+            default_overlay(r0, g0, b0, r, g, b, alpha)
+        })
+hc_png(hc, "H3K36me3_chr1_overlap.png")
 ```
 
-<p><center><img src="RNASeq_coverage_chr1.png" /></center></p>
+```{r, echo = FALSE, results = "asis"}
+cat("<p><center><img src='H3K36me3_chr1_overlap.png' /></center></p>\n")
+```
 
+Next figure visualizs methylation on human chromosome 1. Blue corresponds to un-methylation and red corresponds to full-methylation.
+One thing which is very important here is that methylation is always measured at single CpG
+sites, so the mode for averaging should be set to `absolute` in order to sumarize mean methylation values only on CpG sites.
+Data are from http://genboree.org/EdaccData/Release-9/sample-experiment/Lung/.
 
-Methylation, blue corresponds to un-methylation, red corresponds to full-methylation.
+The methylation plot shows quite clear patterns for un-methylated regions which are small and sharp, fully methylated regions
+and intermediate methylated regions.
 
-```{r, eval = FALSE}
-df = read.table(pipe("awk '$1==\"chr1\"' /path-to/UCSD.Lung.Bisulfite-Seq.STL002.bed"), sep = "\t")
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
+df = read.table(pipe("awk '$1==\"chr1\"' ~/HilbertCurveTest/UCSD.Lung.Bisulfite-Seq.STL002.bed"), 
+    sep = "\t")
 col_fun = colorRamp2(c(0, 0.5, 1), c("blue", "white", "red"))
-hc = HilbertCurve(1, chr1_len, level = 9, mode = "pixel")
-hc_layer(hc, IRanges(df[[2]], df[[3]]), col = col_fun(df[[5]]), mean_mode = "absolute")
-hc_png(hc, file = "methylation_chr1.png")
+hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel")
+hc_layer(hc, df, col = col_fun(df[[5]]), mean_mode = "absolute")
+hc_layer(hc, reduce(g), col = "#00000010")
+hc_png(hc, file = 'methylation_chr1.png')
 ```
 
-<p><center><img src="methylation_chr1.png" /></center></p>
+```{r, echo = FALSE, results = "asis"}
+cat("<p><center><img src='methylation_chr1.png' /></center></p>\n")
+```
 
-## Put all chromosomes in one plot
+### Put multiple chromosomes in one plot
 
 We demonstrated how to visualize one single chromosome through Hilbert curve, but sometimes
-we also want to put all chromosomes into one plot to get rid of reading too many plots simutaneously.
-One solution is to construct a 'huge' chromosome which merges all real chromosomes.
+we also want to put all chromosomes into one plot to get a full view of the genome.
+One solution is to construct a 'huge fake' chromosome which merges all real chromosomes. `GenomicHilbertCurve()`
+makes it easy. You can specify multiple chromosomes by sending a vector to `chr` argument or specify more
+than one background regions in `background` argument.
 
-```{r, eval = FALSE}
-chr.len = read.chromInfo()$chr.len
-sum_chr = 0
-s = numeric(length(ratio))
-e = numeric(length(ratio))
-for(chr in paste0("chr", c(1:22, "X", "Y"))) {
-    l = as.character(seqnames(ratio)) == chr
-    s[l] = start(ratio[l]) + sum_chr
-    e[l] = end(ratio[l]) + sum_chr
-    sum_chr = sum_chr + chr.len[chr]
+In following examples, copy number loss and gain for 22 human chromosomes are visualized. Also color for the overlapping
+regions between layer for gain events and layer for loss events is changed to purple by defining `overlay` argument.
+Data is from (Database of Genomic Variants, CNV map)[http://dgv.tcag.ca/dgv/app/downloads]. 
+
+
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
+hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel")
+df = read.table("~/HilbertCurveTest/Stringent.Gain.hg19.2015-02-03.txt", header = TRUE, stringsAsFactors = FALSE)
+hc_layer(hc, df, col = "red")
+df = read.table("~/HilbertCurveTest/Stringent.Loss.hg19.2015-02-03.txt", header = TRUE, stringsAsFactors = FALSE)
+hc_layer(hc, df, col = "green", grid_line = 3, grid_line_col = "grey",
+    overlay = function(r0, g0, b0, r, g, b, alpha) {
+        l = !(r0 == 1 & g0 == 1 & b0 == 1)
+        r[l] = 160/255
+        g[l] = 32/255
+        b[l] = 240/255
+        list(r, g, b)
+})
+hc_png(hc, file = 'cnv_all_chromosomes.png')
+```
+
+```{r, echo = FALSE, results = "asis"}
+cat("<p><center><img src='cnv_all_chromosomes.png' /></center></p>\n")
+```
+
+A map which shows the chromosome positions in Hilbert curve is very necessary for knowing which part
+in the curve represents which chromosome.
+
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", echo = 2, fig.keep = "none"}
+png('map_all_chromosomes.png', width = 500, height = 500)
+hc_map(hc)
+invisible(dev.off())
+```
+
+```{r, echo = FALSE, results = "asis"}
+cat("<p><center><img src='map_all_chromosomes.png' /></center></p>\n")
+```
+
+If you want to compare several plots simutaneously, you can use `grid.layout()`
+to put them together. Remember to set `newpage` to `FALSE` in `HilbertCurve()` or `GenomicHilbertCurve()`.
+
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = 2:34}
+png('cnv_compare.png', width = 800, height = 800)
+plot_curve = function(column, ...) {
+    cm = ColorMapping(levels = c("gain", "loss", "both"), color = c("red", "green", "purple"))
+    hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel",
+        title = qq("CNV for @{column}"), ...)
+
+    df = read.table("~/HilbertCurveTest/Stringent.Gain.hg19.2015-02-03.txt", header = TRUE, stringsAsFactors = FALSE)
+    df = df[df[[column]] > 0, , drop = FALSE]
+    hc_layer(hc, df, col = "red")
+
+    df = read.table("~/HilbertCurveTest/Stringent.Loss.hg19.2015-02-03.txt", header = TRUE, stringsAsFactors = FALSE)
+    df = df[df[[column]] > 0, , drop = FALSE]
+    hc_layer(hc, df, col = "green", grid_line = 3, grid_line_col = "grey",
+        overlay = function(r0, g0, b0, r, g, b, alpha) {
+            l = !(r0 == 1 & g0 == 1 & b0 == 1)
+            r[l] = 160/255
+            g[l] = 32/255
+            b[l] = 240/255
+            list(r, g, b)
+    })
 }
 
-ir = IRanges(start = round(s/1000),
-             end = round(e/1000))
-hc = HilbertCurve(0, round(max(chr_cumsum)/1000), level = 9, mode = "pixel")
-hc_layer(hc, ir, col = ..., grid_line = 3)
+pn = c("African", "Asian", "European")
+pushViewport(viewport(layout = grid.layout(nrow = 2, ncol = 2)))
+for(i in seq_along(pn)) {
+    pushViewport(viewport(layout.pos.row = (i-1)%/%2 + 1, layout.pos.col = (i-1)%%2 + 1))
+    plot_curve(pn[i], newpage = FALSE)
+    upViewport()
+}
+
+pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 2))
+hc_map(hc, title = "map for 22 chromosomes", newpage = FALSE)
+upViewport()
+upViewport()
+
+invisible(dev.off())
 ```
 
-Following is an example to show log2-ratio of coverage between tumor and control samples for all chromosomes.
-
-<p><center><img src="coverage_all_chromosomes.png" /></center></p>
-
-Also a map which shows the chromosome positions in Hilbert curve is necessary.
-
-```{r, eval = FALSE}
-chr_cumsum = cumsum(chr.len[paste0("chr", c(1:22, "X", "Y"))])
-chr_ir = IRanges(start = round(c(1, chr_cumsum[-length(chr_cumsum)]+1)/1000),
-                 end = round(chr_cumsum/1000),
-                 names = names(chr_cumsum))
-hc = HilbertCurve(0, round(max(chr_cumsum)/1000), level = 8)
-hc_rect(hc, chr_ir, gp = gpar(fill = rand_color(length(chr_ir), transparency = 0.5), col = NA))
-hc_text(hc, chr_ir, names(chr_ir), gp = gpar(fontsize = 16))
+```{r, echo = FALSE, results = "asis"}
+cat("<p><center><img src='cnv_compare.png' /></center></p>\n")
 ```
 
-<p><center><img src="chromosome_map.png" /></center></p>
+The map also can be added as an additional layer to the curve, but you need to be careful that
+the map doesn't affect other graphics too much. (I would suggest overlaping
+the map to the curve is not a good idea.)
+
+```{r}
+hc = GenomicHilbertCurve(chr = paste0("chr", c(1:22, "X", "Y")), level = 6)
+bed = generateRandomBed(1000)
+hc_segments(hc, bed, gp = gpar(col = rand_color(nrow(bed))))
+hc_map(hc, add = TRUE, fill = rand_color(24, transparency = 0.8))
+```
 
 ## Session info
 
