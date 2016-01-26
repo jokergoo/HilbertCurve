@@ -174,6 +174,7 @@ setMethod(f = "hc_offset",
 # -background background color, currently please don't modify this value.
 # -title title of the plot.
 # -title_gp graphic parameters for the title. It should be specified by `grid::gpar`.
+# -start_from which corner on the plot should the curve starts?
 # -legend a `grid::grob` object or a list of `grid::grob` objects. You can construct a `ComplexHeatmap::ColorMapping-class`
 #         object and generate a legend, see in the Example section.
 #
@@ -218,6 +219,7 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 	reference = FALSE, reference_gp = gpar(lty = 3, col = "#999999"), 
 	arrow = TRUE, zoom = NULL, newpage = TRUE, 
 	background = "white", title = NULL, title_gp = gpar(fontsize = 16), 
+	start_from = c("bottomleft", "topleft", "bottomright", "topright"),
 	legend = list()) {
 
 	hc = new("HilbertCurve")
@@ -238,6 +240,13 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 	hc@ZOOM = zoom
 
 	pos = hilbertCurve(level)
+	start_from = match.arg(start_from)[1]
+	degree = switch(start_from,
+		bottomleft = 0,
+		topleft = 270,
+		bottomright = 90,
+		topright = 180)
+	pos = rotate(pos, degree = degree)
 	n = 4^level  # number of points
 
 	breaks = round(seq(zoom(hc, s), zoom(hc, e), length = n)) 
@@ -278,6 +287,7 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 			                                                       heights = unit.c(title_height, unit(1, "npc") - title_height)),
 	                     name = paste0("hilbert_curve_", get_plot_index(), "global")))
 
+	title_gp = validate_gpar(title_gp, default = list(fontsize = 16))
 	if(length(title) != 0) {
 		pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 1))
 		grid.text(title, gp = title_gp)
@@ -304,7 +314,8 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 
 	size = min(unit.c(convertHeight(unit(1, "npc"), "mm"), convertWidth(unit(1, "npc"), "mm")))
 	pushViewport(viewport(name = paste0("hilbert_curve_", get_plot_index()), xscale = c(-0.5, 2^level - 0.5), yscale = c(-0.5, sqrt(n)-0.5), width = size, height = size))
-		
+	
+	reference_gp = validate_gpar(reference_gp, default = list(lty = 3, col = "#999999"))
 	if(mode == "normal") {
 		if(reference) {
 			grid.segments(hc@POS$x1, hc@POS$y1, hc@POS$x2, hc@POS$y2, default.units = "native", gp = reference_gp)
@@ -335,6 +346,22 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 	# message(strwrap("If your regions are mostly very small, consider to set 'mean_mode' to 'absolute' when using `hc_points()`, `hc_rect()` and `hc_layer()`."))
 
 	return(invisible(hc))
+}
+
+rotate = function(pos, degree = 0) {
+	theta = degree/180 * pi
+	x = pos[, 1]
+	y = pos[, 2]
+
+	center = c(mean(x), mean(y))
+	x = x - center[1]
+	y = y - center[2]
+	new_x = x*cos(theta) - y*sin(theta)
+	new_y = x*sin(theta) + y*cos(theta)
+	new_x = round(new_x + center[1])
+	new_y = round(new_y + center[2])
+
+	return(data.frame(x = new_x, y = new_y))
 }
 
 # == title
@@ -826,7 +853,7 @@ average_in_window = function(window, ir, mtch, v, mean_mode, empty_v = 0) {
 setMethod(f = "hc_rect",
 	signature = "HilbertCurve",
 	definition = function(object, ir, x1 = NULL, x2 = NULL, 
-	gp = gpar(fill = "red", col = "red"), 
+	gp = gpar(fill = "red"), 
 	mean_mode = c("w0", "absolute", "weighted")) {
 
 	if(object@MODE == "pixel") {
@@ -868,7 +895,9 @@ setMethod(f = "hc_rect",
 	# colors correspond to mean value for each window
 	mean_mode = match.arg(mean_mode)[1]
 
-	fill = normalize_gp("fill", gp$fill, length(ir))
+	gp = validate_gpar(gp, default = list(fill = "red"))
+	if(length(gp$fill) == 1) gp$fill = rep(gp$fill, length(ir))
+	fill = gp$fill
 
 	rgb = col2rgb(fill, alpha = TRUE)
 	rgb_mat = average_in_window(window, ir, mtch, list(rgb[1, ], rgb[2, ], rgb[3, ]), mean_mode, 255)
@@ -904,11 +933,6 @@ setMethod(f = "hc_rect",
 
 })
 
-normalize_gp = function(name = NULL, value = NULL, length = NULL) {
-	if(is.null(value)) value = get.gpar(name)[[name]]
-	if(length(value) == 1) value = rep(value, length)
-	return(value)
-}
 
 # == title
 # Add line segments to Hilbert curve
@@ -967,6 +991,7 @@ setMethod(f = "hc_segments",
 	                 end = zoom(object, end(ir)))
 	}
 
+	gp = validate_gpar(gp, default = list(lty = 1, lwd = 1, col = 1))
 	if(length(gp$lty) == 1) gp$lty = rep(gp$lty, length(ir))
 	if(length(gp$lwd) == 1) gp$lwd = rep(gp$lwd, length(ir))
 	if(length(gp$col) == 1) gp$col = rep(gp$col, length(ir))
@@ -1004,8 +1029,9 @@ setMethod(f = "hc_segments",
 		df = data.frame(x = c(x1, x2[length(x2)]), y = c(y1, y2[length(y2)]))
 		grid.lines(df$x, df$y, default.units = "native", 
 			gp = gpar(lwd = gp$lwd[i2], lty = gp$lty[i2], col = gp$col[i2], lineend ="butt", linejoin = "mitre"))
-
+		
 		df$which = rep(i2, nrow(df))
+
 		return(df)
 	})
 
@@ -1320,7 +1346,7 @@ grid_arrows = function(x1, y1, x2, y2, length = unit(2, "mm"), angle = 15, only.
 #
 setMethod(f = "hc_layer",
 	signature = "HilbertCurve",
-	definition = function(object, ir, x1 = NULL, x2 = x1, col = "red", 
+	definition = function(object, ir, x1 = NULL, x2 = x1, col = "red", border = NA,
 	mean_mode = c("w0", "absolute", "weighted"), grid_line = 0,
 	grid_line_col = "black", overlay = default_overlay) {
 

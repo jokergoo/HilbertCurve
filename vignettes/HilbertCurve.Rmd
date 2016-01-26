@@ -512,7 +512,7 @@ hc = HilbertCurve(1, 100, level = 5)
 hc_rect(hc, x1 = 1:99, x2 = 2:100, gp = gpar(col = col, fill = col))
 ```
 
-Reproduce [http://datadrivensecurity.info/blog/posts/2015/Jan/mapping-ipv4-address-in-hilbert-space/](the visualization for IPv4 address). The CIDR data is from http://www.iwik.org/ipcountry/.
+Reproduce [the visualization for IPv4 address](http://datadrivensecurity.info/blog/posts/2015/Jan/mapping-ipv4-address-in-hilbert-space/). The CIDR data is from http://www.iwik.org/ipcountry/.
 
 ```{r, fig.width = 8, fig.height = 7}
 library(ComplexHeatmap)

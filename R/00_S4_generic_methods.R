@@ -26,3 +26,4 @@ setGeneric('unzoom', function(object, ...) standardGeneric('unzoom'))
 setGeneric('hc_segments', function(object, ...) standardGeneric('hc_segments'))
 
 setGeneric('hc_text', function(object, ...) standardGeneric('hc_text'))
+setGeneric('hc_polygon', function(object, ...) standardGeneric('hc_polygon'))
