@@ -384,12 +384,12 @@ setMethod(f = "hc_map",
 		if(object@MODE == "pixel") {
 			hc_layer(object, background, col = fill)
 		} else {
-			hc_rect(hc, background, gp = gpar(fill = fill, col = NA))
+			hc_polygon(hc, background, gp = gpar(fill = fill, col = NA))
 			hc_centered_text(hc, x1 = df[, 1], x2 = df[, 2], labels = labels, gp = labels_gp)
 		}
 	} else {
 		hc = GenomicHilbertCurve(background = background, level = level, ...)
-		hc_rect(hc, background, gp = gpar(fill = fill, col = NA))
+		hc_polygon(hc, background, gp = gpar(fill = fill, col = NA))
 		hc_centered_text(hc, x1 = df[, 1], x2 = df[, 2], labels = labels, gp = labels_gp)
 	}
 	return(invisible(object))
