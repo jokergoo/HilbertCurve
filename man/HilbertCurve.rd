@@ -11,6 +11,7 @@ HilbertCurve(s, e, level = 4, mode = c("normal", "pixel"),
     reference = FALSE, reference_gp = gpar(lty = 3, col = "#999999"),
     arrow = TRUE, zoom = NULL, newpage = TRUE,
     background = "white", title = NULL, title_gp = gpar(fontsize = 16),
+    start_from = c("bottomleft", "topleft", "bottomright", "topright"),
     legend = list())
 }
 \arguments{
@@ -27,6 +28,7 @@ HilbertCurve(s, e, level = 4, mode = c("normal", "pixel"),
   \item{background}{background color, currently please don't modify this value.}
   \item{title}{title of the plot.}
   \item{title_gp}{graphic parameters for the title. It should be specified by \code{\link[grid]{gpar}}.}
+  \item{start_from}{which corner on the plot should the curve starts?}
   \item{legend}{a \code{\link[grid]{grob}} object or a list of \code{\link[grid]{grob}} objects. You can construct a \code{\link[ComplexHeatmap]{ColorMapping-class}} object and generate a legend, see in the Example section.}
 
 }
@@ -61,6 +63,7 @@ Zuguang Gu <z.gu@dkfz.de>
 HilbertCurve(1, 100, reference = TRUE)
 HilbertCurve(1, 100, level = 5)
 HilbertCurve(1, 100, title = "title")
+HilbertCurve(1, 100, start_from = "topleft")
 
 require(ComplexHeatmap)
 cm = ColorMapping(colors = c("red", "blue"), levels = c("a", "b"))

@@ -82,9 +82,6 @@ As shown in the above plots, as level increases, the length of the curve becomes
 more tensely. The number of segments on the Hilbert curve is `4^level - 1`. If a Hilbert curve with level 11 
 is used to map to human chromosome 1, the resolution would be `249250621/4^11` (approximately 60bp).
 
-**Note: for the Hilbert curve which is actually made by HilbertVis package, the axis always starts from left 
-bottom side and ends at the right bottom side.**
-
 ### Locality
 
 Take a Hilbert curve with level 5 for example, assuming there are 1024 data points located on the curve evenly.
@@ -143,6 +140,27 @@ The function returns a `HilbertCurve` class instance and it can be used to add m
 
 ```{r, eval = FALSE}
 hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
+```
+
+By default, the Hilbert curve starts from the bottom left corner. The start position can be specifyed
+by `start_from` option:
+
+```{r, fig.width = 12, fig.height = 3, echo = FALSE}
+grid.newpage()
+pushViewport(viewport(layout = grid.layout(nr = 1, nc = 4)))
+pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 1))
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, newpage = FALSE, start_from = 'bottomleft', title = "start_from = 'bottomleft'")
+upViewport()
+pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 2))
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, newpage = FALSE, start_from = 'topleft', title = "start_from = 'topleft'")
+upViewport()
+pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 3))
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, newpage = FALSE, start_from = 'bottomright', title = "start_from = 'bottomright'")
+upViewport()
+pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 4))
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, newpage = FALSE, start_from = 'topright', title = "start_from = 'topright'")
+upViewport()
+upViewport()
 ```
 
 The curve can be though as a folded axis. When the coordinate for this folded axis is
@@ -229,6 +247,17 @@ hc_rect(hc, ir, gp = gpar(fill = "#FF000080"))
 
 As you can see some rectangles are not full red as well. It is also because of averaging. See **Averaging** 
 sections for explanation.
+
+### Polygons
+
+Basically polygons are quite similar to the rectangles in previous section. The major difference is 1. borders
+can be set for polygons; 2. there is only single colors in one polygon (remember for rectangles, the color can 
+change for the ends of the regions if the corresponding segment is not completely covered by the input region).
+
+```{r}
+hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
+hc_polygon(hc, ir, gp = gpar(fill = "#FF0000", col = "black"))
+```
 
 ### Text
 
@@ -318,6 +347,13 @@ hc = HilbertCurve(1, 100, level = 9, mode = "pixel")
 hc_layer(hc, ir, grid_line = 3)
 ```
 
+Also borders can be drawn by setting `border` to `TRUE` or a vector of colors.
+
+```{r}
+hc = HilbertCurve(1, 100, level = 9, mode = "pixel")
+hc_layer(hc, ir, border = TRUE)
+```
+
 The Hilbert curve can be save as PNG figure by `hc_png()` with resolution `2^level x 2^level`.
 Note only the curve itself is exported.
 
@@ -402,6 +438,11 @@ hc_layer(hc, x1 = 750, x2 = 850, col = "#00000010",
         default_overlay(r0, g0, b0, r, g, b, alpha)
     })
 ```
+
+If above example, actually you can realize such overlay by first split "red" regions into two parts
+by whether they overlap with the "grey" regions. Then add the un-overlapped part, "grey" regions,
+and overlapped regions as three independent layers. But the `overlay` option
+provides an easier way and more straightforward way to do it.
 
 In later section, we will demonstrate using self-defined overlay method can effectively visualize
 the correspondance between H3K36me3 histone mark and gene body.
@@ -791,10 +832,10 @@ Data is from (Database of Genomic Variants, CNV map)[http://dgv.tcag.ca/dgv/app/
 
 ```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
 hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel")
-df = read.table("~/HilbertCurveTest/Stringent.Gain.hg19.2015-02-03.txt", header = TRUE, stringsAsFactors = FALSE)
-hc_layer(hc, df, col = "red")
-df = read.table("~/HilbertCurveTest/Stringent.Loss.hg19.2015-02-03.txt", header = TRUE, stringsAsFactors = FALSE)
-hc_layer(hc, df, col = "green", grid_line = 3, grid_line_col = "grey",
+df_gain = read.table("~/HilbertCurveTest/Stringent.Gain.hg19.2015-02-03.txt", header = TRUE, stringsAsFactors = FALSE)
+hc_layer(hc, df_gain, col = "red")
+df_loss = read.table("~/HilbertCurveTest/Stringent.Loss.hg19.2015-02-03.txt", header = TRUE, stringsAsFactors = FALSE)
+hc_layer(hc, df_loss, col = "green", grid_line = 3, grid_line_col = "grey",
     overlay = function(r0, g0, b0, r, g, b, alpha) {
         l = !(r0 == 1 & g0 == 1 & b0 == 1)
         r[l] = 160/255
@@ -821,6 +862,50 @@ invisible(dev.off())
 ```{r, echo = FALSE, results = "asis"}
 cat("<p><center><img src='map_all_chromosomes.png' /></center></p>\n")
 ```
+
+The map can be overlayed to the first plot so that you only need to look at one plot.
+
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
+hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel")
+hc_layer(hc, df_gain, col = "red")
+hc_layer(hc, df_loss, col = "green", grid_line = 3, grid_line_col = "grey",
+    overlay = function(r0, g0, b0, r, g, b, alpha) {
+        l = !(r0 == 1 & g0 == 1 & b0 == 1)
+        r[l] = 160/255
+        g[l] = 32/255
+        b[l] = 240/255
+        list(r, g, b)
+})
+hc_map(hc, add = TRUE, fill = rand_color(22, transparency = 0.8))
+hc_png(hc, file = 'cnv_all_chromosomes_overlay.png')
+```
+
+```{r, echo = FALSE, results = "asis"}
+cat("<p><center><img src='cnv_all_chromosomes_overlay.png' /></center></p>\n")
+```
+
+If colors of chromosomes sometimes defuse the original plot, you can only draw borders
+of chromosomes.
+
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
+hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel")
+hc_layer(hc, df_gain, col = "red")
+hc_layer(hc, df_loss, col = "green", grid_line = 3, grid_line_col = "grey",
+    overlay = function(r0, g0, b0, r, g, b, alpha) {
+        l = !(r0 == 1 & g0 == 1 & b0 == 1)
+        r[l] = 160/255
+        g[l] = 32/255
+        b[l] = 240/255
+        list(r, g, b)
+})
+hc_map(hc, add = TRUE, border = "black")
+hc_png(hc, file = 'cnv_all_chromosomes_border.png')
+```
+
+```{r, echo = FALSE, results = "asis"}
+cat("<p><center><img src='cnv_all_chromosomes_border.png' /></center></p>\n")
+```
+
 
 If you want to compare several plots simutaneously, you can use `grid.layout()`
 to put them together. Remember to set `newpage` to `FALSE` in `HilbertCurve()` or `GenomicHilbertCurve()`.
@@ -866,17 +951,6 @@ invisible(dev.off())
 
 ```{r, echo = FALSE, results = "asis"}
 cat("<p><center><img src='cnv_compare.png' /></center></p>\n")
-```
-
-The map also can be added as an additional layer to the curve, but you need to be careful that
-the map doesn't affect other graphics too much. (I would suggest overlaping
-the map to the curve is not a good idea.)
-
-```{r}
-hc = GenomicHilbertCurve(chr = paste0("chr", c(1:22, "X", "Y")), level = 6)
-bed = generateRandomBed(1000)
-hc_segments(hc, bed, gp = gpar(col = rand_color(nrow(bed))))
-hc_map(hc, add = TRUE, fill = rand_color(24, transparency = 0.8))
 ```
 
 ## Session info

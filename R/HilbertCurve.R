@@ -56,7 +56,8 @@ HilbertCurve = setClass("HilbertCurve",
 		MODE = "character",
 		RGB = "environment",
 		LEVEL = "integer",
-		OFFSET = "numeric"
+		OFFSET = "numeric",
+		start_from = "character"
 ))
 
 # == title
@@ -209,6 +210,7 @@ setMethod(f = "hc_offset",
 # HilbertCurve(1, 100, reference = TRUE)
 # HilbertCurve(1, 100, level = 5)
 # HilbertCurve(1, 100, title = "title")
+# HilbertCurve(1, 100, start_from = "topleft")
 #
 # require(ComplexHeatmap)
 # cm = ColorMapping(colors = c("red", "blue"), levels = c("a", "b"))
@@ -247,6 +249,7 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 		bottomright = 90,
 		topright = 180)
 	pos = rotate(pos, degree = degree)
+	hc@start_from = start_from
 	n = 4^level  # number of points
 
 	breaks = round(seq(zoom(hc, s), zoom(hc, e), length = n)) 
@@ -673,9 +676,7 @@ setMethod(f = "hc_segmented_points",
         ir = IRanges(start = zoom(object, start(ir)),
                      end = zoom(object, end(ir)))
     }
-
-    col = normalize_gp("col", gp$col, length(ir))
-    fill = normalize_gp("fill", gp$fill, length(ir))
+ 
     if(length(shape) == 1) {
         shape = rep(shape, length(ir))
     }
@@ -706,9 +707,12 @@ setMethod(f = "hc_segmented_points",
     # colors correspond to mean value for each window
     mean_mode = match.arg(mean_mode)[1]
 
-    fill = normalize_gp("fill", gp$fill, length(ir))
+    gp = validate_gpar(gp, default = list(col = "black", fill = "transparent"))
+    if(length(gp$col) == 1) gp$col = rep(gp$col, length(ir))
+    if(length(gp$fill) == 1) gp$fill = rep(gp$fill, length(ir))
+    fill = gp$fill
     rgb_fill = col2rgb(fill, alpha = TRUE)
-    col = normalize_gp("col", gp$col, length(ir))
+    col = gp$col
     rgb_col = col2rgb(col, alpha = TRUE)
 
     rgb_mat = average_in_window(window, ir, mtch, list(rgb_fill[1, ], rgb_fill[2, ], rgb_fill[3, ], rgb_col[1, ], rgb_col[2, ], rgb_col[3, ]), mean_mode, 255)
@@ -1239,7 +1243,7 @@ setMethod(f = "hc_centered_text",
 		pos = object@POS[ind, ]
 		pos = cbind(pos[, 1:2], pos[nrow(pos), 3:4])
 		h1 = hist(pos[, 1], plot = FALSE)
-		i1 = which(h1$counts >= quantile(h1$counts, 0.8))
+		i1 = which(h1$counts >= quantile(h1$counts, 0.6))
 		ind_ir = reduce(IRanges(i1, i1))
 		selected = ind_ir[which.max(width(ind_ir))[1]]
 		i1 = start(selected)
@@ -1247,7 +1251,7 @@ setMethod(f = "hc_centered_text",
 		x = mean(h1$mids[i1:i2])
 
 		h1 = hist(pos[, 2], plot = FALSE)
-		i1 = which(h1$counts >= quantile(h1$counts, 0.8))
+		i1 = which(h1$counts >= quantile(h1$counts, 0.6))
 		ind_ir = reduce(IRanges(i1, i1))
 		selected = ind_ir[which.max(width(ind_ir))[1]]
 		i1 = start(selected)
@@ -1302,6 +1306,7 @@ grid_arrows = function(x1, y1, x2, y2, length = unit(2, "mm"), angle = 15, only.
 # -x1 if start positions are not integers, they can be set by ``x1``.
 # -x2 if end positions are not integers, they can be set by ``x2``.
 # -col colors corresponding to intervals in ``ir`` (or ``x1`` and ``x2``).
+# -border colors for the borders of every regions. Set it to ``NA`` if borders are suppressed.
 # -mean_mode when a segment in the curve can not be overlapped with intervals in ``ir``, how to calculate 
 #       the mean values for this segment. See explanation in `hc_points,HilbertCurve-method`.
 # -grid_line whether add grid lines to show blocks of the Hilber curve. 
@@ -1343,6 +1348,9 @@ grid_arrows = function(x1, y1, x2, y2, length = unit(2, "mm"), angle = 15, only.
 #
 # hc = HilbertCurve(1, 100, level = 9, mode = "pixel")
 # hc_layer(hc, ir, grid_line = 3)
+#
+# hc = HilbertCurve(1, 100, level = 9, mode = "pixel")
+# hc_layer(hc, ir, border = "black")
 #
 setMethod(f = "hc_layer",
 	signature = "HilbertCurve",
@@ -1421,11 +1429,13 @@ setMethod(f = "hc_layer",
 	object@RGB$green[ind] = lt[[2]]
 	object@RGB$blue[ind] = lt[[3]]
 
-	if(is.logical(border)) {
-		if(border) {
-			border = "black"
-		} else {
-			border = NA
+	if(length(border) == 1) {
+		if(is.logical(border) && !is.na(border)) {
+			if(border) {
+				border = "black"
+			} else {
+				border = NA
+			}
 		}
 	}
 	if(!is.na(border)) {
@@ -1465,7 +1475,7 @@ setMethod(f = "hc_layer",
 			}
 
 			df = data.frame(x = pos$x1, y = pos$y1)
-			is_border = which_border(df$x, df$y, hc_level(hc)^2)
+			is_border = which_border(df$x, df$y, hc_level(object)^2)
 
 			is_border = is_border$left_border | is_border$right_border | is_border$top_border | is_border$bottom_border
 			border_df = df[is_border, , drop = FALSE]

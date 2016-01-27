@@ -8,7 +8,7 @@ Draw a map which represents positions of different genomic categories on the cur
 Draw a map which represents positions of different genomic categories on the curve
 }
 \usage{
-\S4method{hc_map}{GenomicHilbertCurve}(object, level = 7, fill = NULL,
+\S4method{hc_map}{GenomicHilbertCurve}(object, level = 7, fill = NULL, border = NA,
     labels = names(object@background), labels_gp = gpar(),
     add = FALSE, ...)
 }
@@ -17,6 +17,7 @@ Draw a map which represents positions of different genomic categories on the cur
   \item{object}{a \code{\link{GenomicHilbertCurve-class}} object}
   \item{level}{Since a map does not need to have high resolution, a value of around 6 would be enough.  If \code{add} is set to \code{TRUE}, \code{level} will be enforced to have the same level in the current Hilbert curve.}
   \item{fill}{colors for different genomic categories (current you cannot adjust the style of the borders)}
+  \item{border}{colors for the borders of every regions. Set it to \code{NA} if borders are suppressed.}
   \item{labels}{label for each genomic category. By default, if the category is unique for different chromosome, the label will be the chromosome name, or else they will be the combination of chromosme names and positions. It is ignored if the curve is under 'pixel' mode.}
   \item{labels_gp}{graphic settings for labels}
   \item{add}{whether add the map to the current curve or draw it in a new graphic device. Notice if \code{add} is set to \code{TRUE}, you should set \code{fill} with transparency so that it will not hide your original plot.}

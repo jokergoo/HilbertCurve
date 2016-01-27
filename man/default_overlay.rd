@@ -7,7 +7,7 @@ Default overlay for adding new layers
 Default overlay for adding new layers
 }
 \usage{
-default_overlay(r0, g0, b0, r, g, b, alpha = rep(1, length(r0)))
+default_overlay(r0, g0, b0, r, g, b, alpha = 1)
 }
 \arguments{
 
