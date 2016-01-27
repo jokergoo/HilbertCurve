@@ -10,23 +10,23 @@ which_border = function(x, y, n) {
 	max_y_pos = max(y)
 
 	mat = matrix(NA, nrow = max_x_pos - min_x_pos + 1 + 2,
-		             ncol = max_y_pos - min_x_pos + 1 + 2)
+		             ncol = max_y_pos - min_y_pos + 1 + 2)
 
 	x = x - min_x_pos + 1 + 1 # start from 2
 	y = y - min_y_pos + 1 + 1
 	
-	nc = ncol(mat)
-	ind = x + (y - 1) * nc
+	nr = nrow(mat)
+	ind = x + (y - 1) * nr
 	mat[ind] = 1
 
-	left_x = mat[x - 1 + (y - 1)*nc]
-	left_y = mat[x     + (y - 1)*nc]
-	right_x = mat[x + 1 + (y - 1)*nc]
-	right_y = mat[x     + (y - 1)*nc]
-	bottom_x = mat[x + (y - 1)*nc]
-	bottom_y = mat[x + (y - 1 - 1)*nc]
-	top_x = mat[x + (y - 1)*nc]
-	top_y = mat[x + (y - 1 + 1)*nc]
+	left_x = mat[x - 1 + (y - 1)*nr]
+	left_y = mat[x     + (y - 1)*nr]
+	right_x = mat[x + 1 + (y - 1)*nr]
+	right_y = mat[x     + (y - 1)*nr]
+	bottom_x = mat[x + (y - 1)*nr]
+	bottom_y = mat[x + (y - 1 - 1)*nr]
+	top_x = mat[x + (y - 1)*nr]
+	top_y = mat[x + (y - 1 + 1)*nr]
 
 	return(list(left_border = is.na(left_x) | is.na(left_y),
 		        right_border = is.na(right_x) | is.na(right_y),

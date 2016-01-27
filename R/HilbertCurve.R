@@ -309,10 +309,10 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 		upViewport()
 	}
 
+	size = unit(1, "snpc")
 	pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 1))
 	grid.rect(gp = gpar(fill = background, col = NA))
 
-	size = min(unit.c(convertHeight(unit(1, "npc"), "mm"), convertWidth(unit(1, "npc"), "mm")))
 	pushViewport(viewport(name = paste0("hilbert_curve_", get_plot_index()), xscale = c(-0.5, 2^level - 0.5), yscale = c(-0.5, sqrt(n)-0.5), width = size, height = size))
 	
 	reference_gp = validate_gpar(reference_gp, default = list(lty = 3, col = "#999999"))
@@ -1421,6 +1421,70 @@ setMethod(f = "hc_layer",
 	object@RGB$green[ind] = lt[[2]]
 	object@RGB$blue[ind] = lt[[3]]
 
+	if(is.logical(border)) {
+		if(border) {
+			border = "black"
+		} else {
+			border = NA
+		}
+	}
+	if(!is.na(border)) {
+		rp = pintersect(window[mtch[,1]], ir[mtch[,2]])
+		if(length(border) == 1) border = rep(border, length(ir))
+
+		mean_bin_width = mean(width(object@BINS))
+		tapply(seq_len(nrow(mtch)), mtch[, 2], function(ind) {
+			i1 = mtch[ind, 1]  ## index for BINS
+			i2 = mtch[ind[1], 2]  ## index for ir
+			n = length(ind)
+
+			rp = rp[ind]  # intersected part
+			r1 = object@BINS[i1]  # BIN part
+			pos = object@POS[i1, ,drop = FALSE]  # pos on  the 2D space
+
+			removed_index = NULL
+			if(width(rp)[1] < mean_bin_width/2) {
+				removed_index = c(removed_index, 1)
+			} else {
+				start(rp[1]) = start(r1[1])
+			}
+			if(width(rp)[n] < mean_bin_width/2) {
+				removed_index = c(removed_index, n)
+			} else {
+				end(rp[n]) = end(r1[n])
+			}
+			if(length(removed_index)) {
+				removed_index = unique(removed_index)
+				rp = rp[-removed_index]
+				r1 = r1[-removed_index]
+				pos = pos[-removed_index, , drop = FALSE]
+			}
+
+			if(length(rp) == 0) {
+				return(NULL)
+			}
+
+			df = data.frame(x = pos$x1, y = pos$y1)
+			is_border = which_border(df$x, df$y, hc_level(hc)^2)
+
+			is_border = is_border$left_border | is_border$right_border | is_border$top_border | is_border$bottom_border
+			border_df = df[is_border, , drop = FALSE]
+
+			ind = border_df$y + 1 + (border_df$x + 1 - 1)*nrow(object@RGB$red)
+
+			border_rgb = col2rgb(border[i2], alpha = TRUE)[, 1]/255
+			
+			lt = overlay(object@RGB$red[ind],
+				         object@RGB$green[ind],
+				         object@RGB$blue[ind],
+				         border_rgb[1], border_rgb[2], border_rgb[3], border_rgb[4])
+			object@RGB$red[ind] = lt[[1]]
+			object@RGB$green[ind] = lt[[2]]
+			object@RGB$blue[ind] = lt[[3]]
+			
+		})
+	}
+
 	grid_line = as.integer(grid_line)
 	if(grid_line > object@LEVEL) {
 		stop("`grid_line` can not exceed the level of the curve.")
@@ -1550,7 +1614,7 @@ add_raster = function(lt_rgb) {
 # == example
 # # red (1, 0, 0) overlay to the grey (0.5, 0.5, 0.5) with 0.5 transparency
 # default_overlay(1, 0, 0, 0.5, 0.5, 0.5, 0.5)
-default_overlay = function(r0, g0, b0, r, g, b, alpha = rep(1, length(r0))) {
+default_overlay = function(r0, g0, b0, r, g, b, alpha = 1) {
 	list(r = r*alpha + r0*(1-alpha),
 		 g = g*alpha + g0*(1-alpha),
 		 b = b*alpha + b0*(1-alpha))
