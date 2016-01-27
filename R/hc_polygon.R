@@ -86,15 +86,24 @@ setMethod(f = "hc_polygon",
 		} else {
 			x1 = hc_offset(object, x1)
 			x2 = hc_offset(object, x2)
-			ir = IRanges(start = round(zoom(object, x1)),
-				         end = round(zoom(object, x2)))
+			start = round(zoom(object, x1))
+			end = round(zoom(object, x2))
+			if(length(start) > 1) {
+				l = start[2:length(start)] == end[1:(length(end)-1)] & x2[2:length(start)] > x1[1:(length(end)-1)]
+				start[which(l) + 1] = start[which(l) + 1] + 1
+			}
 		}
 	} else {
 		ir = IRanges(hc_offset(object, start(ir)),
 			         hc_offset(object, end(ir)))
-		ir = IRanges(start = zoom(object, start(ir)),
-	                 end = zoom(object, end(ir)))
+		start = zoom(object, start(ir))
+	    end = zoom(object, end(ir))
+	    if(length(start) > 1) {
+			l = start[2:length(start)] == end[1:(length(end)-1)] & start(ir)[2:length(start)] > end(ir)[1:(length(end)-1)]
+			start[which(l) + 1] = start[which(l) + 1] + 1
+		}
 	}
+	ir = IRanges(start = start, end = end)
 
 	gp = validate_gpar(gp, default = list(lty = 1, lwd = 1, col = 1, fill = "transparent"))
 
@@ -173,12 +182,15 @@ setMethod(f = "hc_polygon",
 		x2 = pos$x2 - (pos$x2 - pos$x1)*(er1 - er)/(er1 - sr1)
 		y2 = pos$y2 - (pos$y2 - pos$y1)*(er1 - er)/(er1 - sr1)
 
-		df = data.frame(x = c(x1, x2[length(x2)]), y = c(y1, y2[length(y2)]))
-
+		if(max(i1) == length(object@BINS)) {
+			df = data.frame(x = c(pos$x1, pos$x2[nrow(pos)]), y = c(pos$y1, pos$y2[nrow(pos)]))
+		} else {
+			df = data.frame(x = c(pos$x1), y = c(pos$y1))
+		}
 		grid.rect(df$x, df$y, width = 1, height = 1, default.units = "native", gp = gpar(fill = gp$fill[i2], 
 			col = NA, lineend = "butt", linejoin = "mitre"))
 
-		border = which_border(df$x, df$y, hc_level(hc)^2)
+		border = which_border(df$x, df$y, hc_level(object)^2)
 		l = border$left_border
 		if(sum(l)) grid.segments(df$x[l] - 0.5, df$y[l] - 0.5, df$x[l] - 0.5, df$y[l] + 0.5, default.units = "native",
 			gp = gpar(lwd = gp$lwd[i2], lty = gp$lty[i2], col = gp$col[i2], lineend ="butt", linejoin = "mitre"))

@@ -136,6 +136,9 @@ setMethod(f = "hc_points",
 	if(is.data.frame(gr)) {
 		gr = GRanges(seqnames = gr[[1]], ranges = IRanges(gr[[2]], gr[[3]]))
 	}
+	if(!inherits(gr, "GRanges")) {
+		stop("`gr` should be a `GRanges` object or a data frame.")
+	}
 
 	mtch = as.matrix(findOverlaps(gr, object@background))
 	gr = gr[mtch[, 1]]
@@ -185,6 +188,9 @@ setMethod(f = "hc_rect",
 	if(is.data.frame(gr)) {
 		gr = GRanges(seqnames = gr[[1]], ranges = IRanges(gr[[2]], gr[[3]]))
 	}
+	if(!inherits(gr, "GRanges")) {
+		stop("`gr` should be a `GRanges` object or a data frame.")
+	}
 
 	mtch = as.matrix(findOverlaps(gr, object@background))
 	gr = gr[mtch[, 1]]
@@ -225,6 +231,9 @@ setMethod(f = "hc_segments",
 
 	if(is.data.frame(gr)) {
 		gr = GRanges(seqnames = gr[[1]], ranges = IRanges(gr[[2]], gr[[3]]))
+	}
+	if(!inherits(gr, "GRanges")) {
+		stop("`gr` should be a `GRanges` object or a data frame.")
 	}
 
 	mtch = as.matrix(findOverlaps(gr, object@background))
@@ -270,6 +279,9 @@ setMethod(f = "hc_text",
 	if(is.data.frame(gr)) {
 		gr = GRanges(seqnames = gr[[1]], ranges = IRanges(gr[[2]], gr[[3]]))
 	}
+	if(!inherits(gr, "GRanges")) {
+		stop("`gr` should be a `GRanges` object or a data frame.")
+	}
 
 	mtch = as.matrix(findOverlaps(gr, object@background))
 	gr = gr[mtch[, 1]]
@@ -283,12 +295,60 @@ setMethod(f = "hc_text",
 })
 
 # == title
+# Add text to Hilbert curve
+#
+# == param
+# -object a `GenomicHilbertCurve-class` object
+# -gr a `GenomicRanges::GRanges` object which contains the genomic regions to be mapped to the curve
+# -gp pass to `hc_text,HilbertCurve-method`
+# -end_type pass to `hc_text,HilbertCurve-method`
+# -... pass to `hc_text,HilbertCurve-method`
+#
+# == details
+# It is basically a wrapper of `hc_polygon,HilbertCurve-method`.
+#
+# == value
+# Refer to `hc_polygon,HilbertCurve-method`
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
+# == example
+# require(circlize)
+# bed = generateRandomBed(nr = 20)
+# gr = GRanges(seqnames = bed[[1]], ranges = IRanges(bed[[2]], bed[[3]]))
+# hc = GenomicHilbertCurve()
+# hc_polygon(hc, gr)
+#
+setMethod(f = "hc_polygon",
+	signature = "GenomicHilbertCurve",
+	definition = function(object, gr, gp = gpar(), 
+		end_type = c("average", "expanding", "shrinking"), ...) {
+
+	if(is.data.frame(gr)) {
+		gr = GRanges(seqnames = gr[[1]], ranges = IRanges(gr[[2]], gr[[3]]))
+	}
+	if(!inherits(gr, "GRanges")) {
+		stop("`gr` should be a `GRanges` object or a data frame.")
+	}
+
+	mtch = as.matrix(findOverlaps(gr, object@background))
+	gr = gr[mtch[, 1]]
+	gp = recycle_gp(gp, length(gr))
+	gp = subset_gp(gp, mtch[, 1])
+	df = merge_into_one_chr(gr, object@background)
+
+	callNextMethod(object, x1 = df[,1], x2 = df[,2], gp = gp, end_type = end_type)
+})
+
+# == title
 # Add a new layer to the Hilbert curve
 #
 # == param
 # -object a `GenomicHilbertCurve-class` object
 # -gr a `GenomicRanges::GRanges` object which contains the genomic regions to be mapped to the curve
 # -col pass to `hc_layer,HilbertCurve-method`
+# -border colors for the borders of every regions. Set it to ``NA`` if borders are suppressed.
 # -mean_mode pass to `hc_layer,HilbertCurve-method`
 # -grid_line pass to `hc_layer,HilbertCurve-method`
 # -grid_line_col pass to `hc_layer,HilbertCurve-method`
@@ -312,12 +372,15 @@ setMethod(f = "hc_text",
 #
 setMethod(f = "hc_layer",
 	signature = "GenomicHilbertCurve",
-	definition = function(object, gr, col = "red", 
+	definition = function(object, gr, col = "red", border = NA,
 	mean_mode = c("w0", "absolute", "weighted"), grid_line = 0,
 	grid_line_col = "black", overlay = default_overlay) {
 
 	if(is.data.frame(gr)) {
 		gr = GRanges(seqnames = gr[[1]], ranges = IRanges(gr[[2]], gr[[3]]))
+	}
+	if(!inherits(gr, "GRanges")) {
+		stop("`gr` should be a `GRanges` object or a data frame.")
 	}
 
 	mtch = as.matrix(findOverlaps(gr, object@background))
@@ -327,7 +390,7 @@ setMethod(f = "hc_layer",
 
 	df = merge_into_one_chr(gr, object@background)
 
-	callNextMethod(object, x1 = df[,1], x2 = df[,2], col = col, mean_mode = mean_mode, 
+	callNextMethod(object, x1 = df[,1], x2 = df[,2], col = col, border = border, mean_mode = mean_mode, 
 		grid_line = grid_line, grid_line_col = grid_line_col, overlay = overlay)
 })
 
@@ -339,6 +402,7 @@ setMethod(f = "hc_layer",
 # -level Since a map does not need to have high resolution, a value of around 6 would be enough. 
 #        If ``add`` is set to ``TRUE``, ``level`` will be enforced to have the same level in the current Hilbert curve.
 # -fill colors for different genomic categories (current you cannot adjust the style of the borders)
+# -border colors for the borders of every regions. Set it to ``NA`` if borders are suppressed.
 # -labels label for each genomic category. By default, if the category is unique for different chromosome,
 #          the label will be the chromosome name, or else they will be the combination of chromosme names and positions.
 #          It is ignored if the curve is under 'pixel' mode.
@@ -370,7 +434,7 @@ setMethod(f = "hc_layer",
 # hc_map(hc, fill = rand_color(24))
 setMethod(f = "hc_map",
 	signature = "GenomicHilbertCurve",
-	definition = function(object, level = 7, fill = NULL, 
+	definition = function(object, level = 7, fill = NULL, border = NA,
 	labels = names(object@background), labels_gp = gpar(),
 	add = FALSE, ...) {
 
@@ -382,14 +446,14 @@ setMethod(f = "hc_map",
 	}
 	if(add) {
 		if(object@MODE == "pixel") {
-			hc_layer(object, background, col = fill)
+			hc_layer(object, background, col = fill, border = border)
 		} else {
-			hc_polygon(hc, background, gp = gpar(fill = fill, col = NA))
-			hc_centered_text(hc, x1 = df[, 1], x2 = df[, 2], labels = labels, gp = labels_gp)
+			hc_polygon(object, background, gp = gpar(fill = fill, col = border))
+			hc_centered_text(object, x1 = df[, 1], x2 = df[, 2], labels = labels, gp = labels_gp)
 		}
 	} else {
-		hc = GenomicHilbertCurve(background = background, level = level, ...)
-		hc_polygon(hc, background, gp = gpar(fill = fill, col = NA))
+		hc = GenomicHilbertCurve(background = background, level = level, start_from = object@start_from, ...)
+		hc_polygon(hc, background, gp = gpar(fill = fill, col = border))
 		hc_centered_text(hc, x1 = df[, 1], x2 = df[, 2], labels = labels, gp = labels_gp)
 	}
 	return(invisible(object))
@@ -410,25 +474,4 @@ merge_into_one_chr = function(gr, background) {
 	x1 = start(gr) + term[as.vector(gr$category)]
 	x2 = end(gr) + term[as.vector(gr$category)]
 	return(data.frame(x1, x2))
-}
-
-
-recycle_gp = function(gp, n = 1) {
-	g = lapply(gp, function(x) {
-		if(length(x) == 1 && n > 1) {
-			rep(x, n)
-		} else {
-			x
-		}
-	})
-	class(g) = "gpar"
-	return(g)
-}
-
-subset_gp = function(gp, i = 1) {
-	g = lapply(gp, function(x) {
-		x[i]
-	})
-	class(g) = "gpar"
-	return(g)
 }

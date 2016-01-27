@@ -7,7 +7,7 @@ Add a new layer to the Hilbert curve
 Add a new layer to the Hilbert curve
 }
 \usage{
-\S4method{hc_layer}{HilbertCurve}(object, ir, x1 = NULL, x2 = x1, col = "red",
+\S4method{hc_layer}{HilbertCurve}(object, ir, x1 = NULL, x2 = x1, col = "red", border = NA,
     mean_mode = c("w0", "absolute", "weighted"), grid_line = 0,
     grid_line_col = "black", overlay = default_overlay)
 }
@@ -18,6 +18,7 @@ Add a new layer to the Hilbert curve
   \item{x1}{if start positions are not integers, they can be set by \code{x1}.}
   \item{x2}{if end positions are not integers, they can be set by \code{x2}.}
   \item{col}{colors corresponding to intervals in \code{ir} (or \code{x1} and \code{x2}).}
+  \item{border}{colors for the borders of every regions. Set it to \code{NA} if borders are suppressed.}
   \item{mean_mode}{when a segment in the curve can not be overlapped with intervals in \code{ir}, how to calculate  the mean values for this segment. See explanation in \code{\link{hc_points,HilbertCurve-method}}.}
   \item{grid_line}{whether add grid lines to show blocks of the Hilber curve.  It should be an integer number and there will be \code{2^(grid_line-1)-1} grid lines horizontal and vertical.}
   \item{grid_line_col}{color for the grid lines}
@@ -50,4 +51,7 @@ hc_layer(hc, ir)
 
 hc = HilbertCurve(1, 100, level = 9, mode = "pixel")
 hc_layer(hc, ir, grid_line = 3)
+
+hc = HilbertCurve(1, 100, level = 9, mode = "pixel")
+hc_layer(hc, ir, border = "black")
 }
