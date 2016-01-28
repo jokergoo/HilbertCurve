@@ -39,16 +39,24 @@ which_border = function(x, y, n) {
 #
 # == param
 # -object A `HilbertCurve-class` object.
-# -ir a `IRanges::IRanges` object.
+# -ir a `IRanges::IRanges` object which specifies the input intervals.
 # -x1 if start positions are not integers, they can be set by ``x1``.
 # -x2 if end positions are not integers, they can be set by ``x2``.
-# -gp graphic parameters for lines. It should be specified by `grid::gpar`.
-# -end_type since two ends of a continuous curve do not necessary completely overlap with 
-#      the hilbert curve segments, this argument determines how to include the
-#      ends of the curve. ``average``: if the end covers more than half of the segment,
+# -gp graphic parameters. It should be specified by `grid::gpar`.
+# -end_type since two ends of a continuous interval do not necessarily completely overlap with 
+#      the hilbert curve segments, this argument controls how to determine the
+#      ends of the interval which will be presented on the curve. 
+#      ``average``: if the end covers more than half of the segment,
 #      the whole segment is included and if the end covers less than half of hte segment,
-#      the segment is removed; ``expanding``: segments are included as long as they overlap;
+#      the segment is removed; ``expanding``: segments are included as long as they are overlapped;
 #      ``shrinking``: segments are removed if they are not completely covered.
+#
+# == detail
+# Drawing polygons are quite similar as drawing rectangles in the context of Hilbert curve.
+# The major difference is: 1) Colors for the ends of the interval can change if they are not completely
+# covered by the segments, and 2) polygons can have borders.
+#
+# Basically polygons are used to mark areas in the Hilbert curve.
 #
 # == value
 # No value is returned.

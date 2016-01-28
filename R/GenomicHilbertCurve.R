@@ -14,9 +14,13 @@
 # - `hc_points,GenomicHilbertCurve-method`: add points;
 # - `hc_segments,GenomicHilbertCurve-method`: add lines;
 # - `hc_rect,GenomicHilbertCurve-method`: add rectangles;
+# - `hc_polygon,GenomicHilbertCurve-method`: add poygons;
 # - `hc_text,GenomicHilbertCurve-method`: add text;
 # - `hc_layer,GenomicHilbertCurve-method`: add layers undel "pixel" mode;
 # - `hc_map,GenomicHilbertCurve-method`: show the map of different categories on the curve.
+#
+# The usage of above functions are almost same as those functions for the `HilbertCurve-class`
+# except that the second argument which specifies the intervals should be a `GenomicRanges::GRanges` object.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -434,16 +438,14 @@ setMethod(f = "hc_layer",
 # hc_map(hc, fill = rand_color(24))
 setMethod(f = "hc_map",
 	signature = "GenomicHilbertCurve",
-	definition = function(object, level = 7, fill = NULL, border = NA,
+	definition = function(object, level = 7, 
+	fill = rand_color(length(background), transparency = 0.5), border = NA,
 	labels = names(object@background), labels_gp = gpar(),
 	add = FALSE, ...) {
 
 	background = object@background
 	df = merge_into_one_chr(background, object@background)
 
-	if(is.null(fill)) {
-		fill = rand_color(length(background), transparency = 0.5)
-	}
 	if(add) {
 		if(object@MODE == "pixel") {
 			hc_layer(object, background, col = fill, border = border)

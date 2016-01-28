@@ -592,17 +592,35 @@ Duration of Chinese dynasties. Data from http://www.360doc.com/content/11/1123/0
 ```{r, eval = FALSE}
 # Following code does not run when building the vignette due to different font family for
 # Chinese in different OS.
-load(system.file("extdata", "chinese_dynasty.RData", package = "HilbertCurve"), )
+load(system.file("extdata", "chinese_dynasty.RData", package = "HilbertCurve"))
+
+detect_os = function() {
+    if (grepl('w|W', .Platform$OS.type)) {
+        os = "Windows"
+    } else {
+        if (grepl('darwin', version$os)) {
+            os = "Mac"
+        } else {
+            os = "Linux"
+        }
+    }
+    return(os)
+}
+
+fontfamily = switch(detect_os(),
+    Windows = "SimSun",
+    Mac = "ST Song",
+    Linux = "Songti SC")
 
 hc = HilbertCurve(min(chinese_dynasty[[2]]), max(chinese_dynasty[[3]]), 
     title = "Chinese dynasty (1122 B.C. ~ 1911 A.D.)", 
-    title_gp = gpar(fontsize = 16, fontfamily = "Songti SC"))
+    title_gp = gpar(fontsize = 16, fontfamily = fontfamily))
 hc_segments(hc, x1 = chinese_dynasty[[2]], x2 = chinese_dynasty[[3]], 
     gp = gpar(col = rand_color(nrow(chinese_dynasty), transparency = 0.2), 
         lwd = runif(nrow(chinese_dynasty), min = 1, max = 10)))
 hc_text(hc, x1 = chinese_dynasty[[2]], x2 = chinese_dynasty[[3]], labels = chinese_dynasty[[1]], 
     gp = gpar(fontsize = (chinese_dynasty[[3]] - chinese_dynasty[[2]])/500 * 10 + 8, 
-        fontfamily = "Songti SC"))
+        fontfamily = fontfamily)
 ```
 
 <p><center><img src = "chinese_dynasty.png" /></center></p>
@@ -868,7 +886,7 @@ The map can be overlayed to the first plot so that you only need to look at one 
 ```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
 hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel")
 hc_layer(hc, df_gain, col = "red")
-hc_layer(hc, df_loss, col = "green", grid_line = 3, grid_line_col = "grey",
+hc_layer(hc, df_loss, col = "green", 
     overlay = function(r0, g0, b0, r, g, b, alpha) {
         l = !(r0 == 1 & g0 == 1 & b0 == 1)
         r[l] = 160/255
@@ -890,7 +908,7 @@ of chromosomes.
 ```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
 hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel")
 hc_layer(hc, df_gain, col = "red")
-hc_layer(hc, df_loss, col = "green", grid_line = 3, grid_line_col = "grey",
+hc_layer(hc, df_loss, col = "green",
     overlay = function(r0, g0, b0, r, g, b, alpha) {
         l = !(r0 == 1 & g0 == 1 & b0 == 1)
         r[l] = 160/255
@@ -898,7 +916,7 @@ hc_layer(hc, df_loss, col = "green", grid_line = 3, grid_line_col = "grey",
         b[l] = 240/255
         list(r, g, b)
 })
-hc_map(hc, add = TRUE, border = "black")
+hc_map(hc, add = TRUE, fill = NA, border = "grey")
 hc_png(hc, file = 'cnv_all_chromosomes_border.png')
 ```
 
@@ -915,7 +933,7 @@ png('cnv_compare.png', width = 800, height = 800)
 plot_curve = function(column, ...) {
     cm = ColorMapping(levels = c("gain", "loss", "both"), color = c("red", "green", "purple"))
     hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel",
-        title = qq("CNV for @{column}"), ...)
+        title = qq("CNV for @{column}"), ...)  ## `qq()` is from the GetoptLong package
 
     df = read.table("~/HilbertCurveTest/Stringent.Gain.hg19.2015-02-03.txt", header = TRUE, stringsAsFactors = FALSE)
     df = df[df[[column]] > 0, , drop = FALSE]
@@ -923,7 +941,7 @@ plot_curve = function(column, ...) {
 
     df = read.table("~/HilbertCurveTest/Stringent.Loss.hg19.2015-02-03.txt", header = TRUE, stringsAsFactors = FALSE)
     df = df[df[[column]] > 0, , drop = FALSE]
-    hc_layer(hc, df, col = "green", grid_line = 3, grid_line_col = "grey",
+    hc_layer(hc, df, col = "green", 
         overlay = function(r0, g0, b0, r, g, b, alpha) {
             l = !(r0 == 1 & g0 == 1 & b0 == 1)
             r[l] = 160/255
@@ -931,6 +949,7 @@ plot_curve = function(column, ...) {
             b[l] = 240/255
             list(r, g, b)
     })
+    hc_map(hc, add = TRUE, fill = NA, border = "grey")
 }
 
 pn = c("African", "Asian", "European")

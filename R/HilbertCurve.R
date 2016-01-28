@@ -34,6 +34,7 @@ increase_plot_index = function() {
 # - `hc_points,HilbertCurve-method`: add points;
 # - `hc_segments,HilbertCurve-method`: add lines;
 # - `hc_rect,HilbertCurve-method`: add rectangles;
+# - `hc_polygon,HilbertCurve-method`: add polygons;
 # - `hc_text,HilbertCurve-method`: add text;
 # - `hc_layer,HilbertCurve-method`: add layers, works under "pixel" mode;
 # - `hc_png,HilbertCurve-method`: save plot as PNG format, works under "pixel" mode.
@@ -154,14 +155,14 @@ setMethod(f = "hc_offset",
 # Initialize a Hilbert curve
 #
 # == param
-# -s position that will be mapped to the start of the Hilbert curve.
-# -e position that will be mapped to the end of the Hilbert curve.
+# -s position that will be mapped as the start of the Hilbert curve.
+# -e position that will be mapped as the end of the Hilbert curve.
 # -level level of the Hilbert curve. There will by ``4^level - 1`` segments in the curve.
 # -mode "normal" mode is used for low ``level`` value and "pixel" mode is always used for high ``level`` value,
 #       so the "normal" mode is always for low-resolution visualization while "pixel" mode is used for high-resolution visualization.
 #       See 'details' for explanation.
 # -reference whether add reference line on the plot. Only works under 'normal' mode. The reference line
-#            is only used for letting users know how the curve folds.
+#            is only used for illustrating how the curve folds.
 # -reference_gp graphic settings for the reference line. It should be specified by `grid::gpar`.
 # -arrow whether add arrows on the reference line. Only works under 'normal' mode.
 # -zoom Internally, position are stored as integer values. To better map the data to the Hilbert curve, 
@@ -172,24 +173,27 @@ setMethod(f = "hc_offset",
 #       to the curve with more accuracy. You don't need to care the zooming thing, 
 #       proper zooming factor is calculated automatically.
 # -newpage whether call `grid::grid.newpage` to draw on a new graphic device.
-# -background background color, currently please don't modify this value.
+# -background_col background color.
 # -title title of the plot.
 # -title_gp graphic parameters for the title. It should be specified by `grid::gpar`.
 # -start_from which corner on the plot should the curve starts?
 # -legend a `grid::grob` object or a list of `grid::grob` objects. You can construct a `ComplexHeatmap::ColorMapping-class`
-#         object and generate a legend, see in the Example section.
+#         object and generate a legend, see the Example section.
 #
 # == details
 # This funciton initializes a Hilbert curve with level ``level`` which corresponds 
 # to the range between ``s`` and ``e``.
 #
 # Under 'normal' mode, there is a visible Hilbert curve which plays like a folded axis and
-# different low-level graphics can be added on according to the coordinate. 
-# It only works nice if the level of the Hilbert curve is small (say less than 6). 
+# different low-level graphics can be added afterwards according to the coordinates. 
+# It works nice if the level of the Hilbert curve is small (say less than 6). 
 #
 # When the level is high (e.g. > 10), the whole 2D space will be almost completely filled by the curve and
 # it is impossible to add or visualize e.g. points on the curve. In this case, the 'pixel'
-# mode visualizes each tiny 'segment' as a pixel and maps values to colors. So the Hilbert
+# mode visualizes each tiny 'segment' as a pixel and maps values to colors. Internally, the whole plot
+# is represented as an RGB matrix and every time a new layer is added to the plot, the RGB matrix
+# will be updated according to the color overlay. When all the layers are added, normally a PNG figure is generated
+# directly from the RGB matrix. So the Hilbert
 # curve with level 11 will generate a PNG figure with 2048x2048 resolution. This is extremely
 # useful for visualize genomic data. E.g. If we make a Hilbert curve for human chromosome 1 with
 # level 11, then each pixel can represent 60bp (``249250621/2048/2048``) which is of very high resolution.
@@ -197,6 +201,19 @@ setMethod(f = "hc_offset",
 # Under 'pixel' mode, if the current device is an interactive deivce, every time a new layer is added, 
 # the image will be add to the interactive device as a rastered image. But still you can use `hc_png,HilbertCurve-method`
 # to export the plot as PNG file.
+#
+# To make it short and clear, under "normal" mode, you use following low-level graphic functions:
+# 
+# - `hc_points,HilbertCurve-method`
+# - `hc_segments,HilbertCurve-method`
+# - `hc_rect,HilbertCurve-method`
+# - `hc_polygon,HilbertCurve-method`
+# - `hc_text,HilbertCurve-method`
+#
+# And under "pixel" mode, you can use following functions:
+#
+# - `hc_layer,HilbertCurve-method`
+# - `hc_png,HilbertCurve-method`
 #
 # Notice, ``s`` and ``e`` are not necessarily to be integers, it can be any values (e.g. numeric or even negative values).
 #
@@ -212,15 +229,26 @@ setMethod(f = "hc_offset",
 # HilbertCurve(1, 100, title = "title")
 # HilbertCurve(1, 100, start_from = "topleft")
 #
+# # plot with one legend
 # require(ComplexHeatmap)
 # cm = ColorMapping(colors = c("red", "blue"), levels = c("a", "b"))
 # legend = color_mapping_legend(cm, plot = FALSE, title = "foo")
 # hc = HilbertCurve(1, 100, title = "title", legend = legend)
 # hc_segments(hc, x1 = 20, x2 = 40)
+#
+# # plot with more than one legend
+# require(circlize)
+# cm1 = ColorMapping(colors = c("red", "blue"), levels = c("a", "b"))
+# legend1 = color_mapping_legend(cm1, plot = FALSE, title = "foo")
+# cm2 = ColorMapping(col_fun = colorRamp2(c(-1, 0, 1), c("green", "white", "red")))
+# legend2 = color_mapping_legend(cm2, plot = FALSE, title = "bar")
+# hc = HilbertCurve(1, 100, title = "title", legend = list(foo, bar))
+# hc_segments(hc, x1 = 20, x2 = 40)
+#
 HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 	reference = FALSE, reference_gp = gpar(lty = 3, col = "#999999"), 
 	arrow = TRUE, zoom = NULL, newpage = TRUE, 
-	background = "white", title = NULL, title_gp = gpar(fontsize = 16), 
+	background_col = "white", title = NULL, title_gp = gpar(fontsize = 16), 
 	start_from = c("bottomleft", "topleft", "bottomright", "topright"),
 	legend = list()) {
 
@@ -314,7 +342,7 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 
 	size = unit(1, "snpc")
 	pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 1))
-	grid.rect(gp = gpar(fill = background, col = NA))
+	grid.rect(gp = gpar(fill = background_col, col = NA))
 
 	pushViewport(viewport(name = paste0("hilbert_curve_", get_plot_index()), xscale = c(-0.5, 2^level - 0.5), yscale = c(-0.5, sqrt(n)-0.5), width = size, height = size))
 	
@@ -380,8 +408,7 @@ rotate = function(pos, degree = 0) {
 # Zuguang Gu <z.gu@dkfz.de>
 #
 # == example
-# hc = HilbertCurve(1, 100)
-# hc
+# HilbertCurve(1, 100)
 #
 setMethod(f = "show",
 	signature = "HilbertCurve",
@@ -420,7 +447,7 @@ setMethod(f = "hc_level",
 #
 # == param
 # -object A `HilbertCurve-class` object.
-# -ir a `IRanges::IRanges` object.
+# -ir a `IRanges::IRanges` object which specifies the input intervals.
 # -x1 if start positions are not integers, they can be set by ``x1``.
 # -x2 if end positions are not integers, they can be set by ``x2``.
 # -np number of points (a circle or a square, ...) that are put in a segment. ``np`` controls
@@ -429,7 +456,7 @@ setMethod(f = "hc_level",
 # -pch shape of points, used for points if ``np <= 1``.
 # -gp graphic parameters for points. It should be specified by `grid::gpar`.
 # -mean_mode when ``np >= 2``, each segment on the curve is split into ``np`` windows and each window
-#           actually represents an interval in the axis. When overlapping input intervals to the windows
+#           actually represents an small interval in the axis. When overlapping input intervals to the windows
 #           on the curve and when the window can not completely cover the input intervals, some averaging method should
 #           be applied to get a more accurate estimation for the value in the window. Here the HilbertCurve package
 #           provides three modes: "w0", "weighted" and "absolute" which calculate the mean value in the window
@@ -439,7 +466,7 @@ setMethod(f = "hc_level",
 # == details
 # If ``np`` is set to 1 or ``NULL``, points will be added in the middle for each interval in ``ir`` (or ``x1``, ``x2``).
 #
-# If ``np`` is set to a value larger or equal to 2, every segment on the curve will be split by ``np`` points (e.g. circles).
+# If ``np`` is set to a value larger or equal to 2, every segment on the curve is split by ``np`` points (e.g. circles).
 # In this case, each point actually represent a window on the curve and when the window is not fully covered by
 # the input intervals, there are three different metrics to average the values in the window.
 #
@@ -455,7 +482,10 @@ setMethod(f = "hc_level",
 #     w0:       (100*4 + 80*3 + 60*3 + 0*6)/16
 #
 # So which mode to use depends on specific scenario. If the background is not of interest, ``absolute`` and ``weighted``
-# modes may be proper and if the value also needs to be averaged with background, ``w0`` is the proper choice.
+# modes may be proper and if the value also needs to be averaged with background, ``w0`` is the proper choice. Section "Averaging models"
+# in the vignette gives a more detailed explanation for this argument.
+#
+# If ``np >= 2``, the value of ``np`` also controls the size of points.
 # 
 # Graphic parameters is always represented as numeric values (e.g. colors can be converted into numeric RGB values) 
 # and they will be averaged according to above rules.
@@ -464,7 +494,7 @@ setMethod(f = "hc_level",
 # depending on the value of ``np``.
 #
 # == value
-# A data frame which contains coordinates for points.
+# A data frame which contains coordinates (in 2D space) of points.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -529,7 +559,7 @@ setMethod(f = "hc_points",
 #
 # == param
 # -object A `HilbertCurve-class` object.
-# -ir a `IRanges::IRanges` object.
+# -ir a `IRanges::IRanges` object which specifies the input intervals.
 # -x1 if start positions are not integers, they can be set by ``x1``.
 # -x2 if end positions are not integers, they can be set by ``x2``.
 # -size size of the points. It should be a `grid::unit` object.
@@ -537,12 +567,13 @@ setMethod(f = "hc_points",
 # -gp graphic parameters for points. It should be specified by `grid::gpar`.
 #
 # == details
-# Points are added at the middle of the intervals in ``ir`` (or ``x1`` and ``x2``).
+# Points are added at the middle of the intervals in ``ir`` (or ``x1`` and ``x2``),
+# so there is only one point for each interval.
 #
 # This function is used internally.
 #
 # == value
-# A data frame which contains coordinates for points.
+# A data frame which contains coordinates (2D space) of points.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -620,22 +651,23 @@ setMethod(f = "hc_normal_points",
 #
 # == param
 # -object A `HilbertCurve-class` object.
-# -ir a `IRanges::IRanges` object.
+# -ir a `IRanges::IRanges` object which specifies the input intervals.
 # -x1 if start positions are not integers, they can be set by ``x1``.
 # -x2 if end positions are not integers, they can be set by ``x2``.
 # -np number of points (a circle or a square, ...) that are put in a segment.
-# -gp graphical parameters for points. It should be specified by `grid::gpar`.
+# -gp graphic parameters for points. It should be specified by `grid::gpar`.
+#     The size of the points can be set here because the size of points are determined by ``np`` argument.
 # -mean_mode when a segment in the curve overlaps with intervals in ``ir``, how to calculate 
 #       the mean values for this segment. See explanation in `hc_points`.
 # -shape shape of points. Possible values are "circle", "square", "triangle", "hexagon", "star".
 #
 # == details
-# Every segment on the curve will be split by ``np`` points.
+# Every segment on the curve is split by ``np`` points.
 #
-# This function is used internally.
+# This function is used internally, please use `hc_points,HilbertCurve-method` directly.
 #
 # == value
-# A data frame which contains coordinates for points.
+# A data frame which contains coordinates (in 2D space) of points.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -827,7 +859,7 @@ average_in_window = function(window, ir, mtch, v, mean_mode, empty_v = 0) {
 #
 # == param
 # -object A `HilbertCurve-class` object.
-# -ir a `IRanges::IRanges` object.
+# -ir a `IRanges::IRanges` object which specifies the input intervals.
 # -x1 if start positions are not integers, they can be set by ``x1``.
 # -x2 if end positions are not integers, they can be set by ``x2``.
 # -gp graphic parameters for rectangles. It should be specified by `grid::gpar`.
@@ -835,12 +867,13 @@ average_in_window = function(window, ir, mtch, v, mean_mode, empty_v = 0) {
 #       the mean values for this segment. See explanation in `hc_points,HilbertCurve-method`.
 #
 # == details
-# You cannot set the width or height of the rectangles. It is always fixed.
+# Rectangles are put if a segment in the Hilbert curve overlaps with the input intervals. 
+# You cannot set the width or height of the rectangles. It is always fixed (actually it is a square).
 #
 # It can be thought as the low-resolution version of `hc_layer,HilbertCurve-method`.
 #
 # == value
-# A data frame which contains coordinates for rectangles.
+# A data frame which contains coordinates (in 2D space) of rectangles.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -943,13 +976,13 @@ setMethod(f = "hc_rect",
 #
 # == param
 # -object A `HilbertCurve-class` object.
-# -ir a `IRanges::IRanges` object.
+# -ir a `IRanges::IRanges` object which specifies the input intervals.
 # -x1 if start positions are not integers, they can be set by ``x1``.
 # -x2 if end positions are not integers, they can be set by ``x2``.
 # -gp graphic parameters for lines. It should be specified by `grid::gpar`.
 #
 # == value
-# A data frame which contains coordinates for segments.
+# A data frame which contains coordinates (in 2D space) of segments.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -1075,8 +1108,8 @@ setMethod(f = "hc_segments",
 #
 # == param
 # -object A `HilbertCurve-class` object.
-# -ir a `IRanges::IRanges` object that contains positions of text. Basically,
-#     the middle point of the interval will be the position of the text.
+# -ir a `IRanges::IRanges` object that contains positions which correspond to text.
+#     The middle point of the interval will be the position of the text.
 # -labels text corresponding to intervals in ``ir``.
 # -x1 if start positions are not integers, they can be set by ``x1``.
 # -x2 if end positions are not integers, they can be set by ``x2``.
@@ -1084,10 +1117,10 @@ setMethod(f = "hc_segments",
 # -... pass to `grid::grid.text`. E.g. you can set text justification by ``just`` here.
 #
 # == details
-# The text is added in the middle of each interval in ``ir``.
+# The text is added correspoding to the middle of each interval in ``ir``.
 #
 # == value
-# A data frame which contains coordinates for text.
+# A data frame which contains coordinates (in 2D space) of text.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -1175,17 +1208,17 @@ setMethod(f = "hc_text",
 #
 # == param
 # -object A `HilbertCurve-class` object.
-# -ir a `IRanges::IRanges` object that contains positions of text. Basically,
-#     the middle point of the interval will be the position of the text.
+# -ir a `IRanges::IRanges` object that contains positions which correspond to text.
+#     The middle points of the intervals will be the positions of the text.
 # -labels text corresponding to intervals in ``ir``.
 # -x1 if start positions are not integers, they can be set by ``x1``.
 # -x2 if end positions are not integers, they can be set by ``x2``.
-# -gp graphical parameters for text. It should be specified by `grid::gpar`.
+# -gp graphic parameters for text. It should be specified by `grid::gpar`.
 # -... pass to `grid::grid.text`. E.g. you can set text justification by ``just`` here.
 #
 # == details
-# If the interval is long enough that it represents as a block in the curve, the corresponding
-# label is put approximately at center of the block.
+# If the interval is long enough that it represents as a block in the 2D plot, the corresponding
+# label is put approximately at center (or at least inside) of the block.
 #
 # It is quite experimental and only used internally.
 #
@@ -1302,18 +1335,18 @@ grid_arrows = function(x1, y1, x2, y2, length = unit(2, "mm"), angle = 15, only.
 #
 # == param
 # -object A `HilbertCurve-class` object.
-# -ir a `IRanges::IRanges` object.
+# -ir a `IRanges::IRanges` object which specifies the input intervals.
 # -x1 if start positions are not integers, they can be set by ``x1``.
 # -x2 if end positions are not integers, they can be set by ``x2``.
-# -col colors corresponding to intervals in ``ir`` (or ``x1`` and ``x2``).
-# -border colors for the borders of every regions. Set it to ``NA`` if borders are suppressed.
-# -mean_mode when a segment in the curve can not be overlapped with intervals in ``ir``, how to calculate 
+# -col colors which correspond to intervals in ``ir`` (or ``x1`` and ``x2``).
+# -border colors for the borders of intervals. Set it to ``NA`` if borders are suppressed.
+# -mean_mode when a segment in the curve can not be completely overlapped with intervals in ``ir``, how to calculate 
 #       the mean values for this segment. See explanation in `hc_points,HilbertCurve-method`.
 # -grid_line whether add grid lines to show blocks of the Hilber curve. 
 #        It should be an integer number and there will be ``2^(grid_line-1)-1``
-#        grid lines horizontal and vertical.
+#        horizontal and vertical grid lines.
 # -grid_line_col color for the grid lines
-# -overlay a function which calculates the overlayed colors. Let's assume the red channel for the layers
+# -overlay a function which calculates the overlayed colors. By default it is `default_overlap`. Let's assume the red channel for the layers
 #          which are already in the plot is ``r0``, the R channel for the new layer is ``r`` and the alpha channel
 #          is ``alpha``, the overlayed color is calculated as ``r*alpha + r0*(1-alpha)``. This self-defined function
 #          should accept 7 arguments which are: vectors of r, g, b channels which correspond to the layers
@@ -1323,11 +1356,15 @@ grid_arrows = function(x1, y1, x2, y2, length = unit(2, "mm"), angle = 15, only.
 #          only correspond to the pixels which are covered by the new layer.
 #
 # == details
-# If you want to add more than one layers to the curve, remember to set colors with transparency.
-#
 # This function only works under 'pixel' mode.
 #
-# ``overlay`` argument is useful to change color themes for the overlapped areas, please refer to the vignette
+# Under "pixel" mode, color is the only graphic representation of values in the input intervals. 
+# To make a more precise and robust color mapping, users may consider `circlize::colorRamp2` to create
+# a color mapping function.
+#
+# If you want to add more than one layers to the curve, remember to set colors with transparency.
+#
+# ``overlay`` argument is useful for changing color themes for the overlapped areas, please refer to the vignette
 # to see examples of how to swith color themes in easy ways.
 #
 # == value
@@ -1438,8 +1475,10 @@ setMethod(f = "hc_layer",
 			}
 		}
 	}
-	if(!is.na(border)) {
-		rp = pintersect(window[mtch[,1]], ir[mtch[,2]])
+	
+	if(any(!is.na(border))) {
+		mtch = as.matrix(findOverlaps(object@BINS, ir))
+		rp = pintersect(object@BINS[mtch[,1]], ir[mtch[,2]])
 		if(length(border) == 1) border = rep(border, length(ir))
 
 		mean_bin_width = mean(width(object@BINS))
@@ -1447,7 +1486,7 @@ setMethod(f = "hc_layer",
 			i1 = mtch[ind, 1]  ## index for BINS
 			i2 = mtch[ind[1], 2]  ## index for ir
 			n = length(ind)
-
+			
 			rp = rp[ind]  # intersected part
 			r1 = object@BINS[i1]  # BIN part
 			pos = object@POS[i1, ,drop = FALSE]  # pos on  the 2D space
@@ -1554,7 +1593,7 @@ setMethod(f = "hc_layer",
 #
 setMethod(f = "hc_png",
 	signature = "HilbertCurve",
-	definition = function(object, file = "Rplot.png") {
+	definition = function(object, file = "HilbertCurve.png") {
 
 	if(object@MODE == "normal") {
 		stop("`hc_png()` can only be used under 'pixel' mode.")
