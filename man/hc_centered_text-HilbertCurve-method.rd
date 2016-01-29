@@ -13,17 +13,17 @@ Add text to the center of the block
 \arguments{
 
   \item{object}{A \code{\link{HilbertCurve-class}} object.}
-  \item{ir}{a \code{\link[IRanges]{IRanges}} object that contains positions of text. Basically, the middle point of the interval will be the position of the text.}
+  \item{ir}{a \code{\link[IRanges]{IRanges}} object that contains positions which correspond to text. The middle points of the intervals will be the positions of the text.}
   \item{labels}{text corresponding to intervals in \code{ir}.}
   \item{x1}{if start positions are not integers, they can be set by \code{x1}.}
   \item{x2}{if end positions are not integers, they can be set by \code{x2}.}
-  \item{gp}{graphical parameters for text. It should be specified by \code{\link[grid]{gpar}}.}
+  \item{gp}{graphic parameters for text. It should be specified by \code{\link[grid]{gpar}}.}
   \item{...}{pass to \code{\link[grid]{grid.text}}. E.g. you can set text justification by \code{just} here.}
 
 }
 \details{
-If the interval is long enough that it represents as a block in the curve, the corresponding
-label is put approximately at center of the block.
+If the interval is long enough that it represents as a block in the 2D plot, the corresponding
+label is put approximately at center (or at least inside) of the block.
 
 It is quite experimental and only used internally.
 }

@@ -242,7 +242,7 @@ setMethod(f = "hc_offset",
 # legend1 = color_mapping_legend(cm1, plot = FALSE, title = "foo")
 # cm2 = ColorMapping(col_fun = colorRamp2(c(-1, 0, 1), c("green", "white", "red")))
 # legend2 = color_mapping_legend(cm2, plot = FALSE, title = "bar")
-# hc = HilbertCurve(1, 100, title = "title", legend = list(foo, bar))
+# hc = HilbertCurve(1, 100, title = "title", legend = list(legend1, legend2))
 # hc_segments(hc, x1 = 20, x2 = 40)
 #
 HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
@@ -342,10 +342,10 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 
 	size = unit(1, "snpc")
 	pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 1))
-	grid.rect(gp = gpar(fill = background_col, col = NA))
 
 	pushViewport(viewport(name = paste0("hilbert_curve_", get_plot_index()), xscale = c(-0.5, 2^level - 0.5), yscale = c(-0.5, sqrt(n)-0.5), width = size, height = size))
-	
+	grid.rect(gp = gpar(fill = background_col, col = NA))
+
 	reference_gp = validate_gpar(reference_gp, default = list(lty = 3, col = "#999999"))
 	if(mode == "normal") {
 		if(reference) {
@@ -357,15 +357,15 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 			# grid.text(round(unzoom(hc, start(bins)[1])), hc@POS$x1[1], hc@POS$y1[1], default.units = "native", gp = gpar(col = "#999999", cex = 0.5))
 			# grid.text(round(unzoom(hc, end(bins))), hc@POS$x2, hc@POS$y2, default.units = "native", gp = gpar(col = "#999999", cex = 0.5))
 		
-			if(arrow) grid_arrows(hc@POS$x1, hc@POS$y1, (hc@POS$x1+hc@POS$x2)/2, (hc@POS$y1+hc@POS$y2)/2, only.head = TRUE, arrow_gp = gpar(fill = "#CCCCCC", col = NA))
+			if(arrow) grid_arrows(hc@POS$x1, hc@POS$y1, (hc@POS$x1+hc@POS$x2)/2, (hc@POS$y1+hc@POS$y2)/2, only.head = TRUE, arrow_gp = gpar(fill = reference_gp$col, col = NA))
 		}
 		upViewport(3)
 	} else {
-		background = background[1]
-		background = col2rgb(background) / 255
-		red = matrix(background[1], nrow = 2^level, ncol = 2^level)
-		green = matrix(background[2], nrow = 2^level, ncol = 2^level)
-		blue = matrix(background[3], nrow = 2^level, ncol = 2^level)
+		background_col = background_col[1]
+		background_col = col2rgb(background_col) / 255
+		red = matrix(background_col[1], nrow = 2^level, ncol = 2^level)
+		green = matrix(background_col[2], nrow = 2^level, ncol = 2^level)
+		blue = matrix(background_col[3], nrow = 2^level, ncol = 2^level)
 		hc@RGB$red = red
 		hc@RGB$green = green
 		hc@RGB$blue = blue
@@ -1346,7 +1346,7 @@ grid_arrows = function(x1, y1, x2, y2, length = unit(2, "mm"), angle = 15, only.
 #        It should be an integer number and there will be ``2^(grid_line-1)-1``
 #        horizontal and vertical grid lines.
 # -grid_line_col color for the grid lines
-# -overlay a function which calculates the overlayed colors. By default it is `default_overlap`. Let's assume the red channel for the layers
+# -overlay a function which calculates the overlayed colors. By default it is `default_overlay`. Let's assume the red channel for the layers
 #          which are already in the plot is ``r0``, the R channel for the new layer is ``r`` and the alpha channel
 #          is ``alpha``, the overlayed color is calculated as ``r*alpha + r0*(1-alpha)``. This self-defined function
 #          should accept 7 arguments which are: vectors of r, g, b channels which correspond to the layers

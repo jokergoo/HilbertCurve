@@ -16,22 +16,22 @@ Add points to the Hilbert curve
 \arguments{
 
   \item{object}{A \code{\link{HilbertCurve-class}} object.}
-  \item{ir}{a \code{\link[IRanges]{IRanges}} object.}
+  \item{ir}{a \code{\link[IRanges]{IRanges}} object which specifies the input intervals.}
   \item{x1}{if start positions are not integers, they can be set by \code{x1}.}
   \item{x2}{if end positions are not integers, they can be set by \code{x2}.}
   \item{np}{number of points (a circle or a square, ...) that are put in a segment.}
-  \item{gp}{graphical parameters for points. It should be specified by \code{\link[grid]{gpar}}.}
+  \item{gp}{graphic parameters for points. It should be specified by \code{\link[grid]{gpar}}. The size of the points can be set here because the size of points are determined by \code{np} argument.}
   \item{mean_mode}{when a segment in the curve overlaps with intervals in \code{ir}, how to calculate  the mean values for this segment. See explanation in \code{\link{hc_points}}.}
   \item{shape}{shape of points. Possible values are "circle", "square", "triangle", "hexagon", "star".}
 
 }
 \details{
-Every segment on the curve will be split by \code{np} points.
+Every segment on the curve is split by \code{np} points.
 
-This function is used internally.
+This function is used internally, please use \code{\link{hc_points,HilbertCurve-method}} directly.
 }
 \value{
-A data frame which contains coordinates for points.
+A data frame which contains coordinates (in 2D space) of points.
 }
 \author{
 Zuguang Gu <z.gu@dkfz.de>

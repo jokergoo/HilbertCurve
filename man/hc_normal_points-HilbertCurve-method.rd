@@ -14,7 +14,7 @@ Add points to the Hilbert curve
 \arguments{
 
   \item{object}{A \code{\link{HilbertCurve-class}} object.}
-  \item{ir}{a \code{\link[IRanges]{IRanges}} object.}
+  \item{ir}{a \code{\link[IRanges]{IRanges}} object which specifies the input intervals.}
   \item{x1}{if start positions are not integers, they can be set by \code{x1}.}
   \item{x2}{if end positions are not integers, they can be set by \code{x2}.}
   \item{size}{size of the points. It should be a \code{\link[grid]{unit}} object.}
@@ -23,12 +23,13 @@ Add points to the Hilbert curve
 
 }
 \details{
-Points are added at the middle of the intervals in \code{ir} (or \code{x1} and \code{x2}).
+Points are added at the middle of the intervals in \code{ir} (or \code{x1} and \code{x2}),
+so there is only one point for each interval.
 
 This function is used internally.
 }
 \value{
-A data frame which contains coordinates for points.
+A data frame which contains coordinates (2D space) of points.
 }
 \author{
 Zuguang Gu <z.gu@dkfz.de>

@@ -1,6 +1,9 @@
 CHANGES in VERSION 1.1.2
 
-* fixed typo in vignette
+* add examples in vignette
+* add `hc_polygon()`
+* `hc_map()`: support borders
+* `HilbertCurve()`: start position can be selected
 
 =======================================
 

@@ -17,7 +17,7 @@
 # - `hc_polygon,GenomicHilbertCurve-method`: add poygons;
 # - `hc_text,GenomicHilbertCurve-method`: add text;
 # - `hc_layer,GenomicHilbertCurve-method`: add layers undel "pixel" mode;
-# - `hc_map,GenomicHilbertCurve-method`: show the map of different categories on the curve.
+# - `hc_map,GenomicHilbertCurve-method`: show the map of different categories on the curve. Works both for "normal" and "pixel" mode
 #
 # The usage of above functions are almost same as those functions for the `HilbertCurve-class`
 # except that the second argument which specifies the intervals should be a `GenomicRanges::GRanges` object.
@@ -41,13 +41,12 @@ GenomicHilbertCurve = setClass("GenomicHilbertCurve",
 # -chr a vector of chromosome names. Note it should have 'chr' prefix. This argument will be ignored
 #      when ``background`` is set.
 # -species abbreviation of species, e.g. 'hg19' or 'mm10'
-# -background the background can be provided as a 'GenomicRanges::GRanges' object. 
-#         It is not very well supported. It assumes that all regions which will be specified in 
-#         `hc_layer,GenomicHilbertCurve-method` are subsets of background regions.
+# -background the background can be provided as a 'GenomicRanges::GRanges' object. Chromosomes should be unique
+#          across rows.
 # -... pass to `HilbertCurve`
 #
 # == details
-# If the background region contains more than one categories (e.g. more than one chromosomes), 
+# If there are more than one chromosomes in the background region, 
 # they are concatenated onto a same Hilbert curve.
 #
 # == value
@@ -66,9 +65,12 @@ GenomicHilbertCurve = setClass("GenomicHilbertCurve",
 # hc = GenomicHilbertCurve(chr = c("chr1", "chr2"))
 # hc_points(hc, gr)
 #
-# background = GRanges(seqnames = "chr1", ranges = IRanges(1, 10000000))
-# hc = GenomicHilbertCurve(background = background)
-# hc_points(hc, gr)
+# bg = GRanges(seqnames = c("chr1", "chr2"), 
+#     ranges = IRanges(c(1,10000000), c(10000000,20000000)))
+# hc = GenomicHilbertCurve(background = bg, level = 6)
+# hc_points(hc, gr, gp = gpar(fill = rand_color(length(gr))))
+# hc_map(hc, fill = NA, border = "grey", add = TRUE)
+#
 GenomicHilbertCurve = function(chr = paste0("chr", c(1:22, "X", "Y")), species = "hg19", 
 	background = NULL, ...) {
 
@@ -81,18 +83,18 @@ GenomicHilbertCurve = function(chr = paste0("chr", c(1:22, "X", "Y")), species =
 				                              chr.len))
 		names(background) = chr
 	} else {
-		if(length(background) > 50) {
-			warning("Too many background regions, it will be hard to interpret the plot.")
-		}
+		background = reduce(background)
 		if(!any(duplicated(as.vector(seqnames(background))))) {
-			names(background) = seqnames(background)
+			if(is.null(names(background))) {
+				names(background) = seqnames(background)
+			}
 		} else {
-			names(background) = paste0(seqnames(background), ":", start(background), "-", end(background), sep = "")
+			stop("Chromosome cannot be duplicated in background regions.")
 		}
 	}
 
-	chr.len = as.numeric(width(background))
-    hc = HilbertCurve(1, sum(chr.len), ...)
+	len = as.numeric(width(background))
+    hc = HilbertCurve(1, sum(len), ...)
 
     hc2 = new("GenomicHilbertCurve")
     for(sn in slotNames(hc)) {
@@ -399,17 +401,15 @@ setMethod(f = "hc_layer",
 })
 
 # == title
-# Draw a map which represents positions of different genomic categories on the curve
+# Draw a map which represents positions of different chromosomes on the curve
 #
 # == param
 # -object a `GenomicHilbertCurve-class` object
-# -level Since a map does not need to have high resolution, a value of around 6 would be enough. 
+# -level Since a map does not need to have high resolution, a value of around 7 would be enough. 
 #        If ``add`` is set to ``TRUE``, ``level`` will be enforced to have the same level in the current Hilbert curve.
-# -fill colors for different genomic categories (current you cannot adjust the style of the borders)
-# -border colors for the borders of every regions. Set it to ``NA`` if borders are suppressed.
-# -labels label for each genomic category. By default, if the category is unique for different chromosome,
-#          the label will be the chromosome name, or else they will be the combination of chromosme names and positions.
-#          It is ignored if the curve is under 'pixel' mode.
+# -fill colors for different genomic categories
+# -border colors for the borders of every chromosome. Set it to ``NA`` if borders are suppressed.
+# -labels label for each chromosome.
 # -labels_gp graphic settings for labels
 # -add whether add the map to the current curve or draw it in a new graphic device. Notice if ``add`` is set to ``TRUE``,
 #      you should set ``fill`` with transparency so that it will not hide your original plot.
@@ -418,6 +418,9 @@ setMethod(f = "hc_layer",
 # == details
 # When multiple genomic categories are drawn into one single Hilbert curve, a map which shows the positions
 # of different categories on the curve is necessary to correspond to the graphics on the curve.
+#
+# Under "pixel" mode, if the map is added to the Hilbert curve, no chromosome name is drawn. The chromosome names
+# are only drawn if the map is plotted in a new graphic device or added to the Hilbert curve under "normal" mode.
 #
 # == value
 # A `GenomicHilbertCurve-class` object
@@ -433,6 +436,11 @@ setMethod(f = "hc_layer",
 # hc_points(hc, gr, gp = gpar(fill = rand_color(length(gr))))
 # # add it in the same graphic device
 # hc_map(hc, fill = rand_color(24, transparency = 0.5), add = TRUE)
+# 
+# # add the map only with borders
+# hc = GenomicHilbertCurve()
+# hc_points(hc, gr, gp = gpar(fill = rand_color(length(gr))))
+# hc_map(hc, fill = NA, border = "grey", add = TRUE)
 #
 # # or open a new graphic device
 # hc_map(hc, fill = rand_color(24))
@@ -461,19 +469,35 @@ setMethod(f = "hc_map",
 	return(invisible(object))
 })
 
-
+# chromosomes are unique across rows
+# the only thing that needs to notice is the start site in background may not be zero
 merge_into_one_chr = function(gr, background) {
-	background_names = as.vector(seqnames(background))
+	background_names = names(background)
 	background_length = as.numeric(width(background))
-
-	mtch = findOverlaps(gr, background, select = "arbitrary")
-	gr$category = seqnames(background)[mtch]
 
 	term = cumsum(background_length)
 	term = c(0, term[-length(term)])
 	names(term) = background_names
 
-	x1 = start(gr) + term[as.vector(gr$category)]
-	x2 = end(gr) + term[as.vector(gr$category)]
+	mtch = as.matrix(findOverlaps(gr, background))
+
+	x1 = rep(-1, length(gr))
+	x2 = rep(-1, length(gr))
+
+	category = names(background)[mtch[, 2]]
+	offset = start(background)[mtch[, 2]] - 1
+
+	l = start(gr)[mtch[,1]] < start(background)[mtch[,2]] & end(gr)[mtch[,1]] >= start(background)[mtch[,2]]
+	x1[mtch[, 1]] = ifelse(l, start(background)[mtch[,2]], start(gr)[mtch[, 1]]) - offset + term[as.vector(category)]
+	l = start(gr)[mtch[,1]] <= end(background)[mtch[,2]] & end(gr)[mtch[,1]] > end(background)[mtch[,2]]
+	x2[mtch[, 1]] = ifelse(l, end(background)[mtch[,2]], end(gr)[mtch[, 1]]) - offset + term[as.vector(category)]
+	
+	l = start(gr)[mtch[,1]] > end(background)[mtch[,2]]
+	x1[mtch[, 1][l]] = -1
+	x2[mtch[, 1][l]] = -1
+	l = end(gr)[mtch[,1]] < start(background)[mtch[,2]]
+	x1[mtch[, 1][l]] = -1
+	x2[mtch[, 1][l]] = -1
+
 	return(data.frame(x1, x2))
 }

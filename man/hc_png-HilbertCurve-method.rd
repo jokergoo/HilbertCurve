@@ -8,7 +8,7 @@ Save Hilbert curve as a PNG figure
 Save Hilbert curve as a PNG figure
 }
 \usage{
-\S4method{hc_png}{HilbertCurve}(object, file = "Rplot.png")
+\S4method{hc_png}{HilbertCurve}(object, file = "HilbertCurve.png")
 }
 \arguments{
 
