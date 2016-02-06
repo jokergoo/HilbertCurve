@@ -40,14 +40,19 @@ GenomicHilbertCurve = setClass("GenomicHilbertCurve",
 # == param
 # -chr a vector of chromosome names. Note it should have 'chr' prefix. This argument will be ignored
 #      when ``background`` is set.
-# -species abbreviation of species, e.g. 'hg19' or 'mm10'
-# -background the background can be provided as a 'GenomicRanges::GRanges' object. Chromosomes should be unique
-#          across rows.
-# -... pass to `HilbertCurve`
+# -species abbreviation of species, e.g. 'hg19' or 'mm10'. `circlize::read.chromInfo` is used to retrieve
+#          the chromosome information.
+# -background the background can be provided as a `GenomicRanges::GRanges` object. Chromosomes should be unique
+#          across rows. Or more generally, the 'seqnames' should be different.
+# -... common arguments in `HilbertCurve` can be used here.
 #
 # == details
-# If there are more than one chromosomes in the background region, 
-# they are concatenated onto a same Hilbert curve.
+# Multiple chromosomes can be visualized in a same Hilbert curve. All chromosomes
+# are concatenated on after the other based on the order which is specified.
+#
+# Since chromosomes will have irregular shapes on the curve, under 'pixel' mode, 
+# users can set ``border`` option in `hc_map,GenomicHilbertCurve-method` to highlight 
+# borders of chromosomes to identify their locations on the curve.
 #
 # == value
 # A `GenomicHilbertCurve-class` object
@@ -89,7 +94,7 @@ GenomicHilbertCurve = function(chr = paste0("chr", c(1:22, "X", "Y")), species =
 				names(background) = seqnames(background)
 			}
 		} else {
-			stop("Chromosome cannot be duplicated in background regions.")
+			stop("Chromosomes cannot be duplicated in background regions.")
 		}
 	}
 
@@ -111,11 +116,11 @@ GenomicHilbertCurve = function(chr = paste0("chr", c(1:22, "X", "Y")), species =
 # -object a `GenomicHilbertCurve-class` object
 # -gr a `GenomicRanges::GRanges` object which contains the genomic regions to be mapped to the curve
 # -np pass to `hc_points,HilbertCurve-method`
-# -size pass to `hc_points,HilbertCurve-method`
-# -pch pass to `hc_points,HilbertCurve-method`
-# -gp pass to `hc_points,HilbertCurve-method`
+# -size size of points when ``np <= 1``, pass to `hc_points,HilbertCurve-method`
+# -pch shape of the points when ``np <= 1``, pass to `hc_points,HilbertCurve-method`
+# -gp graphic parameters of the points when ``np <= 1``, pass to `hc_points,HilbertCurve-method`
 # -mean_mode pass to `hc_points,HilbertCurve-method`
-# -shape pass to `hc_points,HilbertCurve-method`
+# -shape shape of the points when ``np >= 2``, pass to `hc_points,HilbertCurve-method`
 #
 # == details
 # It is basically a wrapper of `hc_points,HilbertCurve-method`.
@@ -353,12 +358,14 @@ setMethod(f = "hc_polygon",
 # == param
 # -object a `GenomicHilbertCurve-class` object
 # -gr a `GenomicRanges::GRanges` object which contains the genomic regions to be mapped to the curve
-# -col pass to `hc_layer,HilbertCurve-method`
-# -border colors for the borders of every regions. Set it to ``NA`` if borders are suppressed.
-# -mean_mode pass to `hc_layer,HilbertCurve-method`
-# -grid_line pass to `hc_layer,HilbertCurve-method`
-# -grid_line_col pass to `hc_layer,HilbertCurve-method`
-# -overlay pass to `hc_layer,HilbertCurve-method`
+# -col a scalar or a vector of colors which correspond to regions in ``gr``, pass to `hc_layer,HilbertCurve-method`
+# -border a scalar or a vector of colors which correspond to the borders of regions. Set it to ``NA`` if borders are suppressed.
+# -mean_mode Under 'pixel' mode, each pixel represents a small window. This argument provides methods
+#            to summarize value for the small window if the input genomic regions can not completely overlap with the window, 
+#            pass to `hc_layer,HilbertCurve-method`
+# -grid_line whether add grid lines to show blocks of the Hilber curve, pass to `hc_layer,HilbertCurve-method`
+# -grid_line_col color for the grid lines, pass to `hc_layer,HilbertCurve-method`
+# -overlay a self-defined function which defines how to overlay new layer to the plot, pass to `hc_layer,HilbertCurve-method`
 #
 # == details
 # It is basically a wrapper of `hc_layer,HilbertCurve-method`.
@@ -407,20 +414,23 @@ setMethod(f = "hc_layer",
 # -object a `GenomicHilbertCurve-class` object
 # -level Since a map does not need to have high resolution, a value of around 7 would be enough. 
 #        If ``add`` is set to ``TRUE``, ``level`` will be enforced to have the same level in the current Hilbert curve.
-# -fill colors for different genomic categories
-# -border colors for the borders of every chromosome. Set it to ``NA`` if borders are suppressed.
-# -labels label for each chromosome.
+# -fill colors for different chromosomes, or more generally, for different 'seqnames'.
+# -border colors for the borders of chromosomes. Set it to ``NA`` if borders are suppressed.
+# -labels label for each chromosome, or more generally, for different 'sequences'
 # -labels_gp graphic settings for labels
 # -add whether add the map to the current curve or draw it in a new graphic device. Notice if ``add`` is set to ``TRUE``,
 #      you should set ``fill`` with transparency so that it will not hide your original plot.
-# -... pass to `GenomicHilbertCurve`.
+# -... pass to `GenomicHilbertCurve`. It is only used if you want the map to be plotted in a new graphic device.
 #
 # == details
-# When multiple genomic categories are drawn into one single Hilbert curve, a map which shows the positions
-# of different categories on the curve is necessary to correspond to the graphics on the curve.
+# When multiple genomic categories (e.g. chromosomes) are drawn into one single Hilbert curve, a map which shows the positions
+# of categories on the curve is necessary to distinguish different genomic categories.
 #
-# Under "pixel" mode, if the map is added to the Hilbert curve, no chromosome name is drawn. The chromosome names
+# Under "pixel" mode, if the map is directly added to the Hilbert curve, no chromosome name is drawn. The chromosome names
 # are only drawn if the map is plotted in a new graphic device or added to the Hilbert curve under "normal" mode.
+#
+# Just be careful if you directly overlay the map to the curve that the color of the map does not affect the original
+# plot too much.
 #
 # == value
 # A `GenomicHilbertCurve-class` object

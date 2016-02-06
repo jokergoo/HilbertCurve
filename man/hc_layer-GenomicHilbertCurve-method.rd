@@ -15,12 +15,12 @@ Add a new layer to the Hilbert curve
 
   \item{object}{a \code{\link{GenomicHilbertCurve-class}} object}
   \item{gr}{a \code{\link[GenomicRanges]{GRanges}} object which contains the genomic regions to be mapped to the curve}
-  \item{col}{pass to \code{\link{hc_layer,HilbertCurve-method}}}
-  \item{border}{colors for the borders of every regions. Set it to \code{NA} if borders are suppressed.}
-  \item{mean_mode}{pass to \code{\link{hc_layer,HilbertCurve-method}}}
-  \item{grid_line}{pass to \code{\link{hc_layer,HilbertCurve-method}}}
-  \item{grid_line_col}{pass to \code{\link{hc_layer,HilbertCurve-method}}}
-  \item{overlay}{pass to \code{\link{hc_layer,HilbertCurve-method}}}
+  \item{col}{a scalar or a vector of colors which correspond to regions in \code{gr}, pass to \code{\link{hc_layer,HilbertCurve-method}}}
+  \item{border}{a scalar or a vector of colors which correspond to the borders of regions. Set it to \code{NA} if borders are suppressed.}
+  \item{mean_mode}{Under 'pixel' mode, each pixel represents a small window. This argument provides methods to summarize value for the small window if the input genomic regions can not completely overlap with the window,  pass to \code{\link{hc_layer,HilbertCurve-method}}}
+  \item{grid_line}{whether add grid lines to show blocks of the Hilber curve, pass to \code{\link{hc_layer,HilbertCurve-method}}}
+  \item{grid_line_col}{color for the grid lines, pass to \code{\link{hc_layer,HilbertCurve-method}}}
+  \item{overlay}{a self-defined function which defines how to overlay new layer to the plot, pass to \code{\link{hc_layer,HilbertCurve-method}}}
 
 }
 \details{

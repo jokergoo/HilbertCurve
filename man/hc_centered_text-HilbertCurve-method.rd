@@ -13,7 +13,7 @@ Add text to the center of the block
 \arguments{
 
   \item{object}{A \code{\link{HilbertCurve-class}} object.}
-  \item{ir}{a \code{\link[IRanges]{IRanges}} object that contains positions which correspond to text. The middle points of the intervals will be the positions of the text.}
+  \item{ir}{an \code{\link[IRanges]{IRanges}} object that contains positions which correspond to text. The middle points of the intervals will be the positions of the text.}
   \item{labels}{text corresponding to intervals in \code{ir}.}
   \item{x1}{if start positions are not integers, they can be set by \code{x1}.}
   \item{x2}{if end positions are not integers, they can be set by \code{x2}.}
@@ -22,13 +22,17 @@ Add text to the center of the block
 
 }
 \details{
-If the interval is long enough that it represents as a block in the 2D plot, the corresponding
+If the interval is long enough that it represents as a block in the 2D space, the corresponding
 label is put approximately at center (or at least inside) of the block.
 
 It is quite experimental and only used internally.
 }
 \value{
 \code{NULL}
+}
+\seealso{
+It is basically used in \code{\link{hc_map,GenomicHilbertCurve-method}} to put chromosome names in the center
+of chromosomes.
 }
 \author{
 Zuguang Gu <z.gu@dkfz.de>

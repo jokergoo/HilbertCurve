@@ -10,15 +10,15 @@ Initialize a Hilbert curve
 HilbertCurve(s, e, level = 4, mode = c("normal", "pixel"),
     reference = FALSE, reference_gp = gpar(lty = 3, col = "#999999"),
     arrow = TRUE, zoom = NULL, newpage = TRUE,
-    background_col = "white", title = NULL, title_gp = gpar(fontsize = 16),
+    background_col = "transparent", title = NULL, title_gp = gpar(fontsize = 16),
     start_from = c("bottomleft", "topleft", "bottomright", "topright"),
-    legend = list())
+    first_seg = c("horizontal", "vertical"), legend = list())
 }
 \arguments{
 
   \item{s}{position that will be mapped as the start of the Hilbert curve.}
   \item{e}{position that will be mapped as the end of the Hilbert curve.}
-  \item{level}{level of the Hilbert curve. There will by \code{4^level - 1} segments in the curve.}
+  \item{level}{iteration level of the Hilbert curve. There will by \code{4^level - 1} segments in the curve.}
   \item{mode}{"normal" mode is used for low \code{level} value and "pixel" mode is always used for high \code{level} value, so the "normal" mode is always for low-resolution visualization while "pixel" mode is used for high-resolution visualization. See 'details' for explanation.}
   \item{reference}{whether add reference line on the plot. Only works under 'normal' mode. The reference line is only used for illustrating how the curve folds.}
   \item{reference_gp}{graphic settings for the reference line. It should be specified by \code{\link[grid]{gpar}}.}
@@ -29,6 +29,7 @@ HilbertCurve(s, e, level = 4, mode = c("normal", "pixel"),
   \item{title}{title of the plot.}
   \item{title_gp}{graphic parameters for the title. It should be specified by \code{\link[grid]{gpar}}.}
   \item{start_from}{which corner on the plot should the curve starts?}
+  \item{first_seg}{the orientation of the first segment}
   \item{legend}{a \code{\link[grid]{grob}} object or a list of \code{\link[grid]{grob}} objects. You can construct a \code{\link[ComplexHeatmap]{ColorMapping-class}} object and generate a legend, see the Example section.}
 
 }

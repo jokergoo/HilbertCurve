@@ -16,7 +16,7 @@ Add points to the Hilbert curve
 \arguments{
 
   \item{object}{A \code{\link{HilbertCurve-class}} object.}
-  \item{ir}{a \code{\link[IRanges]{IRanges}} object which specifies the input intervals.}
+  \item{ir}{an \code{\link[IRanges]{IRanges}} object which specifies the input intervals.}
   \item{x1}{if start positions are not integers, they can be set by \code{x1}.}
   \item{x2}{if end positions are not integers, they can be set by \code{x2}.}
   \item{np}{number of points (a circle or a square, ...) that are put in a segment.}
@@ -31,7 +31,7 @@ Every segment on the curve is split by \code{np} points.
 This function is used internally, please use \code{\link{hc_points,HilbertCurve-method}} directly.
 }
 \value{
-A data frame which contains coordinates (in 2D space) of points.
+A data frame which contains coordinates (in the 2D space) of points.
 }
 \author{
 Zuguang Gu <z.gu@dkfz.de>

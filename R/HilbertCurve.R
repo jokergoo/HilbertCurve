@@ -157,7 +157,7 @@ setMethod(f = "hc_offset",
 # == param
 # -s position that will be mapped as the start of the Hilbert curve.
 # -e position that will be mapped as the end of the Hilbert curve.
-# -level level of the Hilbert curve. There will by ``4^level - 1`` segments in the curve.
+# -level iteration level of the Hilbert curve. There will by ``4^level - 1`` segments in the curve.
 # -mode "normal" mode is used for low ``level`` value and "pixel" mode is always used for high ``level`` value,
 #       so the "normal" mode is always for low-resolution visualization while "pixel" mode is used for high-resolution visualization.
 #       See 'details' for explanation.
@@ -177,6 +177,7 @@ setMethod(f = "hc_offset",
 # -title title of the plot.
 # -title_gp graphic parameters for the title. It should be specified by `grid::gpar`.
 # -start_from which corner on the plot should the curve starts?
+# -first_seg the orientation of the first segment
 # -legend a `grid::grob` object or a list of `grid::grob` objects. You can construct a `ComplexHeatmap::ColorMapping-class`
 #         object and generate a legend, see the Example section.
 #
@@ -248,9 +249,9 @@ setMethod(f = "hc_offset",
 HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 	reference = FALSE, reference_gp = gpar(lty = 3, col = "#999999"), 
 	arrow = TRUE, zoom = NULL, newpage = TRUE, 
-	background_col = "white", title = NULL, title_gp = gpar(fontsize = 16), 
+	background_col = "transparent", title = NULL, title_gp = gpar(fontsize = 16), 
 	start_from = c("bottomleft", "topleft", "bottomright", "topright"),
-	legend = list()) {
+	first_seg = c("horizontal", "vertical"), legend = list()) {
 
 	hc = new("HilbertCurve")
 	level = as.integer(level)
@@ -271,12 +272,37 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 
 	pos = hilbertCurve(level)
 	start_from = match.arg(start_from)[1]
-	degree = switch(start_from,
-		bottomleft = 0,
-		topleft = 270,
-		bottomright = 90,
-		topright = 180)
-	pos = rotate(pos, degree = degree)
+	first_seg = match.arg(first_seg)[1]
+	
+	if(start_from == "bottomleft") {
+		if(first_seg == "horizontal") {
+			# default, no transformation
+		} else if(first_seg == "vertical") {
+			pos = rotate(pos, degree = 90)
+			pos = flip(pos, direction = "horizontal")
+		}
+	} else if(start_from == "topleft") {
+		if(first_seg == "horizontal") {
+			pos = rotate(pos, degree = 180)
+			pos = flip(pos, direction = "horizontal")
+		} else {
+			pos = rotate(pos, degree = 270)
+		}
+	} else if(start_from == "bottomright") {
+		if(first_seg == "horizontal") {
+			pos = flip(pos, direction = "horizontal")
+		} else {
+			pos = rotate(pos, degree = 90)
+		}
+	} else if(start_from == "topright") {
+		if(first_seg == "horizontal") {
+			pos = rotate(pos, degree = 180)
+		} else {
+			pos = rotate(pos, degree = 270)
+			pos = flip(pos, direction = "horizontal")
+		}
+	}
+
 	hc@start_from = start_from
 	n = 4^level  # number of points
 
@@ -395,6 +421,25 @@ rotate = function(pos, degree = 0) {
 	return(data.frame(x = new_x, y = new_y))
 }
 
+flip = function(pos, direction = c("horizontal", "vertical")) {
+	x = pos[, 1]
+	y = pos[, 2]
+
+	center = c(mean(x), mean(y))
+	new_x = x - center[1]
+	new_y = y - center[2]
+	if("horizontal" %in% direction) {
+		new_x = -new_x
+	}
+	if("vertical" %in% direction) {
+		new_y = -new_y
+	}
+	new_x = round(new_x + center[1])
+	new_y = round(new_y + center[2])
+
+	return(data.frame(x = new_x, y = new_y))
+}
+
 # == title
 # Print the HilbertCurve object
 # 
@@ -447,7 +492,7 @@ setMethod(f = "hc_level",
 #
 # == param
 # -object A `HilbertCurve-class` object.
-# -ir a `IRanges::IRanges` object which specifies the input intervals.
+# -ir an `IRanges::IRanges` object which specifies the input intervals.
 # -x1 if start positions are not integers, they can be set by ``x1``.
 # -x2 if end positions are not integers, they can be set by ``x2``.
 # -np number of points (a circle or a square, ...) that are put in a segment. ``np`` controls
@@ -494,7 +539,7 @@ setMethod(f = "hc_level",
 # depending on the value of ``np``.
 #
 # == value
-# A data frame which contains coordinates (in 2D space) of points.
+# A data frame which contains coordinates (in the 2D space) of points.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -559,22 +604,25 @@ setMethod(f = "hc_points",
 #
 # == param
 # -object A `HilbertCurve-class` object.
-# -ir a `IRanges::IRanges` object which specifies the input intervals.
+# -ir an `IRanges::IRanges` object which specifies the input intervals.
 # -x1 if start positions are not integers, they can be set by ``x1``.
 # -x2 if end positions are not integers, they can be set by ``x2``.
-# -size size of the points. It should be a `grid::unit` object.
-# -pch shape of points.
+# -size size of the points. It should be a `grid::unit` object, pass to `grid::grid.points`.
+# -pch shape of points, pass to `grid::grid.points`.
 # -gp graphic parameters for points. It should be specified by `grid::gpar`.
 #
 # == details
 # Points are added at the middle of the intervals in ``ir`` (or ``x1`` and ``x2``),
 # so there is only one point for each interval.
 #
-# This function is used internally.
+# This function is used internally. Please use `hc_points,HilbertCurve-method` instead.
 #
 # == value
-# A data frame which contains coordinates (2D space) of points.
+# A data frame which contains coordinates (in the 2D space) of points.
 #
+# == seealso
+# `hc_points,HilbertCurve-method`
+# 
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
 #
@@ -651,7 +699,7 @@ setMethod(f = "hc_normal_points",
 #
 # == param
 # -object A `HilbertCurve-class` object.
-# -ir a `IRanges::IRanges` object which specifies the input intervals.
+# -ir an `IRanges::IRanges` object which specifies the input intervals.
 # -x1 if start positions are not integers, they can be set by ``x1``.
 # -x2 if end positions are not integers, they can be set by ``x2``.
 # -np number of points (a circle or a square, ...) that are put in a segment.
@@ -667,7 +715,7 @@ setMethod(f = "hc_normal_points",
 # This function is used internally, please use `hc_points,HilbertCurve-method` directly.
 #
 # == value
-# A data frame which contains coordinates (in 2D space) of points.
+# A data frame which contains coordinates (in the 2D space) of points.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -859,10 +907,10 @@ average_in_window = function(window, ir, mtch, v, mean_mode, empty_v = 0) {
 #
 # == param
 # -object A `HilbertCurve-class` object.
-# -ir a `IRanges::IRanges` object which specifies the input intervals.
+# -ir an `IRanges::IRanges` object which specifies the input intervals.
 # -x1 if start positions are not integers, they can be set by ``x1``.
 # -x2 if end positions are not integers, they can be set by ``x2``.
-# -gp graphic parameters for rectangles. It should be specified by `grid::gpar`.
+# -gp graphic parameters for rectangles. It should be specified by `grid::gpar`. Note you cannot set ``linejoin`` and ``lineend``.
 # -mean_mode when a segment in the curve can not be overlapped with intervals in ``ir``, how to calculate 
 #       the mean values for this segment. See explanation in `hc_points,HilbertCurve-method`.
 #
@@ -873,7 +921,7 @@ average_in_window = function(window, ir, mtch, v, mean_mode, empty_v = 0) {
 # It can be thought as the low-resolution version of `hc_layer,HilbertCurve-method`.
 #
 # == value
-# A data frame which contains coordinates (in 2D space) of rectangles.
+# A data frame which contains coordinates (in the 2D space) of rectangles.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -976,13 +1024,13 @@ setMethod(f = "hc_rect",
 #
 # == param
 # -object A `HilbertCurve-class` object.
-# -ir a `IRanges::IRanges` object which specifies the input intervals.
+# -ir an `IRanges::IRanges` object which specifies the input intervals.
 # -x1 if start positions are not integers, they can be set by ``x1``.
 # -x2 if end positions are not integers, they can be set by ``x2``.
-# -gp graphic parameters for lines. It should be specified by `grid::gpar`.
+# -gp graphic parameters for lines. It should be specified by `grid::gpar`. Note you cannot set ``linejoin`` and ``lineend``.
 #
 # == value
-# A data frame which contains coordinates (in 2D space) of segments.
+# A data frame which contains coordinates (in the 2D space) of segments.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -1108,7 +1156,7 @@ setMethod(f = "hc_segments",
 #
 # == param
 # -object A `HilbertCurve-class` object.
-# -ir a `IRanges::IRanges` object that contains positions which correspond to text.
+# -ir an `IRanges::IRanges` object that contains positions which correspond to text.
 #     The middle point of the interval will be the position of the text.
 # -labels text corresponding to intervals in ``ir``.
 # -x1 if start positions are not integers, they can be set by ``x1``.
@@ -1120,7 +1168,7 @@ setMethod(f = "hc_segments",
 # The text is added correspoding to the middle of each interval in ``ir``.
 #
 # == value
-# A data frame which contains coordinates (in 2D space) of text.
+# A data frame which contains coordinates (in the 2D space) of text.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -1208,7 +1256,7 @@ setMethod(f = "hc_text",
 #
 # == param
 # -object A `HilbertCurve-class` object.
-# -ir a `IRanges::IRanges` object that contains positions which correspond to text.
+# -ir an `IRanges::IRanges` object that contains positions which correspond to text.
 #     The middle points of the intervals will be the positions of the text.
 # -labels text corresponding to intervals in ``ir``.
 # -x1 if start positions are not integers, they can be set by ``x1``.
@@ -1217,13 +1265,17 @@ setMethod(f = "hc_text",
 # -... pass to `grid::grid.text`. E.g. you can set text justification by ``just`` here.
 #
 # == details
-# If the interval is long enough that it represents as a block in the 2D plot, the corresponding
+# If the interval is long enough that it represents as a block in the 2D space, the corresponding
 # label is put approximately at center (or at least inside) of the block.
 #
 # It is quite experimental and only used internally.
 #
 # == value
 # ``NULL``
+#
+# == seealso
+# It is basically used in `hc_map,GenomicHilbertCurve-method` to put chromosome names in the center
+# of chromosomes.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -1335,19 +1387,20 @@ grid_arrows = function(x1, y1, x2, y2, length = unit(2, "mm"), angle = 15, only.
 #
 # == param
 # -object A `HilbertCurve-class` object.
-# -ir a `IRanges::IRanges` object which specifies the input intervals.
+# -ir an `IRanges::IRanges` object which specifies the input intervals.
 # -x1 if start positions are not integers, they can be set by ``x1``.
 # -x2 if end positions are not integers, they can be set by ``x2``.
-# -col colors which correspond to intervals in ``ir`` (or ``x1`` and ``x2``).
-# -border colors for the borders of intervals. Set it to ``NA`` if borders are suppressed.
-# -mean_mode when a segment in the curve can not be completely overlapped with intervals in ``ir``, how to calculate 
-#       the mean values for this segment. See explanation in `hc_points,HilbertCurve-method`.
+# -col a scalar or a vector of colors which correspond to intervals in ``ir`` (or ``x1`` and ``x2``).
+# -border a scalar or a vector of colors for the borders of intervals. Set it to ``NA`` if borders are suppressed.
+# -mean_mode Under 'pixel' mode, each pixel represents a small window. This argument provides methods
+#            to summarize value for the small window if the input intervals can not completely overlap with the window. 
+#            See explanation in `hc_points,HilbertCurve-method`.
 # -grid_line whether add grid lines to show blocks of the Hilber curve. 
 #        It should be an integer number and there will be ``2^(grid_line-1)-1``
 #        horizontal and vertical grid lines.
 # -grid_line_col color for the grid lines
-# -overlay a function which calculates the overlayed colors. By default it is `default_overlay`. Let's assume the red channel for the layers
-#          which are already in the plot is ``r0``, the R channel for the new layer is ``r`` and the alpha channel
+# -overlay a self-defined function which defines how to overlay new layer to the plot. By default it is `default_overlay`. Let's assume the red channel for the layers
+#          which are already in the plot is ``r0``, the red channel for the new layer is ``r`` and the alpha channel
 #          is ``alpha``, the overlayed color is calculated as ``r*alpha + r0*(1-alpha)``. This self-defined function
 #          should accept 7 arguments which are: vectors of r, g, b channels which correspond to the layers
 #          that are already in the plot, and r, g, b, alpha channels which corresponds to the new layer. All the 
@@ -1640,7 +1693,7 @@ add_raster = function(lt_rgb) {
 }
 
 # == title
-# Default overlay for adding new layers
+# Default color overlay for adding new layers
 #
 # == param
 # -r0  red channel for the layers that are already in the plot.
@@ -1655,7 +1708,10 @@ add_raster = function(lt_rgb) {
 # The default overlay is (take red channel for example) ``r*alpha + r0*(1-alpha)``.
 #
 # == value
-# A list contains overlayed RGB channel.
+# A list which contains overlayed RGB colors.
+#
+# == seealso
+# Color overlay function is always used in `hc_layer,HilbertCurve-method` or `hc_layer,GenomicHilbertCurve-method`.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>

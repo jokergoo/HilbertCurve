@@ -3,7 +3,8 @@ CHANGES in VERSION 1.1.2
 * add examples in vignette
 * add `hc_polygon()`
 * `hc_map()`: support borders
-* `HilbertCurve()`: start position can be selected
+* `HilbertCurve()`: start position can be selected, also the orientation
+  of the first segment can be selected
 
 =======================================
 

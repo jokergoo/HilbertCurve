@@ -144,23 +144,53 @@ hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
 ```
 
 By default, the Hilbert curve starts from the bottom left corner. The start position can be specifyed
-by `start_from` option:
+by `start_from` option and the orientation of the first segment can be set by `first_seg`:
 
-```{r, fig.width = 12, fig.height = 3, echo = FALSE}
+```{r, fig.width = 12, fig.height = 6, echo = FALSE}
 grid.newpage()
-pushViewport(viewport(layout = grid.layout(nr = 1, nc = 4)))
+pushViewport(viewport(layout = grid.layout(nr = 2, nc = 4)))
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 1))
-hc = HilbertCurve(1, 16, level = 2, reference = TRUE, newpage = FALSE, start_from = 'bottomleft', title = "start_from = 'bottomleft'")
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999"), 
+    newpage = FALSE, start_from = 'bottomleft', first_seg = "horizontal", 
+    title = "start_from = 'bottomleft'\nfirst_seg = 'horizontal'")
 upViewport()
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 2))
-hc = HilbertCurve(1, 16, level = 2, reference = TRUE, newpage = FALSE, start_from = 'topleft', title = "start_from = 'topleft'")
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999"), 
+    newpage = FALSE, start_from = 'topleft', first_seg = "horizontal", 
+    title = "start_from = 'topleft'\nfirst_seg = 'horizontal'")
 upViewport()
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 3))
-hc = HilbertCurve(1, 16, level = 2, reference = TRUE, newpage = FALSE, start_from = 'bottomright', title = "start_from = 'bottomright'")
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999"), 
+    newpage = FALSE, start_from = 'bottomright', first_seg = "horizontal",
+    title = "start_from = 'bottomright'\nfirst_seg = 'horizontal'")
 upViewport()
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 4))
-hc = HilbertCurve(1, 16, level = 2, reference = TRUE, newpage = FALSE, start_from = 'topright', title = "start_from = 'topright'")
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999"), 
+    newpage = FALSE, start_from = 'topright', first_seg = "horizontal",
+    title = "start_from = 'topright'\nfirst_seg = 'horizontal'")
 upViewport()
+
+pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 1))
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999"), 
+    newpage = FALSE, start_from = 'bottomleft', first_seg = "vertical", 
+    title = "start_from = 'bottomleft'\nfirst_seg = 'vertical'")
+upViewport()
+pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 2))
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999"), 
+    newpage = FALSE, start_from = 'topleft',  first_seg = "vertical",
+    title = "start_from = 'topleft'\nfirst_seg = 'vertical'")
+upViewport()
+pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 3))
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999"), 
+    newpage = FALSE, start_from = 'bottomright',  first_seg = "vertical",
+    title = "start_from = 'bottomright'\nfirst_seg = 'vertical'")
+upViewport()
+pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 4))
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999"), 
+    newpage = FALSE, start_from = 'topright',  first_seg = "vertical",
+    title = "start_from = 'topright'\nfirst_seg = 'vertical'")
+upViewport()
+
 upViewport()
 ```
 
@@ -571,7 +601,7 @@ hc = HilbertCurve(1, 100, level = 5)
 hc_rect(hc, x1 = 1:99, x2 = 2:100, gp = gpar(col = col, fill = col))
 ```
 
-Reproduce [the visualization for IPv4 address](http://datadrivensecurity.info/blog/posts/2015/Jan/mapping-ipv4-address-in-hilbert-space/). The CIDR data is from http://www.iwik.org/ipcountry/.
+Reproduce [the visualization for IPv4 address](http://dds.ec/hilvis/iframe.html). The CIDR data is from http://www.iwik.org/ipcountry/.
 
 ```{r, fig.width = 8, fig.height = 7}
 library(ComplexHeatmap)
@@ -601,8 +631,8 @@ top8_rate = paste0(round(top8_rate*100), "%")
 cm = ColorMapping(levels = c(top8, "Others"), color = c(col[top8], "grey"))
 lgd = color_mapping_legend(cm, title = "Top8 countries", 
     labels = c(paste(top8, top8_rate), "Others"), plot = FALSE)
-hc = HilbertCurve(0, 256^4, start_from = "bottomright", mode = "pixel", 
-    level = 9, legend = lgd)
+hc = HilbertCurve(0, 256^4, start_from = "topleft", first_seg = "horizontal",
+    mode = "pixel", level = 9, legend = lgd)
 hc_layer(hc, x1 = start, x2 = start + width, col = col[country])
 ```
 

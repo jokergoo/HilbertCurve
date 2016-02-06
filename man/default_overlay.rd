@@ -1,10 +1,10 @@
 \name{default_overlay}
 \alias{default_overlay}
 \title{
-Default overlay for adding new layers
+Default color overlay for adding new layers
 }
 \description{
-Default overlay for adding new layers
+Default color overlay for adding new layers
 }
 \usage{
 default_overlay(r0, g0, b0, r, g, b, alpha = 1)
@@ -24,7 +24,10 @@ default_overlay(r0, g0, b0, r, g, b, alpha = 1)
 The default overlay is (take red channel for example) \code{r*alpha + r0*(1-alpha)}.
 }
 \value{
-A list contains overlayed RGB channel.
+A list which contains overlayed RGB colors.
+}
+\seealso{
+Color overlay function is always used in \code{\link{hc_layer,HilbertCurve-method}} or \code{\link{hc_layer,GenomicHilbertCurve-method}}.
 }
 \author{
 Zuguang Gu <z.gu@dkfz.de>
