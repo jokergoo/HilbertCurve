@@ -22,6 +22,5 @@ No value is returned.
 Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
-hc = HilbertCurve(1, 100)
-hc
+HilbertCurve(1, 100)
 }

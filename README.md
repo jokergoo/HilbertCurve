@@ -52,18 +52,26 @@ hc_png(hc, ...)
 
 ## Examples
 
-Show rainbow color spectrum:
+Rainbow color spectrum:
 
-![download](https://cloud.githubusercontent.com/assets/449218/8629460/e8e62eca-275b-11e5-9249-e871194f953f.png)
+![1](https://cloud.githubusercontent.com/assets/449218/12678993/f184c4de-c6a1-11e5-8c8c-ed3ed938c487.png)
 
-Genes on chromosome 1:
+Chinese dynasty:
 
-![download 1](https://cloud.githubusercontent.com/assets/449218/8629458/e8dcaa1c-275b-11e5-95c4-c36a9e1629ce.png)
-
-Methylation on chromosome 1:
-
-![download 2](https://cloud.githubusercontent.com/assets/449218/8629459/e8e1fc2e-275b-11e5-99e0-ed7cfd9aa0ad.png)
+![2](https://cloud.githubusercontent.com/assets/449218/12678995/f18981cc-c6a1-11e5-8b66-6222bed67c63.png)
 
 GC percent and genes on chromosome 1:
 
-![download 3](https://cloud.githubusercontent.com/assets/449218/8629472/01f441d6-275c-11e5-8760-4d9412c4754d.png)
+![3](https://cloud.githubusercontent.com/assets/449218/12678996/f18a6646-c6a1-11e5-9e0b-c99cc7a93f0e.png)
+
+Association between H3K36me3 histone modification and gene bodies:
+
+![4](https://cloud.githubusercontent.com/assets/449218/12678992/f1848320-c6a1-11e5-8225-e6fef169f29b.png)
+
+Methylation on chromosome 1:
+
+![5](https://cloud.githubusercontent.com/assets/449218/12678994/f186827e-c6a1-11e5-884a-b9135f24146e.png)
+
+Copy number alterations in 22 chromosomes:
+
+![6](https://cloud.githubusercontent.com/assets/449218/12678997/f18e405e-c6a1-11e5-9478-3d8fdc4bc834.png)

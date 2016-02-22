@@ -17,11 +17,11 @@ Add points to the Hilbert curve
   \item{object}{a \code{\link{GenomicHilbertCurve-class}} object}
   \item{gr}{a \code{\link[GenomicRanges]{GRanges}} object which contains the genomic regions to be mapped to the curve}
   \item{np}{pass to \code{\link{hc_points,HilbertCurve-method}}}
-  \item{size}{pass to \code{\link{hc_points,HilbertCurve-method}}}
-  \item{pch}{pass to \code{\link{hc_points,HilbertCurve-method}}}
-  \item{gp}{pass to \code{\link{hc_points,HilbertCurve-method}}}
+  \item{size}{size of points when \code{np <= 1}, pass to \code{\link{hc_points,HilbertCurve-method}}}
+  \item{pch}{shape of the points when \code{np <= 1}, pass to \code{\link{hc_points,HilbertCurve-method}}}
+  \item{gp}{graphic parameters of the points when \code{np <= 1}, pass to \code{\link{hc_points,HilbertCurve-method}}}
   \item{mean_mode}{pass to \code{\link{hc_points,HilbertCurve-method}}}
-  \item{shape}{pass to \code{\link{hc_points,HilbertCurve-method}}}
+  \item{shape}{shape of the points when \code{np >= 2}, pass to \code{\link{hc_points,HilbertCurve-method}}}
 
 }
 \details{
