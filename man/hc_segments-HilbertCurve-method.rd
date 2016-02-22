@@ -13,14 +13,14 @@ Add line segments to Hilbert curve
 \arguments{
 
   \item{object}{A \code{\link{HilbertCurve-class}} object.}
-  \item{ir}{a \code{\link[IRanges]{IRanges}} object.}
+  \item{ir}{an \code{\link[IRanges]{IRanges}} object which specifies the input intervals.}
   \item{x1}{if start positions are not integers, they can be set by \code{x1}.}
   \item{x2}{if end positions are not integers, they can be set by \code{x2}.}
-  \item{gp}{graphic parameters for lines. It should be specified by \code{\link[grid]{gpar}}.}
+  \item{gp}{graphic parameters for lines. It should be specified by \code{\link[grid]{gpar}}. Note you cannot set \code{linejoin} and \code{lineend}.}
 
 }
 \value{
-A data frame which contains coordinates for segments.
+A data frame which contains coordinates (in the 2D space) of segments.
 }
 \author{
 Zuguang Gu <z.gu@dkfz.de>

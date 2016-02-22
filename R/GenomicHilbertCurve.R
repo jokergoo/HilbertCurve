@@ -14,9 +14,13 @@
 # - `hc_points,GenomicHilbertCurve-method`: add points;
 # - `hc_segments,GenomicHilbertCurve-method`: add lines;
 # - `hc_rect,GenomicHilbertCurve-method`: add rectangles;
+# - `hc_polygon,GenomicHilbertCurve-method`: add poygons;
 # - `hc_text,GenomicHilbertCurve-method`: add text;
 # - `hc_layer,GenomicHilbertCurve-method`: add layers undel "pixel" mode;
-# - `hc_map,GenomicHilbertCurve-method`: show the map of different categories on the curve.
+# - `hc_map,GenomicHilbertCurve-method`: show the map of different categories on the curve. Works both for "normal" and "pixel" mode
+#
+# The usage of above functions are almost same as those functions for the `HilbertCurve-class`
+# except that the second argument which specifies the intervals should be a `GenomicRanges::GRanges` object.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -36,15 +40,19 @@ GenomicHilbertCurve = setClass("GenomicHilbertCurve",
 # == param
 # -chr a vector of chromosome names. Note it should have 'chr' prefix. This argument will be ignored
 #      when ``background`` is set.
-# -species abbreviation of species, e.g. 'hg19' or 'mm10'
-# -background the background can be provided as a 'GenomicRanges::GRanges' object. 
-#         It is not very well supported. It assumes that all regions which will be specified in 
-#         `hc_layer,GenomicHilbertCurve-method` are subsets of background regions.
-# -... pass to `HilbertCurve`
+# -species abbreviation of species, e.g. 'hg19' or 'mm10'. `circlize::read.chromInfo` is used to retrieve
+#          the chromosome information.
+# -background the background can be provided as a `GenomicRanges::GRanges` object. Chromosomes should be unique
+#          across rows. Or more generally, the 'seqnames' should be different.
+# -... common arguments in `HilbertCurve` can be used here.
 #
 # == details
-# If the background region contains more than one categories (e.g. more than one chromosomes), 
-# they are concatenated onto a same Hilbert curve.
+# Multiple chromosomes can be visualized in a same Hilbert curve. All chromosomes
+# are concatenated on after the other based on the order which is specified.
+#
+# Since chromosomes will have irregular shapes on the curve, under 'pixel' mode, 
+# users can set ``border`` option in `hc_map,GenomicHilbertCurve-method` to highlight 
+# borders of chromosomes to identify their locations on the curve.
 #
 # == value
 # A `GenomicHilbertCurve-class` object
@@ -62,9 +70,12 @@ GenomicHilbertCurve = setClass("GenomicHilbertCurve",
 # hc = GenomicHilbertCurve(chr = c("chr1", "chr2"))
 # hc_points(hc, gr)
 #
-# background = GRanges(seqnames = "chr1", ranges = IRanges(1, 10000000))
-# hc = GenomicHilbertCurve(background = background)
-# hc_points(hc, gr)
+# bg = GRanges(seqnames = c("chr1", "chr2"), 
+#     ranges = IRanges(c(1,10000000), c(10000000,20000000)))
+# hc = GenomicHilbertCurve(background = bg, level = 6)
+# hc_points(hc, gr, gp = gpar(fill = rand_color(length(gr))))
+# hc_map(hc, fill = NA, border = "grey", add = TRUE)
+#
 GenomicHilbertCurve = function(chr = paste0("chr", c(1:22, "X", "Y")), species = "hg19", 
 	background = NULL, ...) {
 
@@ -77,18 +88,18 @@ GenomicHilbertCurve = function(chr = paste0("chr", c(1:22, "X", "Y")), species =
 				                              chr.len))
 		names(background) = chr
 	} else {
-		if(length(background) > 50) {
-			warning("Too many background regions, it will be hard to interpret the plot.")
-		}
+		background = reduce(background)
 		if(!any(duplicated(as.vector(seqnames(background))))) {
-			names(background) = seqnames(background)
+			if(is.null(names(background))) {
+				names(background) = seqnames(background)
+			}
 		} else {
-			names(background) = paste0(seqnames(background), ":", start(background), "-", end(background), sep = "")
+			stop("Chromosomes cannot be duplicated in background regions.")
 		}
 	}
 
-	chr.len = as.numeric(width(background))
-    hc = HilbertCurve(1, sum(chr.len), ...)
+	len = as.numeric(width(background))
+    hc = HilbertCurve(1, sum(len), ...)
 
     hc2 = new("GenomicHilbertCurve")
     for(sn in slotNames(hc)) {
@@ -105,11 +116,11 @@ GenomicHilbertCurve = function(chr = paste0("chr", c(1:22, "X", "Y")), species =
 # -object a `GenomicHilbertCurve-class` object
 # -gr a `GenomicRanges::GRanges` object which contains the genomic regions to be mapped to the curve
 # -np pass to `hc_points,HilbertCurve-method`
-# -size pass to `hc_points,HilbertCurve-method`
-# -pch pass to `hc_points,HilbertCurve-method`
-# -gp pass to `hc_points,HilbertCurve-method`
+# -size size of points when ``np <= 1``, pass to `hc_points,HilbertCurve-method`
+# -pch shape of the points when ``np <= 1``, pass to `hc_points,HilbertCurve-method`
+# -gp graphic parameters of the points when ``np <= 1``, pass to `hc_points,HilbertCurve-method`
 # -mean_mode pass to `hc_points,HilbertCurve-method`
-# -shape pass to `hc_points,HilbertCurve-method`
+# -shape shape of the points when ``np >= 2``, pass to `hc_points,HilbertCurve-method`
 #
 # == details
 # It is basically a wrapper of `hc_points,HilbertCurve-method`.
@@ -135,6 +146,9 @@ setMethod(f = "hc_points",
 
 	if(is.data.frame(gr)) {
 		gr = GRanges(seqnames = gr[[1]], ranges = IRanges(gr[[2]], gr[[3]]))
+	}
+	if(!inherits(gr, "GRanges")) {
+		stop("`gr` should be a `GRanges` object or a data frame.")
 	}
 
 	mtch = as.matrix(findOverlaps(gr, object@background))
@@ -185,6 +199,9 @@ setMethod(f = "hc_rect",
 	if(is.data.frame(gr)) {
 		gr = GRanges(seqnames = gr[[1]], ranges = IRanges(gr[[2]], gr[[3]]))
 	}
+	if(!inherits(gr, "GRanges")) {
+		stop("`gr` should be a `GRanges` object or a data frame.")
+	}
 
 	mtch = as.matrix(findOverlaps(gr, object@background))
 	gr = gr[mtch[, 1]]
@@ -225,6 +242,9 @@ setMethod(f = "hc_segments",
 
 	if(is.data.frame(gr)) {
 		gr = GRanges(seqnames = gr[[1]], ranges = IRanges(gr[[2]], gr[[3]]))
+	}
+	if(!inherits(gr, "GRanges")) {
+		stop("`gr` should be a `GRanges` object or a data frame.")
 	}
 
 	mtch = as.matrix(findOverlaps(gr, object@background))
@@ -270,6 +290,9 @@ setMethod(f = "hc_text",
 	if(is.data.frame(gr)) {
 		gr = GRanges(seqnames = gr[[1]], ranges = IRanges(gr[[2]], gr[[3]]))
 	}
+	if(!inherits(gr, "GRanges")) {
+		stop("`gr` should be a `GRanges` object or a data frame.")
+	}
 
 	mtch = as.matrix(findOverlaps(gr, object@background))
 	gr = gr[mtch[, 1]]
@@ -283,16 +306,66 @@ setMethod(f = "hc_text",
 })
 
 # == title
+# Add text to Hilbert curve
+#
+# == param
+# -object a `GenomicHilbertCurve-class` object
+# -gr a `GenomicRanges::GRanges` object which contains the genomic regions to be mapped to the curve
+# -gp pass to `hc_text,HilbertCurve-method`
+# -end_type pass to `hc_text,HilbertCurve-method`
+# -... pass to `hc_text,HilbertCurve-method`
+#
+# == details
+# It is basically a wrapper of `hc_polygon,HilbertCurve-method`.
+#
+# == value
+# Refer to `hc_polygon,HilbertCurve-method`
+#
+# == author
+# Zuguang Gu <z.gu@dkfz.de>
+#
+# == example
+# require(circlize)
+# bed = generateRandomBed(nr = 20)
+# gr = GRanges(seqnames = bed[[1]], ranges = IRanges(bed[[2]], bed[[3]]))
+# hc = GenomicHilbertCurve()
+# hc_polygon(hc, gr)
+#
+setMethod(f = "hc_polygon",
+	signature = "GenomicHilbertCurve",
+	definition = function(object, gr, gp = gpar(), 
+		end_type = c("average", "expanding", "shrinking"), ...) {
+
+	if(is.data.frame(gr)) {
+		gr = GRanges(seqnames = gr[[1]], ranges = IRanges(gr[[2]], gr[[3]]))
+	}
+	if(!inherits(gr, "GRanges")) {
+		stop("`gr` should be a `GRanges` object or a data frame.")
+	}
+
+	mtch = as.matrix(findOverlaps(gr, object@background))
+	gr = gr[mtch[, 1]]
+	gp = recycle_gp(gp, length(gr))
+	gp = subset_gp(gp, mtch[, 1])
+	df = merge_into_one_chr(gr, object@background)
+
+	callNextMethod(object, x1 = df[,1], x2 = df[,2], gp = gp, end_type = end_type)
+})
+
+# == title
 # Add a new layer to the Hilbert curve
 #
 # == param
 # -object a `GenomicHilbertCurve-class` object
 # -gr a `GenomicRanges::GRanges` object which contains the genomic regions to be mapped to the curve
-# -col pass to `hc_layer,HilbertCurve-method`
-# -mean_mode pass to `hc_layer,HilbertCurve-method`
-# -grid_line pass to `hc_layer,HilbertCurve-method`
-# -grid_line_col pass to `hc_layer,HilbertCurve-method`
-# -overlay pass to `hc_layer,HilbertCurve-method`
+# -col a scalar or a vector of colors which correspond to regions in ``gr``, pass to `hc_layer,HilbertCurve-method`
+# -border a scalar or a vector of colors which correspond to the borders of regions. Set it to ``NA`` if borders are suppressed.
+# -mean_mode Under 'pixel' mode, each pixel represents a small window. This argument provides methods
+#            to summarize value for the small window if the input genomic regions can not completely overlap with the window, 
+#            pass to `hc_layer,HilbertCurve-method`
+# -grid_line whether add grid lines to show blocks of the Hilber curve, pass to `hc_layer,HilbertCurve-method`
+# -grid_line_col color for the grid lines, pass to `hc_layer,HilbertCurve-method`
+# -overlay a self-defined function which defines how to overlay new layer to the plot, pass to `hc_layer,HilbertCurve-method`
 #
 # == details
 # It is basically a wrapper of `hc_layer,HilbertCurve-method`.
@@ -312,12 +385,15 @@ setMethod(f = "hc_text",
 #
 setMethod(f = "hc_layer",
 	signature = "GenomicHilbertCurve",
-	definition = function(object, gr, col = "red", 
+	definition = function(object, gr, col = "red", border = NA,
 	mean_mode = c("w0", "absolute", "weighted"), grid_line = 0,
 	grid_line_col = "black", overlay = default_overlay) {
 
 	if(is.data.frame(gr)) {
 		gr = GRanges(seqnames = gr[[1]], ranges = IRanges(gr[[2]], gr[[3]]))
+	}
+	if(!inherits(gr, "GRanges")) {
+		stop("`gr` should be a `GRanges` object or a data frame.")
 	}
 
 	mtch = as.matrix(findOverlaps(gr, object@background))
@@ -327,29 +403,34 @@ setMethod(f = "hc_layer",
 
 	df = merge_into_one_chr(gr, object@background)
 
-	callNextMethod(object, x1 = df[,1], x2 = df[,2], col = col, mean_mode = mean_mode, 
+	callNextMethod(object, x1 = df[,1], x2 = df[,2], col = col, border = border, mean_mode = mean_mode, 
 		grid_line = grid_line, grid_line_col = grid_line_col, overlay = overlay)
 })
 
 # == title
-# Draw a map which represents positions of different genomic categories on the curve
+# Draw a map which represents positions of different chromosomes on the curve
 #
 # == param
 # -object a `GenomicHilbertCurve-class` object
-# -level Since a map does not need to have high resolution, a value of around 6 would be enough. 
+# -level Since a map does not need to have high resolution, a value of around 7 would be enough. 
 #        If ``add`` is set to ``TRUE``, ``level`` will be enforced to have the same level in the current Hilbert curve.
-# -fill colors for different genomic categories (current you cannot adjust the style of the borders)
-# -labels label for each genomic category. By default, if the category is unique for different chromosome,
-#          the label will be the chromosome name, or else they will be the combination of chromosme names and positions.
-#          It is ignored if the curve is under 'pixel' mode.
+# -fill colors for different chromosomes, or more generally, for different 'seqnames'.
+# -border colors for the borders of chromosomes. Set it to ``NA`` if borders are suppressed.
+# -labels label for each chromosome, or more generally, for different 'sequences'
 # -labels_gp graphic settings for labels
 # -add whether add the map to the current curve or draw it in a new graphic device. Notice if ``add`` is set to ``TRUE``,
 #      you should set ``fill`` with transparency so that it will not hide your original plot.
-# -... pass to `GenomicHilbertCurve`.
+# -... pass to `GenomicHilbertCurve`. It is only used if you want the map to be plotted in a new graphic device.
 #
 # == details
-# When multiple genomic categories are drawn into one single Hilbert curve, a map which shows the positions
-# of different categories on the curve is necessary to correspond to the graphics on the curve.
+# When multiple genomic categories (e.g. chromosomes) are drawn into one single Hilbert curve, a map which shows the positions
+# of categories on the curve is necessary to distinguish different genomic categories.
+#
+# Under "pixel" mode, if the map is directly added to the Hilbert curve, no chromosome name is drawn. The chromosome names
+# are only drawn if the map is plotted in a new graphic device or added to the Hilbert curve under "normal" mode.
+#
+# Just be careful if you directly overlay the map to the curve that the color of the map does not affect the original
+# plot too much.
 #
 # == value
 # A `GenomicHilbertCurve-class` object
@@ -365,70 +446,68 @@ setMethod(f = "hc_layer",
 # hc_points(hc, gr, gp = gpar(fill = rand_color(length(gr))))
 # # add it in the same graphic device
 # hc_map(hc, fill = rand_color(24, transparency = 0.5), add = TRUE)
+# 
+# # add the map only with borders
+# hc = GenomicHilbertCurve()
+# hc_points(hc, gr, gp = gpar(fill = rand_color(length(gr))))
+# hc_map(hc, fill = NA, border = "grey", add = TRUE)
 #
 # # or open a new graphic device
 # hc_map(hc, fill = rand_color(24))
 setMethod(f = "hc_map",
 	signature = "GenomicHilbertCurve",
-	definition = function(object, level = 7, fill = NULL, 
+	definition = function(object, level = 7, 
+	fill = rand_color(length(background), transparency = 0.5), border = NA,
 	labels = names(object@background), labels_gp = gpar(),
 	add = FALSE, ...) {
 
 	background = object@background
 	df = merge_into_one_chr(background, object@background)
 
-	if(is.null(fill)) {
-		fill = rand_color(length(background), transparency = 0.5)
-	}
 	if(add) {
 		if(object@MODE == "pixel") {
-			hc_layer(object, background, col = fill)
+			hc_layer(object, background, col = fill, border = border)
 		} else {
-			hc_rect(hc, background, gp = gpar(fill = fill, col = NA))
-			hc_centered_text(hc, x1 = df[, 1], x2 = df[, 2], labels = labels, gp = labels_gp)
+			hc_polygon(object, background, gp = gpar(fill = fill, col = border))
+			hc_centered_text(object, x1 = df[, 1], x2 = df[, 2], labels = labels, gp = labels_gp)
 		}
 	} else {
-		hc = GenomicHilbertCurve(background = background, level = level, ...)
-		hc_rect(hc, background, gp = gpar(fill = fill, col = NA))
+		hc = GenomicHilbertCurve(background = background, level = level, start_from = object@start_from, ...)
+		hc_polygon(hc, background, gp = gpar(fill = fill, col = border))
 		hc_centered_text(hc, x1 = df[, 1], x2 = df[, 2], labels = labels, gp = labels_gp)
 	}
 	return(invisible(object))
 })
 
-
+# chromosomes are unique across rows
+# the only thing that needs to notice is the start site in background may not be zero
 merge_into_one_chr = function(gr, background) {
-	background_names = as.vector(seqnames(background))
+	background_names = names(background)
 	background_length = as.numeric(width(background))
-
-	mtch = findOverlaps(gr, background, select = "arbitrary")
-	gr$category = seqnames(background)[mtch]
 
 	term = cumsum(background_length)
 	term = c(0, term[-length(term)])
 	names(term) = background_names
 
-	x1 = start(gr) + term[as.vector(gr$category)]
-	x2 = end(gr) + term[as.vector(gr$category)]
+	mtch = as.matrix(findOverlaps(gr, background))
+
+	x1 = rep(-1, length(gr))
+	x2 = rep(-1, length(gr))
+
+	category = names(background)[mtch[, 2]]
+	offset = start(background)[mtch[, 2]] - 1
+
+	l = start(gr)[mtch[,1]] < start(background)[mtch[,2]] & end(gr)[mtch[,1]] >= start(background)[mtch[,2]]
+	x1[mtch[, 1]] = ifelse(l, start(background)[mtch[,2]], start(gr)[mtch[, 1]]) - offset + term[as.vector(category)]
+	l = start(gr)[mtch[,1]] <= end(background)[mtch[,2]] & end(gr)[mtch[,1]] > end(background)[mtch[,2]]
+	x2[mtch[, 1]] = ifelse(l, end(background)[mtch[,2]], end(gr)[mtch[, 1]]) - offset + term[as.vector(category)]
+	
+	l = start(gr)[mtch[,1]] > end(background)[mtch[,2]]
+	x1[mtch[, 1][l]] = -1
+	x2[mtch[, 1][l]] = -1
+	l = end(gr)[mtch[,1]] < start(background)[mtch[,2]]
+	x1[mtch[, 1][l]] = -1
+	x2[mtch[, 1][l]] = -1
+
 	return(data.frame(x1, x2))
-}
-
-
-recycle_gp = function(gp, n = 1) {
-	g = lapply(gp, function(x) {
-		if(length(x) == 1 && n > 1) {
-			rep(x, n)
-		} else {
-			x
-		}
-	})
-	class(g) = "gpar"
-	return(g)
-}
-
-subset_gp = function(gp, i = 1) {
-	g = lapply(gp, function(x) {
-		x[i]
-	})
-	class(g) = "gpar"
-	return(g)
 }

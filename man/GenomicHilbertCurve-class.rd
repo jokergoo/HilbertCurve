@@ -20,10 +20,14 @@ The \code{\link{GenomicHilbertCurve-class}} provides following methods:
   \item \code{\link{hc_points,GenomicHilbertCurve-method}}: add points;
   \item \code{\link{hc_segments,GenomicHilbertCurve-method}}: add lines;
   \item \code{\link{hc_rect,GenomicHilbertCurve-method}}: add rectangles;
+  \item \code{\link{hc_polygon,GenomicHilbertCurve-method}}: add poygons;
   \item \code{\link{hc_text,GenomicHilbertCurve-method}}: add text;
   \item \code{\link{hc_layer,GenomicHilbertCurve-method}}: add layers undel "pixel" mode;
-  \item \code{\link{hc_map,GenomicHilbertCurve-method}}: show the map of different categories on the curve.
-}}
+  \item \code{\link{hc_map,GenomicHilbertCurve-method}}: show the map of different categories on the curve. Works both for "normal" and "pixel" mode
+}
+
+The usage of above functions are almost same as those functions for the \code{\link{HilbertCurve-class}}
+except that the second argument which specifies the intervals should be a \code{\link[GenomicRanges]{GRanges}} object.}
 \author{
 Zuguang Gu <z.gu@dkfz.de>
 }

@@ -1,8 +1,8 @@
 Package: HilbertCurve
 Type: Package
 Title: Making 2D Hilbert Curve
-Version: 1.1.1
-Date: 2015-11-3
+Version: 1.1.2
+Date: 2016-2-6
 Author: Zuguang Gu
 Maintainer: Zuguang Gu <z.gu@dkfz.de>
 Depends: R (>= 3.1.2), grid, IRanges, GenomicRanges
@@ -12,14 +12,16 @@ Suggests: knitr, testthat (>= 0.3), ComplexHeatmap (>= 1.7.0), markdown,
 VignetteBuilder: knitr
 Description: Hilbert curve is a type of space-filling curves
     that fold one dimensional axis into a two dimensional space, 
-    but with still keep the locality. This package aims to provide 
-    a easy and flexible way to visualize data through Hilbert curve.
+    but with still preserves the locality. This package aims to provide 
+    an easy and flexible way to visualize data through Hilbert curve.
 biocViews: Software, Visualization, Sequencing, Coverage, GenomeAnnotation
 URL: https://github.com/jokergoo/HilbertCurve
 License: GPL (>= 2)
-Packaged: 2015-11-3 00:00:00 UTC; Administrator
+Packaged: 2016-2-6 00:00:00 UTC; Administrator
 Repository: Bioconductor
-Date/Publication: 2015-11-3 00:00:00
+Date/Publication: 2016-2-6 00:00:00
 Collate: 00_S4_generic_methods.R
          HilbertCurve.R
+         hc_polygon.R
+         utils.R
          GenomicHilbertCurve.R
