@@ -10,6 +10,8 @@ Making 2D Hilbert Curve
 
 **Date**: `r Sys.Date()`
 
+**Version**: `r installed.packages()["HilbertCurve", "Version"]`
+
 -------------------------------------------------------------
 
 ```{r, echo = FALSE, message = FALSE}
@@ -37,7 +39,7 @@ library(HilbertCurve)
 that folds one dimensional axis into a two dimensional space, but still keeps the locality.
 It has advantages to visualize data with long axis in following two aspects:
 
-1. greatly improve resolution of the visualization;
+1. greatly improve resolution of the visualization fron n to $\sqrt{n}$;
 2. easy to visualize clusters because generally data points in the axis will also be close in the 2D space. 
 
 This package aims to provide an easy and flexible way to visualize data through Hilbert curve.
@@ -46,6 +48,8 @@ The implementation and example figures are based on following sources:
 - http://mkweb.bcgsc.ca/hilbert/
 - http://corte.si/posts/code/hilbert/portrait/index.html
 - http://bioconductor.org/packages/devel/bioc/html/HilbertVis.html
+
+We first load the packages and set seed for random numbers.
 
 ```{r}
 library(HilbertCurve)
@@ -79,17 +83,30 @@ upViewport()
 ```
 
 As shown in the above plots, as level increases, the length of the curve becomes longer and the curve folds
-more tensely. The number of segments (one segment is marked in red) on the Hilbert curve is `4^level - 1`. If a Hilbert curve with level 11 
+more densely. The number of segments (one segment is marked in red) on the Hilbert curve is `4^level - 1`. If a Hilbert curve with level 11 
 is used to map to human chromosome 1, the resolution would be `249250621/4^11` (approximately `r round(249250621/4^11)`bp).
 
 ### Locality
 
-Take a Hilbert curve with level 5 for example, assuming there are 1024 data points located on the curve evenly.
-we calculate the pairwise distance between data points in the 2D space and visualize
+[Hilbert curve](https://en.wikipedia.org/wiki/Hilbert_curve) folds one-dimensional axis into a two-dimensional space while still 
+preserves the locality of the data points. We visualize this attribute with
+a Hilbert curve with level 5. In following animation, the point moves with its natural
+order on the axis.
+
+```{r, eval = FALSE}
+for(i in 1:1024) {
+    hc = HilbertCurve(1, 1024, level = 5, reference = TRUE, arrow = FALSE)
+    hc_points(hc, x1 = i, np = NULL, pch = 16, size = unit(2, "mm"))
+}
+```
+
+<p><video   controls loop><source src="../extdata/move-on-hilbert-curve-.webm" /></video></p>
+
+Next, we calculate the pairwise distance between data points in the 2D space and visualize
 it as heatmap. The numbers on x-axis (top) and y-axis (left) illustrate the position of 
 data points in the original 1D axis.
 
-```{r}
+```{r, fig.width = 9, fig.height = 8}
 library(HilbertVis)
 pos = HilbertVis::hilbertCurve(5)
 mat = as.matrix(dist(pos))
@@ -112,9 +129,10 @@ decorate_heatmap_body("dist", {
 Basically, from the heatmap, data points which are close in the 1D axis are still close in the 2D space
 (illustrated in the areas around diagonals).
 
-Also there are some data points in (e.g. 1 ~ 256) which are close to data points in (768 ~ 1024)(bottom left or top right area in the heatmap),
+Also there are some data points in (e.g, 1 ~ 256) which are close to data points in (768 ~ 1024)(bottom left or top right area in the heatmap),
 but it is only due to that the curve folds back. This exception can be easily distinguished 
 by adding assistant grid lines or if users are clear with the structure of the curve.
+
 
 ## Basic settings
 
@@ -691,6 +709,8 @@ hc_layer(hc, gr, ...)
 
 Following illustrates several examples of making genome-level Hilbert curves.
 
+## Genes
+
 The first example visualizes genes on chromosome 1 ([RefSeq genes for human, hg19](https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=451688581_FoCuggvGvavyfGhdj9sSGrGlnErE&clade=mammal&org=Human&db=hg38&hgta_group=genes&hgta_track=refGene&hgta_table=0&hgta_regionType=genome&position=chr9%3A133252000-133280861&hgta_outputType=primaryTable&hgta_outFileName=)). Here random colors are used
 to distinguish different genes.
 
@@ -701,26 +721,85 @@ hc = GenomicHilbertCurve(chr = "chr1", level = 5, reference = TRUE,
 hc_segments(hc, g, gp = gpar(lwd = 6, col = rand_color(length(g))))
 ```
 
-Following two figures show how well human chromosome 1 is aligned to mouse and zebrafish. Data are from [UCSC Table Browser](http://genome.ucsc.edu/cgi-bin/hgTables?hgsid=434791817_tLOpTRgCwS2hR4uJ2cDjGaHUQEKj&clade=mammal&org=Human&db=hg19&hgta_group=compGeno&hgta_track=placentalChainNet&hgta_table=0&hgta_regionType=genome&position=chr16%3A81839239-81902938&hgta_outputType=wigData&hgta_outFileName=).
+### Sequence conservation
+
+The conserved regions on human chromosome 1 between mouse and human or between zebrafish and human are downloaded from [UCSC
+Table Browser](http://genome.ucsc.edu/cgi-bin/hgTables?hgsid=472144813_MQ4BbmgW37du53Nw6n9SKKy6mb6r&clade=mammal&org=Human&db=hg38&hgta_group=compGeno&hgta_track=placentalChainNet&hgta_table=netMm10&hgta_regionType=genome&position=chr9%3A133252000-133280861&hgta_outputType=primaryTable&hgta_outFileName=). The parameters for downloading are:
+
+```
+clade: Mammal
+genome: Human
+assembly: Feb. 2009(GRCh37/hg19)
+group: Comparative Genomics
+# for mouse
+track: Placental Chain/Net
+table: Mouse Net (netMm10)
+# for zebrafish
+track: Vertebrate Chain/Net
+table: Zebrafish Net(netDanRer7)
+```
+
+The "net" alignment which is used here shows the best alignment (the alignment algorithm allows longer gaps than traditional affine gap scoring systems) between each part in human genome and other genomes. For a detailed description
+of the alignment strategy, please go to [UCSC
+Table Browser](http://genome.ucsc.edu/cgi-bin/hgTables?hgsid=472144813_MQ4BbmgW37du53Nw6n9SKKy6mb6r&clade=mammal&org=Human&db=hg38&hgta_group=compGeno&hgta_track=placentalChainNet&hgta_table=netMm10&hgta_regionType=genome&position=chr9%3A133252000-133280861&hgta_outputType=primaryTable&hgta_outFileName=), and click **describe table schema** button.
+
+In following example, the conservation data is mapped to a level 6 Hilbert curve under "normal" mode.
+Points are used as the graphic and each segment on the Hilbert curve is split by 3 points. In this case,
+each point on the curve represents approximately 30kb. Only chromosome 1 is visualized.
+
+The point is fully red if the window which is represented by this point is completely covered by the conserved regions,
+and it is yellow if it is not covered by any region. Colors are interpolated linearly between red and yellow
+if it is partially covered by the conserved regions.
 
 ```{r}
+# for generating the legend
+cm = ColorMapping(col_fun = colorRamp2(c(0, 1), c("yellow", "red")))
+lgd = color_mapping_legend(cm, title = "Conservation", plot = FALSE,
+    at = c(0, 0.2, 0.4, 0.6, 0.8, 1), 
+    labels = c("0%", "20%", "40%", "60%", "80%", "100%"))
 chr1_len = 249250621
+```
+
+Conservation between human and mouse.
+
+```{r, fig.width = 7.5, fig.height = 7}
 load(system.file("extdata", "mouse_net.RData", package = "HilbertCurve"))
 seqlengths(mouse) = chr1_len # it is only used to extract the complement
 nonmouse = gaps(mouse); nonmouse = nonmouse[strand(nonmouse) == "*"]
 gr = c(mouse, nonmouse)
 col = c(rep("red", length(mouse)), rep("yellow", length(nonmouse)))
-hc = GenomicHilbertCurve(chr = "chr1", level = 6)
+hc = GenomicHilbertCurve(chr = "chr1", level = 6, 
+    title = "Conservation between mouse and human on chr1",
+    legend = lgd)
 hc_points(hc, gr, np = 3, gp = gpar(col = NA, fill = col))
+```
 
+Conservation between human and zebrafish.
+
+```{r, fig.width = 7.5, fig.height = 7}
 load(system.file("extdata", "zebrafish_net.RData", package = "HilbertCurve"))
 seqlengths(zebrafish) = chr1_len
 nonzebrafish = gaps(zebrafish); nonzebrafish = nonzebrafish[strand(nonzebrafish) == "*"]
 gr = c(zebrafish, nonzebrafish)
 col = c(rep("red", length(zebrafish)), rep("yellow", length(nonzebrafish)))
-hc = GenomicHilbertCurve(chr = "chr1", level = 6)
+hc = GenomicHilbertCurve(chr = "chr1", level = 6, 
+    title = "Conservation between zebrafish and human on chr1",
+    legend = lgd)
 hc_points(hc, gr, np = 3, gp = gpar(col = NA, fill = col))
 ```
+
+Compareing these two plots, we have following conclusions:
+
+1. Although it is already known that mouse is far more orthologically close to human, the Hilber curve illustrates
+   more clearly that almost all parts of human chromosome 1 have similar sequences on mouse genome.
+2. The start and end of the human chromosome 1 is less conserved to mouse compared to other parts in the chromosome. Also there
+   are several less conserved regions inside the human chromosome.
+3. It illustrates how the regions which are conserved to zebrafish spread in the 
+   human chromosome and it gives an estimation of the positions and length of the conserved regions.
+
+The idea of visualizing sequencing conservation through the Hilbert curve is from [here](http://mkweb.bcgsc.ca/hilbert/scientificamerican.mhtml).
+
+### GC percent
 
 Following figure visualizes GC percent on chromosome 1, under "normal" mode. The GC content per 1KB window
 is calculated by `hgGcPercent.bin` binary which is downloaded from http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/.
@@ -729,7 +808,12 @@ is calculated by `hgGcPercent.bin` binary which is downloaded from http://hgdown
 png('gc_percent_chr1_points.png', width = 500, height = 500)
 df = read.table(pipe("awk '$1==\"chr1\"' ~/HilbertCurveTest/hg19_gc_percent_window1000.bed"))
 col_fun = colorRamp2(quantile(df[[5]], c(0.1, 0.5, 0.9)), c("green", "#FFFFCC", "red"))
-hc = GenomicHilbertCurve(chr = "chr1", level = 6)
+cm = ColorMapping(col_fun = col_fun)
+lgd = color_mapping_legend(cm, title = "GC percent", plot = FALSE,
+    at = c(0, 0.2, 0.4, 0.6, 0.8, 1), 
+    labels = c("0%", "20%", "40%", "60%", "80%", "100%"))
+
+hc = GenomicHilbertCurve(chr = "chr1", level = 6, legend = lgd)
 hc_points(hc, df, np = 3, gp = gpar(fill = col_fun(df[[5]]), col = col_fun(df[[5]])))
 hc_rect(hc, reduce(g), gp = gpar(fill = "#00000020", col = NA))
 invisible(dev.off())
@@ -743,7 +827,7 @@ Or visualize GC percent on chromosome 1, under "pixel" mode (you may see the dif
 between "normal" mode and "pixel" mode here):
 
 ```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
-hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel")
+hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel", legend = lgd)
 hc_layer(hc, df, col = col_fun(df[[5]]))
 hc_layer(hc, reduce(g), col = "#00000020")
 hc_png(hc, file = "gc_percent_chr1.png")
@@ -761,7 +845,7 @@ In following example, only the first half part of chromosome 1 is used to initia
 
 ```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
 background = GRanges(seqnames = "chr1", ranges = IRanges(1, ceiling(chr1_len/2)))
-hc = GenomicHilbertCurve(background = background, level = 9, mode = "pixel")
+hc = GenomicHilbertCurve(background = background, level = 9, mode = "pixel", legend = lgd)
 hc_layer(hc, df, col = col_fun(df[[5]]))
 hc_layer(hc, reduce(g), col = "#00000020")
 hc_png(hc, file = "gc_percent_half_chr1.png")
@@ -771,8 +855,24 @@ hc_png(hc, file = "gc_percent_half_chr1.png")
 cat("<p><center><img src='gc_percent_half_chr1.png' /></center></p>\n")
 ```
 
-Following plots visualize different histone marks on human chromosome 1. Additionally, gene regions are added as a grey layer.
-Data are from http://genboree.org/EdaccData/Release-9/sample-experiment/Lung/.
+### Histone modifications
+
+Different modifications (e.g. methylation, acetylation) of the histones affect the chromatin-DNA interaction,
+thus play roles in transcription regulation. Different types of modifications relates to different types
+of gene regulation. E.g. H3H4me3 modification is found in actively transcribed promoters. ChIP-sequencing (ChIPSeq)
+utilizes highthroughput DNA sequencing technology to identify status of chromatin states genome-wide, thus it 
+provides a way to study gene regulation in a global aspect.
+
+In this section, we visualize four types of histone modifications (H3K27ac, H3K36me3, H3K4me3, H3K9me3). 
+The ChIPSeq data are downloaded from Roadmap (http://genboree.org/EdaccData/Release-9/sample-experiment/Lung/). 
+Following files for four histone modifications are used to visualize:
+
+```
+UCSD.Lung.H3K27ac.STL002.bed
+UCSD.Lung.H3K36me3.STL002.bed
+UCSD.Lung.H3K4me3.STL002.bed
+UCSD.Lung.H3K9me3.STL002.bed
+```
 
 Since we are going to plot more than one histome marks, the code for plotting are wrapped as a simple function:
 
@@ -782,15 +882,26 @@ plot_histone_mark = function(mark) {
 	df = read.table(pipe(qq("awk '$5>0 && $1==\"chr1\"' ~/HilbertCurveTest/UCSD.Lung.@{mark}.STL002.bed")), 
         sep = "\t")
 	col_fun = colorRamp2(c(0, quantile(df[[5]], 0.99)), c("white", "red"))
-	hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel")
+    cm = ColorMapping(col_fun = col_fun)
+    lgd = color_mapping_legend(cm, title = "Intensity", plot = FALSE)
+    cm2 = ColorMapping(level = c(mark, "gene"), color = c("#FF0000", "#CCCCCC"))
+    lgd2 = color_mapping_legend(cm2, title = "Layer", plot = FALSE)
+
+	hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel", 
+        title = qq("Intensity of @{mark} mark on chr1"), legend = list(lgd, lgd2))
 	hc_layer(hc, df, col = col_fun(df[[5]]))
     hc_layer(hc, reduce(g), col = "#00000010")
     hc_png(hc, qq("@{mark}_chr1.png"))
 }
 ```
 
-H3K27ac histone mark (enhancers):
+In above code, intensities of histone modifications are mapped to a level 9 Hilbert curve so that each pixel approximately
+represents a window of 950bp. In each plot, there is an additional grey layer which represents the regions of genes (RefSeq genes).
+For the regions which are overlapped with gene bodies, the color theme is changed to white-purple, which helps to 
+visualize the correspondance between histone modifications and gene bodies.
 
+H3K27ac is a mark for active enhancers which is narrow and sharp. The Hilbert curve shows this attributes and also 
+shows enhancers may exist in form of clusters.
 ```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = 1}
 plot_histone_mark("H3K27ac")
 ```
@@ -799,7 +910,8 @@ plot_histone_mark("H3K27ac")
 cat("<p><center><img src='H3K27ac_chr1.png' /></center></p>\n")
 ```
 
-H3K36me3 histone mark. (H3K36me3 is found in actively transcribed gene bodies)
+H3K36me3 is a mark for actively transcribed gene bodies. The Hilbert curve shows that
+basically most of H3K36me3 modification with high intensity exists in gene bodies (the purple regions).
 
 ```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = 1}
 plot_histone_mark("H3K36me3")
@@ -809,7 +921,8 @@ plot_histone_mark("H3K36me3")
 cat("<p><center><img src='H3K36me3_chr1.png' /></center></p>\n")
 ```
 
-H3K4me3 histone mark. (H3K4me3 is found in actively transcribed promoters, particularly just after the transcription start site)
+H3K4me3 is a mark for TSS of actively transcribed genes which is also narrow and sharp. The Hilbert curve confirms this
+and also shows the size of marks are quite consistent.
 
 ```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = 1}
 plot_histone_mark("H3K4me3")
@@ -819,7 +932,8 @@ plot_histone_mark("H3K4me3")
 cat("<p><center><img src='H3K4me3_chr1.png' /></center></p>\n")
 ```
 
-H3K9me3 histone mark. (H3K9me3 is found in constitutively repressed genes)
+H3K9me3 is a mark for repressed genes. The Hilbert curve shows that H3K9me3 modications spread
+over huge regions in the chromosome.
 
 ```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = 1}
 plot_histone_mark("H3K9me3")
@@ -839,26 +953,34 @@ df = read.table(pipe("awk '$5>0 && $1==\"chr1\"' ~/HilbertCurveTest/UCSD.Lung.H3
     sep = "\t")
 col_fun = colorRamp2(c(0, quantile(df[[5]], 0.99)), c("white", "red"))
 col_fun_new = colorRamp2(c(0, quantile(df[[5]], 0.99)), c("white", "purple"))
-hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel")
+cm = ColorMapping(col_fun = col_fun)
+lgd = color_mapping_legend(cm, title = "Intensity", plot = FALSE)
+cm2 = ColorMapping(level = c("H3K36me3", "overlap", "gene"), color = c("#FF0000", "purple", "#CCCCCC"))
+lgd2 = color_mapping_legend(cm2, title = "Layer", plot = FALSE)
+
+hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel",
+    title = "Intensity of H3K36me3 mark on chr1", legend = list(lgd, lgd2))
 hc_layer(hc, df, col = col_fun(df[[5]]))
-hc_layer(hc, reduce(g), col = "#00000010", 
+hc_layer(hc, reduce(g), col = "#00000010",
     overlay = function(r0, g0, b0, r, g, b, alpha) {
-            l = !(r0 == 1 & g0 == 1 & b0 == 1) # non-white pixels
-            v = col2value(r0[l], g0[l], b0[l], col_fun = col_fun) # the original value
+        l = !(r0 == 1 & g0 == 1 & b0 == 1)
+        v = col2value(r0[l], g0[l], b0[l], col_fun = col_fun)
 
-            col_new = col_fun_new(v, return_rgb = TRUE) # the new color theme
-            r0[l] = col_new[, 1]
-            g0[l] = col_new[, 2]
-            b0[l] = col_new[, 3]
+        col_new = col_fun_new(v, return_rgb = TRUE)
+        r0[l] = col_new[, 1]
+        g0[l] = col_new[, 2]
+        b0[l] = col_new[, 3]
 
-            default_overlay(r0, g0, b0, r, g, b, alpha)
-        })
+        default_overlay(r0, g0, b0, r, g, b, alpha)
+    })
 hc_png(hc, "H3K36me3_chr1_overlap.png")
 ```
 
 ```{r, echo = FALSE, results = "asis"}
 cat("<p><center><img src='H3K36me3_chr1_overlap.png' /></center></p>\n")
 ```
+
+### Methylation
 
 Next figure visualizs methylation on human chromosome 1. Blue corresponds to un-methylation and red corresponds to full-methylation.
 One thing which is very important here is that methylation is always measured at single CpG
@@ -872,7 +994,10 @@ and intermediate methylated regions which are represented as large blocks.
 df = read.table(pipe("awk '$1==\"chr1\"' ~/HilbertCurveTest/UCSD.Lung.Bisulfite-Seq.STL002.bed"), 
     sep = "\t")
 col_fun = colorRamp2(c(0, 0.5, 1), c("blue", "white", "red"))
-hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel")
+cm = ColorMapping(col_fun = col_fun)
+lgd = color_mapping_legend(cm, title = "Methylation", plot = FALSE)
+
+hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel", legend = lgd)
 hc_layer(hc, df, col = col_fun(df[[5]]), mean_mode = "absolute")
 hc_layer(hc, reduce(g), col = "#00000010")
 hc_png(hc, file = 'methylation_chr1.png')
@@ -892,14 +1017,16 @@ than one background intervals in `background` argument.
 
 In following examples, copy number loss and gain for 22 human chromosomes are visualized. Also color for the overlapping
 regions between layer for gain events and layer for loss events is changed to purple by defining `overlay` function.
-Data is from (Database of Genomic Variants, CNV map)[http://dgv.tcag.ca/dgv/app/downloads]. 
+Data is from [Database of Genomic Variants, CNV map](http://dgv.tcag.ca/dgv/app/downloads). 
 
 
 ```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
 hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel")
-df_gain = read.table("~/HilbertCurveTest/Stringent.Gain.hg19.2015-02-03.txt", header = TRUE, stringsAsFactors = FALSE)
+df_gain = read.table("~/HilbertCurveTest/Stringent.Gain.hg19.2015-02-03.txt", 
+    header = TRUE, stringsAsFactors = FALSE)
 hc_layer(hc, df_gain, col = "red")
-df_loss = read.table("~/HilbertCurveTest/Stringent.Loss.hg19.2015-02-03.txt", header = TRUE, stringsAsFactors = FALSE)
+df_loss = read.table("~/HilbertCurveTest/Stringent.Loss.hg19.2015-02-03.txt", 
+    header = TRUE, stringsAsFactors = FALSE)
 hc_layer(hc, df_loss, col = "green", grid_line = 3, grid_line_col = "grey",
     overlay = function(r0, g0, b0, r, g, b, alpha) {
         l = !(r0 == 1 & g0 == 1 & b0 == 1)
@@ -972,8 +1099,8 @@ cat("<p><center><img src='cnv_all_chromosomes_border.png' /></center></p>\n")
 ```
 
 You may notice there is no chromosome name when directly adding the map to the Hilbert curve.
-The reason is under "pixel" mode, it is possible to convert text directly into pixels (remember
-under "pixel" mode, the curve is storted as an RGB matrix), while if
+The reason is under "pixel" mode, it is impossible to convert text directly into pixels (remember
+under "pixel" mode, because the curve is stored as an RGB matrix), while if
 the map is plotted as a separate plot, by default it is under "normal" mode which allows drawing text.
 
 If you want to compare several plots simutaneously, you can use `grid.layout()`
