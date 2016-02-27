@@ -10,7 +10,7 @@ Making 2D Hilbert Curve
 
 **Date**: `r Sys.Date()`
 
-**Version**: `r installed.packages()["HilbertCurve", "Version"]`
+**Package version**: `r installed.packages()["HilbertCurve", "Version"]`
 
 -------------------------------------------------------------
 
@@ -621,7 +621,7 @@ hc_rect(hc, x1 = 1:99, x2 = 2:100, gp = gpar(col = col, fill = col))
 
 Reproduce [the visualization for IPv4 address](http://dds.ec/hilvis/iframe.html). The CIDR data is from http://www.iwik.org/ipcountry/.
 
-```{r, fig.width = 8, fig.height = 7}
+```{r}
 library(ComplexHeatmap)
 library(RColorBrewer)
 
@@ -827,7 +827,7 @@ Or visualize GC percent on chromosome 1, under "pixel" mode (you may see the dif
 between "normal" mode and "pixel" mode here):
 
 ```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = c(2:4,6:7)}
-png("gc_percent_chr1.png", width = 600, height = 600)
+png("gc_percent_chr1.png", width = 500, height = 500)
 hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel", legend = lgd)
 hc_layer(hc, df, col = col_fun(df[[5]]))
 hc_layer(hc, reduce(g), col = "#00000020")
@@ -847,7 +847,7 @@ In following example, only the first half part of chromosome 1 is used to initia
 **Note: when using `background`, one chromosome can only exist in one row.**
 
 ```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = c(2:5,7:8)}
-png("gc_percent_half_chr1.png", width = 600, height = 600)
+png("gc_percent_half_chr1.png", width = 500, height = 500)
 background = GRanges(seqnames = "chr1", ranges = IRanges(1, ceiling(chr1_len/2)))
 hc = GenomicHilbertCurve(background = background, level = 9, mode = "pixel", legend = lgd,
     title = "First half of chromosome 1")
@@ -912,7 +912,7 @@ H3K27ac is a mark for active enhancers which is narrow and sharp. The Hilbert cu
 shows enhancers may exist in form of clusters.
 
 ```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = 2}
-png("H3K27ac_chr1.png", width = 600, height = 600)
+png("H3K27ac_chr1.png", width = 500, height = 500)
 plot_histone_mark("H3K27ac")
 invisible(dev.off())
 ```
@@ -925,7 +925,7 @@ H3K36me3 is a mark for actively transcribed gene bodies. The Hilbert curve shows
 basically most of H3K36me3 modification with high intensity exists in gene bodies (the purple regions).
 
 ```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = 2}
-png("H3K36me3_chr1.png", width = 600, height = 600)
+png("H3K36me3_chr1.png", width = 500, height = 500)
 plot_histone_mark("H3K36me3")
 invisible(dev.off())
 ```
@@ -938,7 +938,7 @@ H3K4me3 is a mark for TSS of actively transcribed genes which is also narrow and
 and also shows the size of marks are quite consistent.
 
 ```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = 2}
-png("H3K4me3_chr1.png", width = 600, height = 600)
+png("H3K4me3_chr1.png", width = 500, height = 500)
 plot_histone_mark("H3K4me3")
 invisible(dev.off())
 ```
@@ -951,7 +951,7 @@ H3K9me3 is a mark for repressed genes. The Hilbert curve shows that H3K9me3 modi
 over huge regions in the chromosome.
 
 ```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = 2}
-png("H3K9me3_chr1.png", width = 600, height = 600)
+png("H3K9me3_chr1.png", width = 500, height = 500)
 plot_histone_mark("H3K9me3")
 invisible(dev.off())
 ```
@@ -965,7 +965,7 @@ genomic features, they can define a color overlay function to enhance the visual
 In following example, when regions for H3K36me3 mark
 are overlapped with gene bodies, the color theme is changed to white-purple.
 
-```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = c(1:8, 10:23)}
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = c(1:8, 10:20, 22:23)}
 df = read.table(pipe("awk '$5>0 && $1==\"chr1\"' ~/HilbertCurveTest/UCSD.Lung.H3K36me3.STL002.bed"), 
     sep = "\t")
 col_fun = colorRamp2(c(0, quantile(df[[5]], 0.99)), c("white", "red"))
@@ -975,7 +975,7 @@ lgd = color_mapping_legend(cm, title = "Intensity", plot = FALSE)
 cm2 = ColorMapping(level = c("H3K36me3", "overlap", "gene"), color = c("#FF0000", "purple", "#CCCCCC"))
 lgd2 = color_mapping_legend(cm2, title = "Layer", plot = FALSE)
 
-png("H3K36me3_chr1_overlap.png", width = 600, height = 600)
+png("H3K36me3_chr1_overlap.png", width = 500, height = 500)
 hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel",
     title = "Intensity of H3K36me3 mark on chr1", legend = list(lgd, lgd2))
 hc_layer(hc, df, col = col_fun(df[[5]]))
@@ -1010,13 +1010,13 @@ Data are from http://genboree.org/EdaccData/Release-9/sample-experiment/Lung/.
 The methylation plot shows quite clear patterns for un-methylated regions which are small and sharp, fully methylated regions
 and intermediate methylated regions which are represented as large blocks.
 
-```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = c(1:8, 10:11)}
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = c(1:4, 6:8, 10:11)}
 df = read.table(pipe("awk '$1==\"chr1\"' ~/HilbertCurveTest/UCSD.Lung.Bisulfite-Seq.STL002.bed"), 
     sep = "\t")
 col_fun = colorRamp2(c(0, 0.5, 1), c("blue", "white", "red"))
 cm = ColorMapping(col_fun = col_fun)
 lgd = color_mapping_legend(cm, title = "Methylation", plot = FALSE)
-png("methylation_chr1.png", width = 600, height = 600)
+png("methylation_chr1.png", width = 500, height = 500)
 hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel", legend = lgd)
 hc_layer(hc, df, col = col_fun(df[[5]]), mean_mode = "absolute")
 hc_layer(hc, reduce(g), col = "#00000010")
