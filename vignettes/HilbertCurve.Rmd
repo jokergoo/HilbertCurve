@@ -621,7 +621,7 @@ hc_rect(hc, x1 = 1:99, x2 = 2:100, gp = gpar(col = col, fill = col))
 
 Reproduce [the visualization for IPv4 address](http://dds.ec/hilvis/iframe.html). The CIDR data is from http://www.iwik.org/ipcountry/.
 
-```{r}
+```{r, fig.width = 7, fig.height = 6}
 library(ComplexHeatmap)
 library(RColorBrewer)
 
@@ -804,7 +804,7 @@ The idea of visualizing sequencing conservation through the Hilbert curve is fro
 Following figure visualizes GC percent on chromosome 1, under "normal" mode. The GC content per 1KB window
 is calculated by `hgGcPercent.bin` binary which is downloaded from http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/.
 
-```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", echo = 2:9}
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", echo = 2:11}
 png('gc_percent_chr1_points.png', width = 500, height = 500)
 df = read.table(pipe("awk '$1==\"chr1\"' ~/HilbertCurveTest/hg19_gc_percent_window1000.bed"))
 col_fun = colorRamp2(quantile(df[[5]], c(0.1, 0.5, 0.9)), c("green", "#FFFFCC", "red"))
@@ -844,9 +844,9 @@ Background is not necessary to be the whole chromosome, it can also be self-defi
 The background can be specified as a `GRanges` object and pass to `background` argument. 
 In following example, only the first half part of chromosome 1 is used to initialize the curve.
 
-**Note: when using `background`, one chromosome can only exist in one row.**
+**Note: when using `background`, one chromosome can only exist in one row in `background`.**
 
-```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = c(2:5,7:8)}
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = c(2:6,8:9)}
 png("gc_percent_half_chr1.png", width = 500, height = 500)
 background = GRanges(seqnames = "chr1", ranges = IRanges(1, ceiling(chr1_len/2)))
 hc = GenomicHilbertCurve(background = background, level = 9, mode = "pixel", legend = lgd,
@@ -965,7 +965,7 @@ genomic features, they can define a color overlay function to enhance the visual
 In following example, when regions for H3K36me3 mark
 are overlapped with gene bodies, the color theme is changed to white-purple.
 
-```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = c(1:8, 10:20, 22:23)}
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = c(1:9, 11:25, 27:28)}
 df = read.table(pipe("awk '$5>0 && $1==\"chr1\"' ~/HilbertCurveTest/UCSD.Lung.H3K36me3.STL002.bed"), 
     sep = "\t")
 col_fun = colorRamp2(c(0, quantile(df[[5]], 0.99)), c("white", "red"))
@@ -1010,7 +1010,7 @@ Data are from http://genboree.org/EdaccData/Release-9/sample-experiment/Lung/.
 The methylation plot shows quite clear patterns for un-methylated regions which are small and sharp, fully methylated regions
 and intermediate methylated regions which are represented as large blocks.
 
-```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = c(1:4, 6:8, 10:11)}
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = c(1:5, 7:9, 11:12)}
 df = read.table(pipe("awk '$1==\"chr1\"' ~/HilbertCurveTest/UCSD.Lung.Bisulfite-Seq.STL002.bed"), 
     sep = "\t")
 col_fun = colorRamp2(c(0, 0.5, 1), c("blue", "white", "red"))

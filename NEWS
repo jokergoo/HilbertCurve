@@ -1,39 +1,36 @@
-CHANGES in VERSION 1.1.2
+## Changes in version 1.1.3
 
-* add examples in vignette
-* add `hc_polygon()`
-* `hc_map()`: support borders
-* `HilbertCurve()`: start position can be selected, also the orientation
+- revised vignette
+
+## Changes in version 1.1.2
+
+- add examples in vignette
+- add `hc_polygon()`
+- `hc_map()`: support borders
+- `HilbertCurve()`: start position can be selected, also the orientation
   of the first segment can be selected
 
-=======================================
 
-CHANGES in VERSION 1.1.1
+## Changes in version 1.1.1
 
-* add functions specific for genomic data visualization
+- add functions specific for genomic data visualization
 
-========================================
 
-CHANGES in VERSION 0.99.3
+## Changes in version 0.99.3
 
-* transparency is also averaged
+- transparency is also averaged
 
-========================================
 
-CHANGES in VERSION 0.99.2
+## Changes in version 0.99.2
 
-* jump to top viewport for each low-level functions
+- jump to top viewport for each low-level functions
 
-========================================
 
-CHANGES in VERSION 0.99.1
+## Changes in version 0.99.1
 
-* add dependency to base packages
+- add dependency to base packages
 
-=========================================
+## Changes in version 0.99.0
 
-CHANGES in VERSION 0.99.0
+- new release
 
-* new release
-
-==========================================
