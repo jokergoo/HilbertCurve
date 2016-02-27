@@ -226,9 +226,9 @@ setMethod(f = "hc_offset",
 #
 # == example
 # HilbertCurve(1, 100, reference = TRUE)
-# HilbertCurve(1, 100, level = 5)
-# HilbertCurve(1, 100, title = "title")
-# HilbertCurve(1, 100, start_from = "topleft")
+# HilbertCurve(1, 100, level = 5, reference = TRUE)
+# HilbertCurve(1, 100, title = "title", reference = TRUE)
+# HilbertCurve(1, 100, start_from = "topleft", reference = TRUE)
 #
 # # plot with one legend
 # require(ComplexHeatmap)

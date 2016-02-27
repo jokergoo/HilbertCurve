@@ -281,7 +281,7 @@ setMethod(f = "hc_segments",
 # bed = generateRandomBed(nr = 20)
 # gr = GRanges(seqnames = bed[[1]], ranges = IRanges(bed[[2]], bed[[3]]))
 # hc = GenomicHilbertCurve()
-# hc_text(hc, gr, labels = letters[1:20])
+# hc_text(hc, gr, labels = sample(letters, nrow(bed), replace = TRUE))
 #
 setMethod(f = "hc_text",
 	signature = "GenomicHilbertCurve",
@@ -380,7 +380,7 @@ setMethod(f = "hc_polygon",
 # require(circlize)
 # bed = generateRandomBed()
 # gr = GRanges(seqnames = bed[[1]], ranges = IRanges(bed[[2]], bed[[3]]))
-# hc = GenomicHilbertCurve(mode = "pixel")
+# hc = GenomicHilbertCurve(mode = "pixel", level = 9)
 # hc_layer(hc, gr, col = rand_color(length(gr)))
 #
 setMethod(f = "hc_layer",
