@@ -849,7 +849,8 @@ In following example, only the first half part of chromosome 1 is used to initia
 ```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = c(2:5,7:8)}
 png("gc_percent_half_chr1.png", width = 600, height = 600)
 background = GRanges(seqnames = "chr1", ranges = IRanges(1, ceiling(chr1_len/2)))
-hc = GenomicHilbertCurve(background = background, level = 9, mode = "pixel", legend = lgd)
+hc = GenomicHilbertCurve(background = background, level = 9, mode = "pixel", legend = lgd,
+    title = "First half of chromosome 1")
 hc_layer(hc, df, col = col_fun(df[[5]]))
 hc_layer(hc, reduce(g), col = "#00000020")
 invisible(dev.off())
