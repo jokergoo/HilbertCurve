@@ -3,7 +3,9 @@ citHeader("The methods within the code package can be cited as:")
 citEntry(
    entry="article",
    title = "HilbertCurve: an R/Bioconductor package for high-resolution visualization of genomic data",
-   author = "Zuguang Gu, Roland Eils and Matthias Schlesner",
+   author = personList(as.person("Zuguang Gu")
+                       as.person("Roland Eils"),
+                       as.person("Matthias Schlesner")),
    journal = "Bioinformatics",
    year = 2016,
    textVersion = "Gu, Z. (2016) HilbertCurve: an R/Bioconductor package for high-resolution visualization of genomic data. Bioinformatics."
