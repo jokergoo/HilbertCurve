@@ -17,6 +17,12 @@ The implementation and example figures are based on following sources:
 - http://corte.si/posts/code/hilbert/portrait/index.html
 - http://bioconductor.org/packages/devel/bioc/html/HilbertVis.html
 
+### Citation
+
+[Zuguang Gu, Roland Eils, and Matthias Schlesner, 
+HilbertCurve: an R/Bioconductor package for high-resolution visualization of genomic data.
+Bioinformatics 2016](https://doi.org/10.1093/bioinformatics/btw161)
+
 ### Install
 
 The package is at [Bioconductor](http://bioconductor.org/packages/devel/bioc/html/HilbertCurve.html) now
