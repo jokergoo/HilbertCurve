@@ -1,6 +1,7 @@
-[![Build Status](https://travis-ci.org/jokergoo/HilbertCurve.svg)](https://travis-ci.org/jokergoo/HilbertCurve)
+[![Build Status](https://travis-ci.org/jokergoo/HilbertCurve.svg)](https://travis-ci.org/jokergoo/HilbertCurve) [![codecov](https://img.shields.io/codecov/c/github/jokergoo/HilbertCurve.svg)](https://codecov.io/github/jokergoo/HilbertCurve) [![bioc](http://www.bioconductor.org/shields/downloads/HilbertCurve.svg)](http://bioconductor.org/packages/stats/bioc/HilbertCurve.html) ![bioc](http://www.bioconductor.org/shields/years-in-bioc/HilbertCurve.svg)
 
-# HilbertCurve
+
+## HilbertCurve
 
 [Hilbert curve](https://en.wikipedia.org/wiki/Hilbert_curve) is a type of space-filling curves
 that fold one dimensional axis into a two dimensional space, but with still keeping the locality.
@@ -16,7 +17,13 @@ The implementation and example figures are based on following sources:
 - http://corte.si/posts/code/hilbert/portrait/index.html
 - http://bioconductor.org/packages/devel/bioc/html/HilbertVis.html
 
-## Install
+### Citation
+
+Zuguang Gu, Roland Eils, and Matthias Schlesner, 
+[HilbertCurve: an R/Bioconductor package for high-resolution visualization of genomic data.](https://doi.org/10.1093/bioinformatics/btw161)
+Bioinformatics 2016
+
+### Install
 
 The package is at [Bioconductor](http://bioconductor.org/packages/devel/bioc/html/HilbertCurve.html) now
 and you can install the newest version by:
@@ -27,7 +34,7 @@ install_github("jokergoo/ComplexHeatmap")  # in order to get the newest version 
 install_github("jokergoo/HilbertCurve")
 ```
 
-## Usage
+### Usage
 
 Basically, there are two steps to make a Hilbert curve.
 
@@ -50,7 +57,7 @@ hc_layer(hc, ...) # this can be repeated several times to add multiple layers on
 hc_png(hc, ...)
 ```
 
-## Examples
+### Examples
 
 Rainbow color spectrum:
 
@@ -75,3 +82,7 @@ Methylation on chromosome 1:
 Copy number alterations in 22 chromosomes:
 
 ![6](https://cloud.githubusercontent.com/assets/449218/12678997/f18e405e-c6a1-11e5-9478-3d8fdc4bc834.png)
+
+### License
+
+GPL (>= 2)
