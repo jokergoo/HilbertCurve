@@ -10,7 +10,7 @@ Draw a map which represents positions of different chromosomes on the curve
 \usage{
 \S4method{hc_map}{GenomicHilbertCurve}(object, level = 7,
     fill = rand_color(length(background), transparency = 0.5), border = NA,
-    labels = names(object@background), labels_gp = gpar(),
+    labels = names(object@background), show_labels = TRUE, labels_gp = gpar(),
     add = FALSE, ...)
 }
 \arguments{
@@ -20,6 +20,7 @@ Draw a map which represents positions of different chromosomes on the curve
   \item{fill}{colors for different chromosomes, or more generally, for different 'seqnames'.}
   \item{border}{colors for the borders of chromosomes. Set it to \code{NA} if borders are suppressed.}
   \item{labels}{label for each chromosome, or more generally, for different 'sequences'}
+  \item{show_labels}{whether show text labels}
   \item{labels_gp}{graphic settings for labels}
   \item{add}{whether add the map to the current curve or draw it in a new graphic device. Notice if \code{add} is set to \code{TRUE}, you should set \code{fill} with transparency so that it will not hide your original plot.}
   \item{...}{pass to \code{\link{GenomicHilbertCurve}}. It is only used if you want the map to be plotted in a new graphic device.}
