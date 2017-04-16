@@ -656,7 +656,7 @@ hc_layer(hc, x1 = start, x2 = start + width, col = col[country])
 
 Duration of Chinese dynasties. Data from http://www.360doc.com/content/11/1123/02/7829717_166641336.shtml.
 
-```{r}
+```{r, eval = FALSE}
 load(system.file("extdata", "chinese_dynasty.RData", package = "HilbertCurve"))
 
 detect_os = function() {
@@ -686,6 +686,10 @@ hc_segments(hc, x1 = chinese_dynasty[[2]], x2 = chinese_dynasty[[3]],
 hc_text(hc, x1 = chinese_dynasty[[2]], x2 = chinese_dynasty[[3]], labels = chinese_dynasty[[1]], 
     gp = gpar(fontsize = (chinese_dynasty[[3]] - chinese_dynasty[[2]])/500 * 10 + 8, 
         fontfamily = fontfamily))
+```
+
+```{r, echo = FALSE, results = "asis"}
+cat("<p><center><img src='chinese_dynasty.png' /></center></p>\n")
 ```
 
 ## GenomicHilbertCurve: specific for genomic data
@@ -1042,7 +1046,8 @@ regions between layer for gain events and layer for loss events is changed to pu
 Data is from [Database of Genomic Variants, CNV map](http://dgv.tcag.ca/dgv/app/downloads). 
 
 
-```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = -c(1, 16)}
+png("cnv_all_chromosomes.png", width = 500, height = 500)
 hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel")
 df_gain = read.table("~/HilbertCurveTest/Stringent.Gain.hg19.2015-02-03.txt", 
     header = TRUE, stringsAsFactors = FALSE)
@@ -1057,7 +1062,7 @@ hc_layer(hc, df_loss, col = "green", grid_line = 3, grid_line_col = "grey",
         b[l] = 240/255
         list(r, g, b)
 })
-hc_png(hc, file = 'cnv_all_chromosomes.png')
+invisible(dev.off())
 ```
 
 ```{r, echo = FALSE, results = "asis"}
@@ -1079,7 +1084,8 @@ cat("<p><center><img src='map_all_chromosomes.png' /></center></p>\n")
 
 The map can be overlayed to the Hilbert curve for easy correspondance.
 
-```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = -c(1, 13)}
+png('cnv_all_chromosomes_overlay.png', width = 500, height = 500)
 hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel")
 hc_layer(hc, df_gain, col = "red")
 hc_layer(hc, df_loss, col = "green", 
@@ -1091,7 +1097,7 @@ hc_layer(hc, df_loss, col = "green",
         list(r, g, b)
 })
 hc_map(hc, add = TRUE, fill = rand_color(22, transparency = 0.8))
-hc_png(hc, file = 'cnv_all_chromosomes_overlay.png')
+invisible(dev.off())
 ```
 
 ```{r, echo = FALSE, results = "asis"}
@@ -1101,7 +1107,8 @@ cat("<p><center><img src='cnv_all_chromosomes_overlay.png' /></center></p>\n")
 If colors of chromosomes defuse the colors in the original Hilbert curve, you can only draw borders
 of chromosomes.
 
-```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = -c(1, 13)}
+png('cnv_all_chromosomes_border.png', width = 500, height = 500)
 hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel")
 hc_layer(hc, df_gain, col = "red")
 hc_layer(hc, df_loss, col = "green",
@@ -1113,7 +1120,7 @@ hc_layer(hc, df_loss, col = "green",
         list(r, g, b)
 })
 hc_map(hc, add = TRUE, fill = NA, border = "grey")
-hc_png(hc, file = 'cnv_all_chromosomes_border.png')
+invisible(dev.off())
 ```
 
 ```{r, echo = FALSE, results = "asis"}
