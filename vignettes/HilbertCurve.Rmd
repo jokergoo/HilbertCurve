@@ -1120,16 +1120,11 @@ hc_png(hc, file = 'cnv_all_chromosomes_border.png')
 cat("<p><center><img src='cnv_all_chromosomes_border.png' /></center></p>\n")
 ```
 
-You may notice there is no chromosome name when directly adding the map to the Hilbert curve.
-The reason is under "pixel" mode, it is impossible to convert text directly into pixels (remember
-under "pixel" mode, because the curve is stored as an RGB matrix), while if
-the map is plotted as a separate plot, by default it is under "normal" mode which allows drawing text.
-
 If you want to compare several plots simutaneously, you can use `grid.layout()`
 to put them together. Remember to set `newpage` to `FALSE` in `HilbertCurve()` or `GenomicHilbertCurve()`.
 
 ```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = 2:35}
-png('cnv_compare.png', width = 800, height = 800)
+png('cnv_compare.png', width = 900, height = 300)
 plot_curve = function(column, ...) {
     cm = ColorMapping(levels = c("gain", "loss", "both"), color = c("red", "green", "purple"))
     hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel",
@@ -1153,16 +1148,12 @@ plot_curve = function(column, ...) {
 }
 
 pn = c("African", "Asian", "European")
-pushViewport(viewport(layout = grid.layout(nrow = 2, ncol = 2)))
+pushViewport(viewport(layout = grid.layout(nrow = 1, ncol = 3)))
 for(i in seq_along(pn)) {
-    pushViewport(viewport(layout.pos.row = (i-1)%/%2 + 1, layout.pos.col = (i-1)%%2 + 1))
+    pushViewport(viewport(layout.pos.row = 1, layout.pos.col = i))
     plot_curve(pn[i], newpage = FALSE)
     upViewport()
 }
-
-pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 2))
-hc_map(hc, title = "map for 22 chromosomes", newpage = FALSE)
-upViewport()
 upViewport()
 
 invisible(dev.off())
