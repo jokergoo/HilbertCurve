@@ -28,7 +28,8 @@ importFrom("HilbertVis", hilbertCurve)
 importFrom("circlize", rand_color)
 importFrom("circlize", read.chromInfo)
 importFrom("grDevices", col2rgb)
-importFrom("methods", setClass)
-importFrom("methods", setMethod)
 importFrom("png", writePNG)
-
+importFrom("grDevices", "rgb")
+importFrom("graphics", "hist")
+importFrom("methods", "callNextMethod", "new", "slot", "slot<-",
+             "slotNames", "setMethod", "setClass")

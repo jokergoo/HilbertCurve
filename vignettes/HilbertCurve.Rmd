@@ -661,7 +661,7 @@ hc_layer(hc, x1 = start, x2 = start + width, col = col[country])
 
 Duration of Chinese dynasties. Data from http://www.360doc.com/content/11/1123/02/7829717_166641336.shtml.
 
-```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", echo = -c(21, 31)}
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", echo = -c(21, 30)}
 load(system.file("extdata", "chinese_dynasty.RData", package = "HilbertCurve"))
 
 detect_os = function() {
@@ -692,6 +692,10 @@ hc_segments(hc, x1 = chinese_dynasty[[2]], x2 = chinese_dynasty[[3]],
 hc_text(hc, x1 = chinese_dynasty[[2]], x2 = chinese_dynasty[[3]], labels = chinese_dynasty[[1]], 
     gp = gpar(fontsize = (chinese_dynasty[[3]] - chinese_dynasty[[2]])/500 * 10 + 8, 
         fontfamily = fontfamily))
+
+year = seq(-1000, 2000, by = 100)
+hc_text(hc, x1 = year, labels = ifelse(year < 0, paste0(-year, "BC"), year), 
+    gp = gpar(fontsize = 8))
 invisible(dev.off())
 ```
 
@@ -1135,7 +1139,7 @@ cat("<p><center><img src='cnv_all_chromosomes_border.png' /></center></p>\n")
 If you want to compare several plots simutaneously, you can use `grid.layout()`
 to put them together. Remember to set `newpage` to `FALSE` in `HilbertCurve()` or `GenomicHilbertCurve()`.
 
-```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = 2:35}
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = 2:32}
 png('cnv_compare.png', width = 900, height = 300)
 plot_curve = function(column, ...) {
     cm = ColorMapping(levels = c("gain", "loss", "both"), color = c("red", "green", "purple"))
