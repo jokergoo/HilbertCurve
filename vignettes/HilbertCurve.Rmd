@@ -517,17 +517,15 @@ the correspondance between H3K36me3 histone mark and gene body.
 
 Title can be set by the `title` argument in `HilbertCurve()`. 
 Legend can be passed to `legend` argument in `HilbertCurve()` as a `grob` object or a list of `grob` objects.
-Basically, colors are the main aesthetic mappings to values, thus, `ColorMapping` class in **ComplexHeatmap** package 
+Basically, colors are the main aesthetic mappings to values, thus, `Legend()` function in **ComplexHeatmap** package 
 can be very helpful to create a legend `grob`. Also you can consider `legendGrob()` in **grid** package.
 
 ```{r}
 value = runif(length(ir))
 col_fun = colorRamp2(c(0, 1), c("white", "red"))
-cm1 = ColorMapping(col_fun = col_fun)
-legend1 = color_mapping_legend(cm1, plot = FALSE, title = "continuous")
-
-cm2 = ColorMapping(levels = c("A", "B"), color = c("#00FF0080", "#0000FF80"))
-legend2 = color_mapping_legend(cm2, plot = FALSE, title = "discrete")
+legend1 = Legend(at = seq(0, 1, by = 0.2), col_fun = col_fun, title = "continuous")
+legend2 = Legend(at = c("A", "B"), legend_gp = gpar(fill = c("#00FF0080", "#0000FF80")), 
+    title = "discrete")
 
 legend = list(legend1, legend2)
 
@@ -536,16 +534,24 @@ hc_points(hc, ir, np = 3, gp = gpar(fill = col_fun(value)))
 hc_rect(hc, ir, gp = gpar(fill = sample(c("#00FF0020", "#0000FF20"), length(ir), replace = TRUE)))
 ```
 
+**ComplexHeatmap** package also has a `ColorMapping` class which utilizes `Legend()` function to generate
+legends. The advantage is the range and breaks on legends are automatically determined.
+
 Under "pixel" mode, and when the curve is shown on the interactive device as raster image, title
 and legends can be added as well. But if the plot is exported by `hc_png()`, there will be not
 title and legends.
 
 ```{r}
-col_fun = colorRamp2(c(0, 1), c("white", "red"))
+col_fun = colorRamp2(c(-2, 0, 2), c("green", "white", "red"))
+breaks = seq(-2, 2, by = 2)
+lgd1 = Legend(at = breaks, col_fun = col_fun, title = "style 1")
+lgd2 = Legend(at = rev(breaks), legend_gp = gpar(fill = col_fun(rev(breaks))), title = "style 2")
 cm = ColorMapping(col_fun = col_fun)
-lgd = color_mapping_legend(cm, title = "value", plot = FALSE)
-value = runif(length(x))
-hc = HilbertCurve(1, 1000, level = 9, mode = "pixel", title = "pixel mode", legend = lgd)
+lgd3 = color_mapping_legend(cm, title = "style 3", plot = FALSE)
+
+value = rnorm(length(x))
+hc = HilbertCurve(1, 1000, level = 9, mode = "pixel", title = "pixel mode", 
+    legend = list(lgd1, lgd2, lgd3))
 hc_layer(hc, x1 = x, x2 = x+2, mean_mode = "absolute", col = col_fun(value))
 ```
 
@@ -646,9 +652,8 @@ col[top8] = brewer.pal(8, "Set1")
 top8_rate = paste0(round(top8_rate*100), "%")
 
 # this is the part of using HilbertCurve package
-cm = ColorMapping(levels = c(top8, "Others"), color = c(col[top8], "grey"))
-lgd = color_mapping_legend(cm, title = "Top8 countries", 
-    labels = c(paste(top8, top8_rate), "Others"), plot = FALSE)
+lgd = Legend(at = c(top8, "Others"), labels = c(paste(top8, top8_rate), "Others"),
+    legend_gp = gpar(fill = c(col[top8], "grey")), title = "Top8 contries")
 hc = HilbertCurve(0, 256^4, start_from = "topleft", first_seg = "horizontal",
     mode = "pixel", level = 9, legend = lgd)
 hc_layer(hc, x1 = start, x2 = start + width, col = col[country])
@@ -656,7 +661,7 @@ hc_layer(hc, x1 = start, x2 = start + width, col = col[country])
 
 Duration of Chinese dynasties. Data from http://www.360doc.com/content/11/1123/02/7829717_166641336.shtml.
 
-```{r}
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", echo = -c(21, 30)}
 load(system.file("extdata", "chinese_dynasty.RData", package = "HilbertCurve"))
 
 detect_os = function() {
@@ -677,6 +682,7 @@ fontfamily = switch(detect_os(),
     MacOS = "Songti SC",
     Linux = "Songti SC")
 
+png("chinese_dynasty.png", width = 500, height = 500)
 hc = HilbertCurve(min(chinese_dynasty[[2]]), max(chinese_dynasty[[3]]), 
     title = "Chinese dynasty (1122 B.C. ~ 1911 A.D.)", 
     title_gp = gpar(fontsize = 16, fontfamily = fontfamily))
@@ -686,6 +692,15 @@ hc_segments(hc, x1 = chinese_dynasty[[2]], x2 = chinese_dynasty[[3]],
 hc_text(hc, x1 = chinese_dynasty[[2]], x2 = chinese_dynasty[[3]], labels = chinese_dynasty[[1]], 
     gp = gpar(fontsize = (chinese_dynasty[[3]] - chinese_dynasty[[2]])/500 * 10 + 8, 
         fontfamily = fontfamily))
+
+year = seq(-1000, 2000, by = 100)
+hc_text(hc, x1 = year, labels = ifelse(year < 0, paste0(-year, "BC"), year), 
+    gp = gpar(fontsize = 8))
+invisible(dev.off())
+```
+
+```{r, echo = FALSE, results = "asis"}
+cat("<p><center><img src='chinese_dynasty.png' /></center></p>\n")
 ```
 
 ## GenomicHilbertCurve: specific for genomic data
@@ -726,8 +741,7 @@ hc_segments(hc, g, gp = gpar(lwd = 6, col = rand_color(length(g))))
 The conserved regions on human chromosome 1 between mouse and human or between zebrafish and human are downloaded from [UCSC
 Table Browser](http://genome.ucsc.edu/cgi-bin/hgTables?hgsid=472144813_MQ4BbmgW37du53Nw6n9SKKy6mb6r&clade=mammal&org=Human&db=hg38&hgta_group=compGeno&hgta_track=placentalChainNet&hgta_table=netMm10&hgta_regionType=genome&position=chr9%3A133252000-133280861&hgta_outputType=primaryTable&hgta_outFileName=). The parameters for downloading are:
 
-```
-clade: Mammal
+<pre><code>clade: Mammal
 genome: Human
 assembly: Feb. 2009(GRCh37/hg19)
 group: Comparative Genomics
@@ -737,7 +751,7 @@ table: Mouse Net (netMm10)
 # for zebrafish
 track: Vertebrate Chain/Net
 table: Zebrafish Net(netDanRer7)
-```
+</code></pre>
 
 The "net" alignment which is used here shows the best alignment (the alignment algorithm allows longer gaps than traditional affine gap scoring systems) between each part in human genome and other genomes. For a detailed description
 of the alignment strategy, please go to [UCSC
@@ -874,12 +888,11 @@ In this section, we visualize four types of histone modifications (H3K27ac, H3K3
 The ChIPSeq data are downloaded from Roadmap (http://genboree.org/EdaccData/Release-9/sample-experiment/Lung/). 
 Following files for four histone modifications are used to visualize:
 
-```
-UCSD.Lung.H3K27ac.STL002.bed
+<pre><code>UCSD.Lung.H3K27ac.STL002.bed
 UCSD.Lung.H3K36me3.STL002.bed
 UCSD.Lung.H3K4me3.STL002.bed
 UCSD.Lung.H3K9me3.STL002.bed
-```
+</code></pre>
 
 Since we are going to plot more than one histome marks, the code for plotting are wrapped as a simple function:
 
@@ -1042,7 +1055,8 @@ regions between layer for gain events and layer for loss events is changed to pu
 Data is from [Database of Genomic Variants, CNV map](http://dgv.tcag.ca/dgv/app/downloads). 
 
 
-```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = -c(1, 16)}
+png("cnv_all_chromosomes.png", width = 500, height = 500)
 hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel")
 df_gain = read.table("~/HilbertCurveTest/Stringent.Gain.hg19.2015-02-03.txt", 
     header = TRUE, stringsAsFactors = FALSE)
@@ -1057,7 +1071,7 @@ hc_layer(hc, df_loss, col = "green", grid_line = 3, grid_line_col = "grey",
         b[l] = 240/255
         list(r, g, b)
 })
-hc_png(hc, file = 'cnv_all_chromosomes.png')
+invisible(dev.off())
 ```
 
 ```{r, echo = FALSE, results = "asis"}
@@ -1079,7 +1093,8 @@ cat("<p><center><img src='map_all_chromosomes.png' /></center></p>\n")
 
 The map can be overlayed to the Hilbert curve for easy correspondance.
 
-```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = -c(1, 13)}
+png('cnv_all_chromosomes_overlay.png', width = 500, height = 500)
 hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel")
 hc_layer(hc, df_gain, col = "red")
 hc_layer(hc, df_loss, col = "green", 
@@ -1091,7 +1106,7 @@ hc_layer(hc, df_loss, col = "green",
         list(r, g, b)
 })
 hc_map(hc, add = TRUE, fill = rand_color(22, transparency = 0.8))
-hc_png(hc, file = 'cnv_all_chromosomes_overlay.png')
+invisible(dev.off())
 ```
 
 ```{r, echo = FALSE, results = "asis"}
@@ -1101,7 +1116,8 @@ cat("<p><center><img src='cnv_all_chromosomes_overlay.png' /></center></p>\n")
 If colors of chromosomes defuse the colors in the original Hilbert curve, you can only draw borders
 of chromosomes.
 
-```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none"}
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = -c(1, 13)}
+png('cnv_all_chromosomes_border.png', width = 500, height = 500)
 hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel")
 hc_layer(hc, df_gain, col = "red")
 hc_layer(hc, df_loss, col = "green",
@@ -1113,23 +1129,18 @@ hc_layer(hc, df_loss, col = "green",
         list(r, g, b)
 })
 hc_map(hc, add = TRUE, fill = NA, border = "grey")
-hc_png(hc, file = 'cnv_all_chromosomes_border.png')
+invisible(dev.off())
 ```
 
 ```{r, echo = FALSE, results = "asis"}
 cat("<p><center><img src='cnv_all_chromosomes_border.png' /></center></p>\n")
 ```
 
-You may notice there is no chromosome name when directly adding the map to the Hilbert curve.
-The reason is under "pixel" mode, it is impossible to convert text directly into pixels (remember
-under "pixel" mode, because the curve is stored as an RGB matrix), while if
-the map is plotted as a separate plot, by default it is under "normal" mode which allows drawing text.
-
 If you want to compare several plots simutaneously, you can use `grid.layout()`
 to put them together. Remember to set `newpage` to `FALSE` in `HilbertCurve()` or `GenomicHilbertCurve()`.
 
-```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = 2:35}
-png('cnv_compare.png', width = 800, height = 800)
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = 2:32}
+png('cnv_compare.png', width = 900, height = 300)
 plot_curve = function(column, ...) {
     cm = ColorMapping(levels = c("gain", "loss", "both"), color = c("red", "green", "purple"))
     hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel",
@@ -1153,16 +1164,12 @@ plot_curve = function(column, ...) {
 }
 
 pn = c("African", "Asian", "European")
-pushViewport(viewport(layout = grid.layout(nrow = 2, ncol = 2)))
+pushViewport(viewport(layout = grid.layout(nrow = 1, ncol = 3)))
 for(i in seq_along(pn)) {
-    pushViewport(viewport(layout.pos.row = (i-1)%/%2 + 1, layout.pos.col = (i-1)%%2 + 1))
+    pushViewport(viewport(layout.pos.row = 1, layout.pos.col = i))
     plot_curve(pn[i], newpage = FALSE)
     upViewport()
 }
-
-pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 2))
-hc_map(hc, title = "map for 22 chromosomes", newpage = FALSE)
-upViewport()
 upViewport()
 
 invisible(dev.off())

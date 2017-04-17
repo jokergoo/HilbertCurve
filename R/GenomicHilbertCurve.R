@@ -417,6 +417,7 @@ setMethod(f = "hc_layer",
 # -fill colors for different chromosomes, or more generally, for different 'seqnames'.
 # -border colors for the borders of chromosomes. Set it to ``NA`` if borders are suppressed.
 # -labels label for each chromosome, or more generally, for different 'sequences'
+# -show_labels whether show text labels
 # -labels_gp graphic settings for labels
 # -add whether add the map to the current curve or draw it in a new graphic device. Notice if ``add`` is set to ``TRUE``,
 #      you should set ``fill`` with transparency so that it will not hide your original plot.
@@ -458,7 +459,7 @@ setMethod(f = "hc_map",
 	signature = "GenomicHilbertCurve",
 	definition = function(object, level = 7, 
 	fill = rand_color(length(background), transparency = 0.5), border = NA,
-	labels = names(object@background), labels_gp = gpar(),
+	labels = names(object@background), show_labels = TRUE, labels_gp = gpar(),
 	add = FALSE, ...) {
 
 	background = object@background
@@ -467,14 +468,27 @@ setMethod(f = "hc_map",
 	if(add) {
 		if(object@MODE == "pixel") {
 			hc_layer(object, background, col = fill, border = border)
+			if(show_labels) {
+				oi = HilbertCurve:::.ENV$I_PLOT
+				seekViewport(paste0("hilbert_curve_", .ENV$I_PLOT))
+
+				hc2 = GenomicHilbertCurve(mode = "normal", chr = unique(as.vector(seqnames(background))), level = 6, newpage = FALSE)
+				hc_map(hc2, add = TRUE, labels = labels, fill = NA, border = NA)
+				seekViewport(name = paste0("hilbert_curve_", oi, "global"))
+				upViewport()
+			}
 		} else {
 			hc_polygon(object, background, gp = gpar(fill = fill, col = border))
-			hc_centered_text(object, x1 = df[, 1], x2 = df[, 2], labels = labels, gp = labels_gp)
+			if(show_labels) {
+				hc_centered_text(object, x1 = df[, 1], x2 = df[, 2], labels = labels, gp = labels_gp)
+			}
 		}
 	} else {
 		hc = GenomicHilbertCurve(background = background, level = level, start_from = object@start_from, ...)
 		hc_polygon(hc, background, gp = gpar(fill = fill, col = border))
-		hc_centered_text(hc, x1 = df[, 1], x2 = df[, 2], labels = labels, gp = labels_gp)
+		if(show_labels) {
+			hc_centered_text(hc, x1 = df[, 1], x2 = df[, 2], labels = labels, gp = labels_gp)
+		}
 	}
 	return(invisible(object))
 })
