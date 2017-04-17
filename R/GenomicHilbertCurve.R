@@ -474,7 +474,8 @@ setMethod(f = "hc_map",
 
 				hc2 = GenomicHilbertCurve(mode = "normal", chr = unique(as.vector(seqnames(background))), level = 6, newpage = FALSE)
 				hc_map(hc2, add = TRUE, labels = labels, fill = NA, border = NA)
-				# .ENV$I_PLOT = oi
+				seekViewport(name = paste0("hilbert_curve_", oi, "global"))
+				upViewport()
 			}
 		} else {
 			hc_polygon(object, background, gp = gpar(fill = fill, col = border))
