@@ -517,17 +517,15 @@ the correspondance between H3K36me3 histone mark and gene body.
 
 Title can be set by the `title` argument in `HilbertCurve()`. 
 Legend can be passed to `legend` argument in `HilbertCurve()` as a `grob` object or a list of `grob` objects.
-Basically, colors are the main aesthetic mappings to values, thus, `ColorMapping` class in **ComplexHeatmap** package 
+Basically, colors are the main aesthetic mappings to values, thus, `Legend()` function in **ComplexHeatmap** package 
 can be very helpful to create a legend `grob`. Also you can consider `legendGrob()` in **grid** package.
 
 ```{r}
 value = runif(length(ir))
 col_fun = colorRamp2(c(0, 1), c("white", "red"))
-cm1 = ColorMapping(col_fun = col_fun)
-legend1 = color_mapping_legend(cm1, plot = FALSE, title = "continuous")
-
-cm2 = ColorMapping(levels = c("A", "B"), color = c("#00FF0080", "#0000FF80"))
-legend2 = color_mapping_legend(cm2, plot = FALSE, title = "discrete")
+legend1 = Legend(at = seq(0, 1, by = 0.2), col_fun = col_fun, title = "continuous")
+legend2 = Legend(at = c("A", "B"), legend_gp = gpar(fill = c("#00FF0080", "#0000FF80")), 
+    title = "discrete")
 
 legend = list(legend1, legend2)
 
@@ -536,16 +534,24 @@ hc_points(hc, ir, np = 3, gp = gpar(fill = col_fun(value)))
 hc_rect(hc, ir, gp = gpar(fill = sample(c("#00FF0020", "#0000FF20"), length(ir), replace = TRUE)))
 ```
 
+**ComplexHeatmap** package also has a `ColorMapping` class which utilizes `Legend()` function to generate
+legends. The advantage is the range and breaks on legends are automatically determined.
+
 Under "pixel" mode, and when the curve is shown on the interactive device as raster image, title
 and legends can be added as well. But if the plot is exported by `hc_png()`, there will be not
 title and legends.
 
 ```{r}
-col_fun = colorRamp2(c(0, 1), c("white", "red"))
+col_fun = colorRamp2(c(-2, 0, 2), c("green", "white", "red"))
+breaks = seq(-2, 2, by = 2)
+lgd1 = Legend(at = breaks, col_fun = col_fun, title = "style 1")
+lgd2 = Legend(at = rev(breaks), legend_gp = gpar(fill = col_fun(rev(breaks))), title = "style 2")
 cm = ColorMapping(col_fun = col_fun)
-lgd = color_mapping_legend(cm, title = "value", plot = FALSE)
-value = runif(length(x))
-hc = HilbertCurve(1, 1000, level = 9, mode = "pixel", title = "pixel mode", legend = lgd)
+lgd3 = color_mapping_legend(cm, title = "style 3", plot = FALSE)
+
+value = rnorm(length(x))
+hc = HilbertCurve(1, 1000, level = 9, mode = "pixel", title = "pixel mode", 
+    legend = list(lgd1, lgd2, lgd3))
 hc_layer(hc, x1 = x, x2 = x+2, mean_mode = "absolute", col = col_fun(value))
 ```
 
@@ -646,9 +652,8 @@ col[top8] = brewer.pal(8, "Set1")
 top8_rate = paste0(round(top8_rate*100), "%")
 
 # this is the part of using HilbertCurve package
-cm = ColorMapping(levels = c(top8, "Others"), color = c(col[top8], "grey"))
-lgd = color_mapping_legend(cm, title = "Top8 countries", 
-    labels = c(paste(top8, top8_rate), "Others"), plot = FALSE)
+lgd = Legend(at = c(top8, "Others"), labels = c(paste(top8, top8_rate), "Others"),
+    legend_gp = gpar(fill = c(col[top8], "grey")), title = "Top8 contries")
 hc = HilbertCurve(0, 256^4, start_from = "topleft", first_seg = "horizontal",
     mode = "pixel", level = 9, legend = lgd)
 hc_layer(hc, x1 = start, x2 = start + width, col = col[country])
