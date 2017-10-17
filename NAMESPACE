@@ -24,7 +24,10 @@ exportMethods(zoom)
 import(GenomicRanges)
 import(IRanges)
 import(grid)
+<<<<<<< HEAD
 import(methods)
+=======
+>>>>>>> bioc/master
 importFrom("HilbertVis", hilbertCurve)
 importFrom("circlize", rand_color)
 importFrom("circlize", read.chromInfo)
@@ -32,3 +35,8 @@ importFrom("grDevices", col2rgb)
 importFrom("png", writePNG)
 importFrom("grDevices", "rgb")
 importFrom("graphics", "hist")
+<<<<<<< HEAD
+=======
+importFrom("methods", "callNextMethod", "new", "slot", "slot<-",
+             "slotNames", "setMethod", "setClass")
+>>>>>>> bioc/master

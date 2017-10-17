@@ -1,12 +1,12 @@
 Package: HilbertCurve
 Type: Package
 Title: Making 2D Hilbert Curve
-Version: 1.5.2
+Version: 1.7.0
 Date: 2017-4-16
 Author: Zuguang Gu
 Maintainer: Zuguang Gu <z.gu@dkfz.de>
-Depends: R (>= 3.1.2), methods, grid, IRanges, GenomicRanges
-Imports: HilbertVis, png, grDevices, circlize (>= 0.3.3)
+Depends: R (>= 3.1.2), grid, IRanges, GenomicRanges
+Imports: methods, HilbertVis, png, grDevices, circlize (>= 0.3.3)
 Suggests: knitr, testthat (>= 1.0.0), ComplexHeatmap (>= 1.13.2), markdown,
           RColorBrewer, RCurl, GetoptLong
 VignetteBuilder: knitr
