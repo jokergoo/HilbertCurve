@@ -33,3 +33,5 @@ importFrom("grDevices", "rgb")
 importFrom("graphics", "hist")
 importFrom("methods", "callNextMethod", "new", "slot", "slot<-",
              "slotNames", "setMethod", "setClass")
+importFrom("utils", "packageDescription")
+
