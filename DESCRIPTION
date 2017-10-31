@@ -25,4 +25,5 @@ Collate: 00_S4_generic_methods.R
          hc_polygon.R
          utils.R
          GenomicHilbertCurve.R
+         zzz.R
 
