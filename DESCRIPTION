@@ -1,7 +1,7 @@
 Package: HilbertCurve
 Type: Package
 Title: Making 2D Hilbert Curve
-Version: 1.7.0
+Version: 1.9.0
 Date: 2017-4-16
 Author: Zuguang Gu
 Maintainer: Zuguang Gu <z.gu@dkfz.de>
