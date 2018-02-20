@@ -745,10 +745,10 @@ Table Browser](http://genome.ucsc.edu/cgi-bin/hgTables?hgsid=472144813_MQ4BbmgW3
 genome: Human
 assembly: Feb. 2009(GRCh37/hg19)
 group: Comparative Genomics
-# for mouse
+= for mouse
 track: Placental Chain/Net
 table: Mouse Net (netMm10)
-# for zebrafish
+= for zebrafish
 track: Vertebrate Chain/Net
 table: Zebrafish Net(netDanRer7)
 </code></pre>
@@ -885,9 +885,10 @@ utilizes highthroughput DNA sequencing technology to identify status of chromati
 provides a way to study gene regulation in a global aspect.
 
 In this section, we visualize four types of histone modifications (H3K27ac, H3K36me3, H3K4me3, H3K9me3). 
-The ChIPSeq data are downloaded from Roadmap (http://genboree.org/EdaccData/Release-9/sample-experiment/Lung/). 
+The ChIPSeq data are downloaded from Roadmap (http://genboree.org/EdaccData/Release-9/sample-experiment/Lung/, 
+The bed files are alignments of reads, you need to convert to the basepair or window-based coverage before using following R commands). 
 Following files for four histone modifications are used to visualize:
-
+`
 <pre><code>UCSD.Lung.H3K27ac.STL002.bed
 UCSD.Lung.H3K36me3.STL002.bed
 UCSD.Lung.H3K4me3.STL002.bed
