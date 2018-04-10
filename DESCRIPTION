@@ -16,7 +16,7 @@ Description: Hilbert curve is a type of space-filling curves
     an easy and flexible way to visualize data through Hilbert curve.
 biocViews: Software, Visualization, Sequencing, Coverage, GenomeAnnotation
 URL: https://github.com/jokergoo/HilbertCurve
-License: GPL (>= 2)
+License: MIT
 Packaged: 2017-4-16 00:00:00 UTC; Administrator
 Repository: Bioconductor
 Date/Publication: 2017-4-16 00:00:00
