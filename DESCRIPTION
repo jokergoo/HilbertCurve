@@ -1,7 +1,7 @@
 Package: HilbertCurve
 Type: Package
 Title: Making 2D Hilbert Curve
-Version: 1.11.0
+Version: 1.11.1
 Date: 2017-4-16
 Author: Zuguang Gu
 Maintainer: Zuguang Gu <z.gu@dkfz.de>
@@ -19,7 +19,6 @@ URL: https://github.com/jokergoo/HilbertCurve
 License: MIT + file LICENSE
 Packaged: 2017-4-16 00:00:00 UTC; Administrator
 Repository: Bioconductor
-Date/Publication: 2017-4-16 00:00:00
 Collate: 00_S4_generic_methods.R
          HilbertCurve.R
          hc_polygon.R
