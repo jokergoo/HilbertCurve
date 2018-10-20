@@ -219,6 +219,7 @@ There are several ways to specify the "positions" of the data points. The most c
 to construct a `IRanges` object:
 
 ```{r}
+library(IRanges)
 x = sort(sample(100, 20))
 s = x[1:10*2 - 1]
 e = x[1:10*2]
@@ -730,6 +731,7 @@ The first example visualizes genes on chromosome 1 ([RefSeq genes for human, hg1
 to distinguish different genes.
 
 ```{r}
+library(GenomicRanges)
 load(system.file("extdata", "refseq_chr1.RData", package = "HilbertCurve"))
 hc = GenomicHilbertCurve(chr = "chr1", level = 5, reference = TRUE, 
     reference_gp = gpar(lty = 1, col = "grey"), arrow = FALSE)

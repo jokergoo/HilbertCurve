@@ -1,30 +1,15 @@
-
 setGeneric('hc_polygon', function(object, ...) standardGeneric('hc_polygon'))
-
 setGeneric('hc_map', function(object, ...) standardGeneric('hc_map'))
-
 setGeneric('hc_rect', function(object, ...) standardGeneric('hc_rect'))
-
 setGeneric('hc_segmented_points', function(object, ...) standardGeneric('hc_segmented_points'))
-
 setGeneric('hc_normal_points', function(object, ...) standardGeneric('hc_normal_points'))
-
 setGeneric('hc_centered_text', function(object, ...) standardGeneric('hc_centered_text'))
-
 setGeneric('unzoom', function(object, ...) standardGeneric('unzoom'))
-
 setGeneric('hc_segments', function(object, ...) standardGeneric('hc_segments'))
-
 setGeneric('hc_text', function(object, ...) standardGeneric('hc_text'))
-
 setGeneric('hc_points', function(object, ...) standardGeneric('hc_points'))
-
 setGeneric('zoom', function(object, ...) standardGeneric('zoom'))
-
 setGeneric('hc_png', function(object, ...) standardGeneric('hc_png'))
-
 setGeneric('hc_level', function(object, ...) standardGeneric('hc_level'))
-
 setGeneric('hc_offset', function(object, ...) standardGeneric('hc_offset'))
-
 setGeneric('hc_layer', function(object, ...) standardGeneric('hc_layer'))

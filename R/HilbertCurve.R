@@ -550,6 +550,7 @@ setMethod(f = "hc_level",
 # x = sort(sample(100, 20))
 # s = x[1:10*2 - 1]
 # e = x[1:10*2]
+# require(IRanges)
 # ir = IRanges(s, e)
 #
 # hc_points(hc, ir)
@@ -932,6 +933,7 @@ average_in_window = function(window, ir, mtch, v, mean_mode, empty_v = 0) {
 # x = sort(sample(100, 20))
 # s = x[1:10*2 - 1]
 # e = x[1:10*2]
+# require(IRanges)
 # ir = IRanges(s, e)
 # hc_rect(hc, ir)
 #
@@ -1041,6 +1043,7 @@ setMethod(f = "hc_rect",
 # x = sort(sample(100, 20))
 # s = x[1:10*2 - 1]
 # e = x[1:10*2]
+# require(IRanges)
 # ir = IRanges(s, e)
 #
 # hc_segments(hc, ir)
@@ -1179,6 +1182,7 @@ setMethod(f = "hc_segments",
 # x = sort(sample(100, 20))
 # s = x[1:10*2 - 1]
 # e = x[1:10*2]
+# require(IRanges)
 # ir = IRanges(s, e)
 #
 # labels = sample(letters, length(ir), replace = TRUE)
@@ -1432,6 +1436,7 @@ grid_arrows = function(x1, y1, x2, y2, length = unit(2, "mm"), angle = 15, only.
 # x = sort(sample(100, 20))
 # s = x[1:10*2 - 1]
 # e = x[1:10*2]
+# require(IRanges)
 # ir = IRanges(s, e)
 #
 # hc_layer(hc, ir)
@@ -1639,6 +1644,7 @@ setMethod(f = "hc_layer",
 # x = sort(sample(100, 20))
 # s = x[1:10*2 - 1]
 # e = x[1:10*2]
+# require(IRanges)
 # ir = IRanges(s, e)
 #
 # hc_layer(hc, ir)

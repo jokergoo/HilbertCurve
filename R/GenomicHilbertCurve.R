@@ -62,6 +62,7 @@ GenomicHilbertCurve = setClass("GenomicHilbertCurve",
 #
 # == example
 # require(circlize)
+# require(GenomicRanges)
 # bed = generateRandomBed()
 # gr = GRanges(seqnames = bed[[1]], ranges = IRanges(bed[[2]], bed[[3]]))
 # hc = GenomicHilbertCurve()
@@ -133,6 +134,7 @@ GenomicHilbertCurve = function(chr = paste0("chr", c(1:22, "X", "Y")), species =
 #
 # == example
 # require(circlize)
+# require(GenomicRanges)
 # bed = generateRandomBed(nr = 100)
 # gr = GRanges(seqnames = bed[[1]], ranges = IRanges(bed[[2]], bed[[3]]))
 # hc = GenomicHilbertCurve()
@@ -187,6 +189,7 @@ setMethod(f = "hc_points",
 #
 # == example
 # require(circlize)
+# require(GenomicRanges)
 # bed = generateRandomBed(nr = 100)
 # gr = GRanges(seqnames = bed[[1]], ranges = IRanges(bed[[2]], bed[[3]]))
 # hc = GenomicHilbertCurve()
@@ -231,6 +234,7 @@ setMethod(f = "hc_rect",
 #
 # == example
 # require(circlize)
+# require(GenomicRanges)
 # bed = generateRandomBed(nr = 100)
 # gr = GRanges(seqnames = bed[[1]], ranges = IRanges(bed[[2]], bed[[3]]))
 # hc = GenomicHilbertCurve()
@@ -278,6 +282,7 @@ setMethod(f = "hc_segments",
 #
 # == example
 # require(circlize)
+# require(GenomicRanges)
 # bed = generateRandomBed(nr = 20)
 # gr = GRanges(seqnames = bed[[1]], ranges = IRanges(bed[[2]], bed[[3]]))
 # hc = GenomicHilbertCurve()
@@ -326,6 +331,7 @@ setMethod(f = "hc_text",
 #
 # == example
 # require(circlize)
+# require(GenomicRanges)
 # bed = generateRandomBed(nr = 20)
 # gr = GRanges(seqnames = bed[[1]], ranges = IRanges(bed[[2]], bed[[3]]))
 # hc = GenomicHilbertCurve()
@@ -378,6 +384,7 @@ setMethod(f = "hc_polygon",
 #
 # == example
 # require(circlize)
+# require(GenomicRanges)
 # bed = generateRandomBed()
 # gr = GRanges(seqnames = bed[[1]], ranges = IRanges(bed[[2]], bed[[3]]))
 # hc = GenomicHilbertCurve(mode = "pixel", level = 9)
@@ -441,6 +448,7 @@ setMethod(f = "hc_layer",
 #
 # == example
 # require(circlize)
+# require(GenomicRanges)
 # bed = generateRandomBed(nr = 100)
 # gr = GRanges(seqnames = bed[[1]], ranges = IRanges(bed[[2]], bed[[3]]))
 # hc = GenomicHilbertCurve()

@@ -35,6 +35,7 @@ hc = HilbertCurve(1, 100, level = 9, mode = "pixel")
 x = sort(sample(100, 20))
 s = x[1:10*2 - 1]
 e = x[1:10*2]
+require(IRanges)
 ir = IRanges(s, e)
 
 hc_layer(hc, ir)

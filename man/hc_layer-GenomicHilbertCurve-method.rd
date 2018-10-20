@@ -34,6 +34,7 @@ Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
 require(circlize)
+require(GenomicRanges)
 bed = generateRandomBed()
 gr = GRanges(seqnames = bed[[1]], ranges = IRanges(bed[[2]], bed[[3]]))
 hc = GenomicHilbertCurve(mode = "pixel", level = 9)

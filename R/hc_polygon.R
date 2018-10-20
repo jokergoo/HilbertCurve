@@ -66,6 +66,7 @@ which_border = function(x, y, n) {
 #
 # == example
 #
+# require(IRanges)
 # ir = IRanges(10, 40)
 #
 # hc = HilbertCurve(1, 100, level = 4, reference = TRUE)

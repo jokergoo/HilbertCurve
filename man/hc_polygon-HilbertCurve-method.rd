@@ -35,6 +35,7 @@ No value is returned.
 Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
+require(IRanges)
 ir = IRanges(10, 40)
 
 hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
