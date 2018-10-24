@@ -10,15 +10,13 @@ r-packages:
 - png
 - knitr
 - markdown
+- GlobalOptions
+- circlize
+- covr
 
 bioc_packages:
 - GenomicRanges
-
-r_github_packages:
-- jokergoo/GlobalOptions
-- jokergoo/circlize
-- jokergoo/ComplexHeatmap
-- jimhester/covr
+- ComplexHeatmap
 
 bioc_required: true
 
