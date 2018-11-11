@@ -178,7 +178,7 @@ setMethod(f = "hc_offset",
 # -title_gp graphic parameters for the title. It should be specified by `grid::gpar`.
 # -start_from which corner on the plot should the curve starts?
 # -first_seg the orientation of the first segment
-# -legend a `grid::grob` object or a list of `grid::grob` objects. You can construct a `ComplexHeatmap::ColorMapping-class`
+# -legend a `grid::grob` object, a `ComplexHeatmap::Legends-class` object, or a list them. You can construct a `ComplexHeatmap::ColorMapping-class`
 #         object and generate a legend, see the Example section.
 #
 # == details
@@ -336,6 +336,7 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 	if(length(legend) == 0) {
 		legend_width = unit(0, "mm")
 	} else {
+		if(inherits(legend, "Legends")) legend = legend@grob
 		if(inherits(legend, "grob")) legend = list(legend)
 		legend_width = max(do.call("unit.c", lapply(legend, grobWidth))) + unit(4, "mm")
 	}
