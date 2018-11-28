@@ -12,7 +12,7 @@ Add text to Hilbert curve
 \arguments{
 
   \item{object}{a \code{\link{GenomicHilbertCurve-class}} object}
-  \item{gr}{a \code{\link[GenomicRanges]{GRanges}} object which contains the genomic regions to be mapped to the curve}
+  \item{gr}{a \code{\link[GenomicRanges:GRanges-class]{GRanges}} object which contains the genomic regions to be mapped to the curve}
   \item{labels}{pass to \code{\link{hc_text,HilbertCurve-method}}}
   \item{gp}{pass to \code{\link{hc_text,HilbertCurve-method}}}
   \item{...}{pass to \code{\link{hc_text,HilbertCurve-method}}}

@@ -14,7 +14,7 @@ Add a new layer to the Hilbert curve
 \arguments{
 
   \item{object}{a \code{\link{GenomicHilbertCurve-class}} object}
-  \item{gr}{a \code{\link[GenomicRanges]{GRanges}} object which contains the genomic regions to be mapped to the curve}
+  \item{gr}{a \code{\link[GenomicRanges:GRanges-class]{GRanges}} object which contains the genomic regions to be mapped to the curve}
   \item{col}{a scalar or a vector of colors which correspond to regions in \code{gr}, pass to \code{\link{hc_layer,HilbertCurve-method}}}
   \item{border}{a scalar or a vector of colors which correspond to the borders of regions. Set it to \code{NA} if borders are suppressed.}
   \item{mean_mode}{Under 'pixel' mode, each pixel represents a small window. This argument provides methods to summarize value for the small window if the input genomic regions can not completely overlap with the window,  pass to \code{\link{hc_layer,HilbertCurve-method}}}

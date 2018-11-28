@@ -13,7 +13,7 @@ Add text to the center of the block
 \arguments{
 
   \item{object}{A \code{\link{HilbertCurve-class}} object.}
-  \item{ir}{an \code{\link[IRanges]{IRanges}} object that contains positions which correspond to text. The middle points of the intervals will be the positions of the text.}
+  \item{ir}{an \code{\link[IRanges:IRanges-constructor]{IRanges}} object that contains positions which correspond to text. The middle points of the intervals will be the positions of the text.}
   \item{labels}{text corresponding to intervals in \code{ir}.}
   \item{x1}{if start positions are not integers, they can be set by \code{x1}.}
   \item{x2}{if end positions are not integers, they can be set by \code{x2}.}

@@ -338,6 +338,13 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 	} else {
 		if(inherits(legend, "Legends")) legend = legend@grob
 		if(inherits(legend, "grob")) legend = list(legend)
+		legend = lapply(legend, function(x) {
+			if(inherits(x, "Legends")) {
+				x = x@grob
+			} else {
+				x
+			}
+		})
 		legend_width = max(do.call("unit.c", lapply(legend, grobWidth))) + unit(4, "mm")
 	}
 

@@ -27,7 +27,7 @@ The \code{\link{GenomicHilbertCurve-class}} provides following methods:
 }
 
 The usage of above functions are almost same as those functions for the \code{\link{HilbertCurve-class}}
-except that the second argument which specifies the intervals should be a \code{\link[GenomicRanges]{GRanges}} object.}
+except that the second argument which specifies the intervals should be a \code{\link[GenomicRanges:GRanges-class]{GRanges}} object.}
 \author{
 Zuguang Gu <z.gu@dkfz.de>
 }
