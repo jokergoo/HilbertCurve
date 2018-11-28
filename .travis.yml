@@ -1,27 +1,6 @@
-language: r
+# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 
-sudo: required
-
-# Be strict when checking our package
-warnings_are_errors: true
-
-r-packages:
-- testthat
-- png
-- knitr
-- markdown
-- GlobalOptions
-- circlize
-- covr
-
-bioc_packages:
-- GenomicRanges
-- ComplexHeatmap
-
-bioc_required: true
-
-r_check_args: --no-build-vignettes --no-vignettes
-
-after_success:
-  - Rscript -e 'library(covr);codecov()'
-  
+language: R
+r: bioc-devel
+  after_success:
+    - Rscript -e 'covr::codecov()'
