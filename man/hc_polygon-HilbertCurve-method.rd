@@ -14,7 +14,7 @@ Add polygons to Hilbert curve
 \arguments{
 
   \item{object}{A \code{\link{HilbertCurve-class}} object.}
-  \item{ir}{an \code{\link[IRanges]{IRanges}} object which specifies the input intervals.}
+  \item{ir}{an \code{\link[IRanges:IRanges-constructor]{IRanges}} object which specifies the input intervals.}
   \item{x1}{if start positions are not integers, they can be set by \code{x1}.}
   \item{x2}{if end positions are not integers, they can be set by \code{x2}.}
   \item{gp}{graphic parameters. It should be specified by \code{\link[grid]{gpar}}.}
@@ -35,6 +35,7 @@ No value is returned.
 Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
+require(IRanges)
 ir = IRanges(10, 40)
 
 hc = HilbertCurve(1, 100, level = 4, reference = TRUE)

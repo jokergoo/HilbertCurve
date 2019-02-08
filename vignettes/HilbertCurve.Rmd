@@ -219,6 +219,7 @@ There are several ways to specify the "positions" of the data points. The most c
 to construct a `IRanges` object:
 
 ```{r}
+library(IRanges)
 x = sort(sample(100, 20))
 s = x[1:10*2 - 1]
 e = x[1:10*2]
@@ -661,7 +662,7 @@ hc_layer(hc, x1 = start, x2 = start + width, col = col[country])
 
 Duration of Chinese dynasties. Data from http://www.360doc.com/content/11/1123/02/7829717_166641336.shtml.
 
-```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", echo = -c(21, 31)}
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", echo = -c(21, 30)}
 load(system.file("extdata", "chinese_dynasty.RData", package = "HilbertCurve"))
 
 detect_os = function() {
@@ -692,6 +693,10 @@ hc_segments(hc, x1 = chinese_dynasty[[2]], x2 = chinese_dynasty[[3]],
 hc_text(hc, x1 = chinese_dynasty[[2]], x2 = chinese_dynasty[[3]], labels = chinese_dynasty[[1]], 
     gp = gpar(fontsize = (chinese_dynasty[[3]] - chinese_dynasty[[2]])/500 * 10 + 8, 
         fontfamily = fontfamily))
+
+year = seq(-1000, 2000, by = 100)
+hc_text(hc, x1 = year, labels = ifelse(year < 0, paste0(-year, "BC"), year), 
+    gp = gpar(fontsize = 8))
 invisible(dev.off())
 ```
 
@@ -726,6 +731,7 @@ The first example visualizes genes on chromosome 1 ([RefSeq genes for human, hg1
 to distinguish different genes.
 
 ```{r}
+library(GenomicRanges)
 load(system.file("extdata", "refseq_chr1.RData", package = "HilbertCurve"))
 hc = GenomicHilbertCurve(chr = "chr1", level = 5, reference = TRUE, 
     reference_gp = gpar(lty = 1, col = "grey"), arrow = FALSE)
@@ -741,10 +747,10 @@ Table Browser](http://genome.ucsc.edu/cgi-bin/hgTables?hgsid=472144813_MQ4BbmgW3
 genome: Human
 assembly: Feb. 2009(GRCh37/hg19)
 group: Comparative Genomics
-# for mouse
+= for mouse
 track: Placental Chain/Net
 table: Mouse Net (netMm10)
-# for zebrafish
+= for zebrafish
 track: Vertebrate Chain/Net
 table: Zebrafish Net(netDanRer7)
 </code></pre>
@@ -881,9 +887,10 @@ utilizes highthroughput DNA sequencing technology to identify status of chromati
 provides a way to study gene regulation in a global aspect.
 
 In this section, we visualize four types of histone modifications (H3K27ac, H3K36me3, H3K4me3, H3K9me3). 
-The ChIPSeq data are downloaded from Roadmap (http://genboree.org/EdaccData/Release-9/sample-experiment/Lung/). 
+The ChIPSeq data are downloaded from Roadmap (http://genboree.org/EdaccData/Release-9/sample-experiment/Lung/, 
+The bed files are alignments of reads, you need to convert to the basepair or window-based coverage before using following R commands). 
 Following files for four histone modifications are used to visualize:
-
+`
 <pre><code>UCSD.Lung.H3K27ac.STL002.bed
 UCSD.Lung.H3K36me3.STL002.bed
 UCSD.Lung.H3K4me3.STL002.bed
@@ -1135,7 +1142,7 @@ cat("<p><center><img src='cnv_all_chromosomes_border.png' /></center></p>\n")
 If you want to compare several plots simutaneously, you can use `grid.layout()`
 to put them together. Remember to set `newpage` to `FALSE` in `HilbertCurve()` or `GenomicHilbertCurve()`.
 
-```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = 2:35}
+```{r, eval = grepl("tbi", Sys.info()["nodename"]) & Sys.info()["user"] == "guz", fig.keep = "none", echo = 2:32}
 png('cnv_compare.png', width = 900, height = 300)
 plot_curve = function(column, ...) {
     cm = ColorMapping(levels = c("gain", "loss", "both"), color = c("red", "green", "purple"))

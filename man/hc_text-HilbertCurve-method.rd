@@ -12,7 +12,7 @@ Add text to Hilbert curve
 \arguments{
 
   \item{object}{A \code{\link{HilbertCurve-class}} object.}
-  \item{ir}{an \code{\link[IRanges]{IRanges}} object that contains positions which correspond to text. The middle point of the interval will be the position of the text.}
+  \item{ir}{an \code{\link[IRanges:IRanges-constructor]{IRanges}} object that contains positions which correspond to text. The middle point of the interval will be the position of the text.}
   \item{labels}{text corresponding to intervals in \code{ir}.}
   \item{x1}{if start positions are not integers, they can be set by \code{x1}.}
   \item{x2}{if end positions are not integers, they can be set by \code{x2}.}
@@ -35,6 +35,7 @@ hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
 x = sort(sample(100, 20))
 s = x[1:10*2 - 1]
 e = x[1:10*2]
+require(IRanges)
 ir = IRanges(s, e)
 
 labels = sample(letters, length(ir), replace = TRUE)

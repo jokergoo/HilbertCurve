@@ -14,7 +14,7 @@ GenomicHilbertCurve(chr = paste0("chr", c(1:22, "X", "Y")), species = "hg19",
 
   \item{chr}{a vector of chromosome names. Note it should have 'chr' prefix. This argument will be ignored when \code{background} is set.}
   \item{species}{abbreviation of species, e.g. 'hg19' or 'mm10'. \code{\link[circlize]{read.chromInfo}} is used to retrieve the chromosome information.}
-  \item{background}{the background can be provided as a \code{\link[GenomicRanges]{GRanges}} object. Chromosomes should be unique across rows. Or more generally, the 'seqnames' should be different.}
+  \item{background}{the background can be provided as a \code{\link[GenomicRanges:GRanges-class]{GRanges}} object. Chromosomes should be unique across rows. Or more generally, the 'seqnames' should be different.}
   \item{...}{common arguments in \code{\link{HilbertCurve}} can be used here.}
 
 }
@@ -34,6 +34,7 @@ Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
 require(circlize)
+require(GenomicRanges)
 bed = generateRandomBed()
 gr = GRanges(seqnames = bed[[1]], ranges = IRanges(bed[[2]], bed[[3]]))
 hc = GenomicHilbertCurve()

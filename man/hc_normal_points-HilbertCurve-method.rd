@@ -14,7 +14,7 @@ Add points to the Hilbert curve
 \arguments{
 
   \item{object}{A \code{\link{HilbertCurve-class}} object.}
-  \item{ir}{an \code{\link[IRanges]{IRanges}} object which specifies the input intervals.}
+  \item{ir}{an \code{\link[IRanges:IRanges-constructor]{IRanges}} object which specifies the input intervals.}
   \item{x1}{if start positions are not integers, they can be set by \code{x1}.}
   \item{x2}{if end positions are not integers, they can be set by \code{x2}.}
   \item{size}{size of the points. It should be a \code{\link[grid]{unit}} object, pass to \code{\link[grid]{grid.points}}.}

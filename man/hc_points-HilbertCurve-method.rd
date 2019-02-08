@@ -15,7 +15,7 @@ Add points to the Hilbert curve
 \arguments{
 
   \item{object}{A \code{\link{HilbertCurve-class}} object.}
-  \item{ir}{an \code{\link[IRanges]{IRanges}} object which specifies the input intervals.}
+  \item{ir}{an \code{\link[IRanges:IRanges-constructor]{IRanges}} object which specifies the input intervals.}
   \item{x1}{if start positions are not integers, they can be set by \code{x1}.}
   \item{x2}{if end positions are not integers, they can be set by \code{x2}.}
   \item{np}{number of points (a circle or a square, ...) that are put in a segment. \code{np} controls the mode of how to add the points to the curve. See 'Details' section.}
@@ -69,6 +69,7 @@ hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
 x = sort(sample(100, 20))
 s = x[1:10*2 - 1]
 e = x[1:10*2]
+require(IRanges)
 ir = IRanges(s, e)
 
 hc_points(hc, ir)

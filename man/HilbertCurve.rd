@@ -30,7 +30,7 @@ HilbertCurve(s, e, level = 4, mode = c("normal", "pixel"),
   \item{title_gp}{graphic parameters for the title. It should be specified by \code{\link[grid]{gpar}}.}
   \item{start_from}{which corner on the plot should the curve starts?}
   \item{first_seg}{the orientation of the first segment}
-  \item{legend}{a \code{\link[grid]{grob}} object or a list of \code{\link[grid]{grob}} objects. You can construct a \code{\link[ComplexHeatmap]{ColorMapping-class}} object and generate a legend, see the Example section.}
+  \item{legend}{a \code{\link[grid:grid.grob]{grob}} object, a \code{\link[ComplexHeatmap]{Legends-class}} object, or a list them. You can construct a \code{\link[ComplexHeatmap]{ColorMapping-class}} object and generate a legend, see the Example section.}
 
 }
 \details{

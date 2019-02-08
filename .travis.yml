@@ -1,29 +1,4 @@
+# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
+
 language: r
-
-sudo: required
-
-# Be strict when checking our package
-warnings_are_errors: true
-
-r-packages:
-- testthat
-- png
-- knitr
-- markdown
-
-bioc_packages:
-- GenomicRanges
-
-r_github_packages:
-- jokergoo/GlobalOptions
-- jokergoo/circlize
-- jokergoo/ComplexHeatmap
-- jimhester/covr
-
-bioc_required: true
-
-r_check_args: --no-build-vignettes --no-vignettes
-
-after_success:
-  - Rscript -e 'library(covr);codecov()'
-  
+r: bioc-devel

@@ -1,3 +1,19 @@
+Changes in version 1.13.2
+
+- fixed warnings in Rd files
+
+-----------------------------
+
+Changes in version 1.13.1
+
+- update with new definition of legends
+
+----------------------------
+
+Changes in version 1.11.1
+
+- move IRanges and GenomicRanges to imports field in DESCRIPTION
+
 Changes in verison 1.5.2
 ----------------------------
 

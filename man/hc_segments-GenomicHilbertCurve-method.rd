@@ -12,7 +12,7 @@ Add line segments to Hilbert curve
 \arguments{
 
   \item{object}{a \code{\link{GenomicHilbertCurve-class}} object}
-  \item{gr}{a \code{\link[GenomicRanges]{GRanges}} object which contains the genomic regions to be mapped to the curve}
+  \item{gr}{a \code{\link[GenomicRanges:GRanges-class]{GRanges}} object which contains the genomic regions to be mapped to the curve}
   \item{gp}{pass to \code{\link{hc_segments,HilbertCurve-method}}}
 
 }
@@ -27,6 +27,7 @@ Zuguang Gu <z.gu@dkfz.de>
 }
 \examples{
 require(circlize)
+require(GenomicRanges)
 bed = generateRandomBed(nr = 100)
 gr = GRanges(seqnames = bed[[1]], ranges = IRanges(bed[[2]], bed[[3]]))
 hc = GenomicHilbertCurve()
