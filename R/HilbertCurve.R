@@ -1727,7 +1727,7 @@ add_raster = function(lt_rgb) {
 		img[, , 3] = blue
 
 		seekViewport(paste0("hilbert_curve_", get_plot_index()))
-		grid.raster(img, x = unit(0.5, "npc"), y = unit(0.5, "npc"), width = unit(1, "npc"), height = unit(1, "npc"))
+		grid.raster(img, x = unit(0.5, "npc"), y = unit(0.5, "npc"), width = unit(1, "npc"), height = unit(1, "npc"), interpolate = FALSE)
 		seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "global"))
 		upViewport()
 	#}

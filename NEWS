@@ -1,6 +1,7 @@
 Changes in version 1.13.2
 
 - fixed warnings in Rd files
+- set `interpolate = FALSE` in `grid.raster()`
 
 -----------------------------
 
