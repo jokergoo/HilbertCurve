@@ -1,7 +1,13 @@
+Changes in version 1.13.3
+
+- set `interpolate = FALSE` in `grid.raster()`
+- improved `hc_map()`
+
+-----------------------------
+
 Changes in version 1.13.2
 
 - fixed warnings in Rd files
-- set `interpolate = FALSE` in `grid.raster()`
 
 -----------------------------
 
