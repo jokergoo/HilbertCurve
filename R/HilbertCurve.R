@@ -178,8 +178,7 @@ setMethod(f = "hc_offset",
 # -title_gp graphic parameters for the title. It should be specified by `grid::gpar`.
 # -start_from which corner on the plot should the curve starts?
 # -first_seg the orientation of the first segment
-# -legend a `grid::grob` object, a `ComplexHeatmap::Legends-class` object, or a list them. You can construct a `ComplexHeatmap::ColorMapping-class`
-#         object and generate a legend, see the Example section.
+# -legend a `grid::grob` object, a `ComplexHeatmap::Legends-class` object, or a list them.
 #
 # == details
 # This funciton initializes a Hilbert curve with level ``level`` which corresponds 
@@ -232,20 +231,20 @@ setMethod(f = "hc_offset",
 #
 # # plot with one legend
 # require(ComplexHeatmap)
-# cm = ColorMapping(colors = c("red", "blue"), levels = c("a", "b"))
-# legend = color_mapping_legend(cm, plot = FALSE, title = "foo")
+# legend = Legend(labels = c("a", "b"), title = "foo", 
+#     legend_gp = gpar(fill = c("red", "blue")))
 # hc = HilbertCurve(1, 100, title = "title", legend = legend)
 # hc_segments(hc, x1 = 20, x2 = 40)
 #
 # # plot with more than one legend
 # require(circlize)
-# cm1 = ColorMapping(colors = c("red", "blue"), levels = c("a", "b"))
-# legend1 = color_mapping_legend(cm1, plot = FALSE, title = "foo")
-# cm2 = ColorMapping(col_fun = colorRamp2(c(-1, 0, 1), c("green", "white", "red")))
-# legend2 = color_mapping_legend(cm2, plot = FALSE, title = "bar")
+# legend1 = Legend(labels = c("a", "b"), title = "foo", 
+#     legend_gp = gpar(fill = c("red", "blue")))
+# col_fun = colorRamp2(c(-1, 0, 1), c("green", "white", "red"))
+# legend2 = Legend(col_fun = col_fun, title = "bar")
 # hc = HilbertCurve(1, 100, title = "title", legend = list(legend1, legend2))
 # hc_segments(hc, x1 = 20, x2 = 40)
-#
+
 HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 	reference = FALSE, reference_gp = gpar(lty = 3, col = "#999999"), 
 	arrow = TRUE, zoom = NULL, newpage = TRUE, 
@@ -333,19 +332,47 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 		title_height = grobHeight(textGrob(title, gp = title_gp)) + unit(5, "mm")
 	}
 
+	.width = function(x) {
+		if(inherits(x, "grob")) {
+			grobWidth(x)
+		} else if(inherits(x, "Legends")) {
+			ComplexHeatmap:::width(x)
+		} else {
+			stop("Class not supported.")
+		}
+	}
+	.height = function(x) {
+		if(inherits(x, "grob")) {
+			grobHieght(x)
+		} else if(inherits(x, "Legends")) {
+			ComplexHeatmap:::height(x)
+		} else {
+			stop_wrap("Class not supported.")
+		}
+	}
+	.draw = function(x) {
+		if(inherits(x, "grob")) {
+			grid.draw(x)
+		} else if(inherits(x, "Legends")) {
+			ComplexHeatmap::draw(x)
+		} 
+	}
+
 	if(length(legend) == 0) {
 		legend_width = unit(0, "mm")
+		legend_height = unit(0, "mm")
 	} else {
-		if(inherits(legend, "Legends")) legend = legend@grob
-		if(inherits(legend, "grob")) legend = list(legend)
-		legend = lapply(legend, function(x) {
-			if(inherits(x, "Legends")) {
-				x = x@grob
-			} else {
-				x
-			}
-		})
-		legend_width = max(do.call("unit.c", lapply(legend, grobWidth))) + unit(4, "mm")
+		if(inherits(legend, "Legends")) {
+			legend = list(legend)
+		} else if(inherits(legend, "grob")) {
+			legend = list(legend)
+		} else if(inherits(legend, "list")) {
+			
+		} else {
+			stop("`legend` should be a single legend or a list of legends.")
+		}
+
+		legend_width = max(do.call("unit.c", lapply(legend, .width))) + unit(4, "mm")
 	}
 
 	pushViewport(viewport(layout = grid.layout(nrow = 2, ncol = 2, widths = unit.c(unit(1, "npc") - legend_width, legend_width), 
@@ -362,13 +389,13 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 		gap = unit(2, "mm")
 		pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 2))
 		# draw the list of legend
-		legend_height = sum(do.call("unit.c", lapply(legend, grobHeight))) + gap*(length(legend)-1)
+		legend_height = sum(do.call("unit.c", lapply(legend, .height))) + gap*(length(legend)-1)
 		y = unit(0.5, "npc") + legend_height*0.5 
 		for(i in seq_along(legend)) {
-			pushViewport(viewport(x = unit(2, "mm"), y = y, height = grobHeight(legend[[i]]), width = grobWidth(legend[[i]]), just = c("left", "top")))
-			grid.draw(legend[[i]])
+			pushViewport(viewport(x = unit(2, "mm"), y = y, height = .height(legend[[i]]), width = .width(legend[[i]]), just = c("left", "top")))
+			.draw(legend[[i]])
 			upViewport()
-			y = y - gap - grobHeight(legend[[i]])
+			y = y - gap - .height(legend[[i]])
 		}
 
 		upViewport()

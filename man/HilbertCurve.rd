@@ -30,7 +30,7 @@ HilbertCurve(s, e, level = 4, mode = c("normal", "pixel"),
   \item{title_gp}{graphic parameters for the title. It should be specified by \code{\link[grid]{gpar}}.}
   \item{start_from}{which corner on the plot should the curve starts?}
   \item{first_seg}{the orientation of the first segment}
-  \item{legend}{a \code{\link[grid:grid.grob]{grob}} object, a \code{\link[ComplexHeatmap]{Legends-class}} object, or a list them. You can construct a \code{\link[ComplexHeatmap]{ColorMapping-class}} object and generate a legend, see the Example section.}
+  \item{legend}{a \code{\link[grid:grid.grob]{grob}} object, a \code{\link[ComplexHeatmap]{Legends-class}} object, or a list them.}
 
 }
 \details{
@@ -88,17 +88,17 @@ HilbertCurve(1, 100, start_from = "topleft", reference = TRUE)
 
 # plot with one legend
 require(ComplexHeatmap)
-cm = ColorMapping(colors = c("red", "blue"), levels = c("a", "b"))
-legend = color_mapping_legend(cm, plot = FALSE, title = "foo")
+legend = Legend(labels = c("a", "b"), title = "foo", 
+    legend_gp = gpar(fill = c("red", "blue")))
 hc = HilbertCurve(1, 100, title = "title", legend = legend)
 hc_segments(hc, x1 = 20, x2 = 40)
 
 # plot with more than one legend
 require(circlize)
-cm1 = ColorMapping(colors = c("red", "blue"), levels = c("a", "b"))
-legend1 = color_mapping_legend(cm1, plot = FALSE, title = "foo")
-cm2 = ColorMapping(col_fun = colorRamp2(c(-1, 0, 1), c("green", "white", "red")))
-legend2 = color_mapping_legend(cm2, plot = FALSE, title = "bar")
+legend1 = Legend(labels = c("a", "b"), title = "foo", 
+    legend_gp = gpar(fill = c("red", "blue")))
+col_fun = colorRamp2(c(-1, 0, 1), c("green", "white", "red"))
+legend2 = Legend(col_fun = col_fun, title = "bar")
 hc = HilbertCurve(1, 100, title = "title", legend = list(legend1, legend2))
 hc_segments(hc, x1 = 20, x2 = 40)
 }
