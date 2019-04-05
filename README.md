@@ -89,4 +89,4 @@ Copy number alterations in 22 chromosomes:
 
 ### License
 
-GPL (>= 2)
+MIT @ Zuguang Gu
