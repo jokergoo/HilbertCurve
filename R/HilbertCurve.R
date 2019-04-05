@@ -377,7 +377,7 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 
 	pushViewport(viewport(layout = grid.layout(nrow = 2, ncol = 2, widths = unit.c(unit(1, "npc") - legend_width, legend_width), 
 			                                                       heights = unit.c(title_height, unit(1, "npc") - title_height)),
-	                     name = paste0("hilbert_curve_", get_plot_index(), "global")))
+	                     name = paste0("hilbert_curve_", get_plot_index(), "_global")))
 
 	title_gp = validate_gpar(title_gp, default = list(fontsize = 16))
 	if(length(title) != 0) {
@@ -723,7 +723,7 @@ setMethod(f = "hc_normal_points",
 
 	grid.points(x1, y1, default.units = "native", gp = gp, pch = pch, size = size)	
 
-	seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "global"))
+	seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "_global"))
 	upViewport()
 	
 	df = data.frame(x = x1, y = y1, stringsAsFactors = FALSE)
@@ -868,7 +868,7 @@ setMethod(f = "hc_segmented_points",
         }
     }
 
-    seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "global"))
+    seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "_global"))
     upViewport()
 
     df = cbind(mid, radius = rep(radius, nrow(mid)))
@@ -1048,7 +1048,7 @@ setMethod(f = "hc_rect",
 		df = data.frame(x = pos$x1[index], y = pos$y1[index])
 	}
 
-	seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "global"))
+	seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "_global"))
 	upViewport()
 
 	return(invisible(df))
@@ -1182,7 +1182,7 @@ setMethod(f = "hc_segments",
 
 	# df = data.frame(x1 = x1, y1 = y1, x2 = x2, y2 = y2)
 
-	seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "global"))
+	seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "_global"))
 	upViewport()
 
 	return(invisible(df))
@@ -1284,7 +1284,7 @@ setMethod(f = "hc_text",
 	
 	df = data.frame(x = x1, y = y1, labels = labels, stringsAsFactors = FALSE)
 
-	seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "global"))
+	seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "_global"))
 	upViewport()
 	
 	return(invisible(df))
@@ -1385,7 +1385,7 @@ setMethod(f = "hc_centered_text",
 		grid.text(labels[i], x, y, default.units = "native", gp = gp, ...)
 	})
 
-	seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "global"))
+	seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "_global"))
 	upViewport()
 	
 	return(invisible(NULL))
@@ -1728,7 +1728,7 @@ add_raster = function(lt_rgb) {
 
 		seekViewport(paste0("hilbert_curve_", get_plot_index()))
 		grid.raster(img, x = unit(0.5, "npc"), y = unit(0.5, "npc"), width = unit(1, "npc"), height = unit(1, "npc"), interpolate = FALSE)
-		seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "global"))
+		seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "_global"))
 		upViewport()
 	#}
 }

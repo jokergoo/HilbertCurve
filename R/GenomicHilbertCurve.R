@@ -475,16 +475,15 @@ setMethod(f = "hc_map",
 
 	if(add) {
 		if(object@MODE == "pixel") {
-			hc_layer(object, background, col = fill, border = border)
-			if(show_labels) {
-				oi = HilbertCurve:::.ENV$I_PLOT
-				seekViewport(paste0("hilbert_curve_", .ENV$I_PLOT))
+			oi = .ENV$I_PLOT
+			seekViewport(paste0("hilbert_curve_", .ENV$I_PLOT))
 
-				hc2 = GenomicHilbertCurve(mode = "normal", chr = unique(as.vector(seqnames(background))), level = 6, newpage = FALSE)
-				hc_map(hc2, add = TRUE, labels = labels, fill = NA, border = NA)
-				seekViewport(name = paste0("hilbert_curve_", oi, "global"))
-				upViewport()
-			}
+			hc2 = GenomicHilbertCurve(mode = "normal", chr = unique(as.vector(seqnames(background))), level = level, newpage = FALSE)
+			hc_map(hc2, add = TRUE, labels = labels, fill = fill, border = border, show_labels = show_labels, 
+				labels_gp = labels_gp)
+			seekViewport(name = paste0("hilbert_curve_", oi, "_global"))
+			upViewport()
+			
 		} else {
 			hc_polygon(object, background, gp = gpar(fill = fill, col = border))
 			if(show_labels) {

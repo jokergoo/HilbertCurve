@@ -214,7 +214,7 @@ setMethod(f = "hc_polygon",
 			gp = gpar(lwd = gp$lwd[i2], lty = gp$lty[i2], col = gp$col[i2], lineend ="butt", linejoin = "mitre"))
 	})
 
-	seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "global"))
+	seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "_global"))
 	upViewport()
 
 	return(invisible(NULL))
