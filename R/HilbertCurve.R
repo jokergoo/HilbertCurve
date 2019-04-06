@@ -1636,7 +1636,14 @@ setMethod(f = "hc_layer",
 		grid = 2^(grid_line-1)
 		grid_line_col = col2rgb(grid_line_col)/255
 		n = ncol(object@RGB$red)
-		for(i in 1:(grid-1)) {
+		object@RGB$red[1, ] = grid_line_col[1]
+		object@RGB$green[1, ] = grid_line_col[2]
+		object@RGB$blue[1, ] = grid_line_col[3]
+		
+		object@RGB$red[, 1] = grid_line_col[1]
+		object@RGB$green[, 1] = grid_line_col[2]
+		object@RGB$blue[, 1] = grid_line_col[3]
+		for(i in 1:grid) {
 			object@RGB$red[round(n/grid*i), ] = grid_line_col[1]
 			object@RGB$green[round(n/grid*i), ] = grid_line_col[2]
 			object@RGB$blue[round(n/grid*i), ] = grid_line_col[3]

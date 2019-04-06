@@ -39,7 +39,7 @@ library(HilbertCurve)
 that folds one dimensional axis into a two dimensional space, but still keeps the locality.
 It has advantages to visualize data with long axis in following two aspects:
 
-1. greatly improve resolution of the visualization fron n to $\sqrt{n}$;
+1. greatly improve resolution of the visualization fron $n$ to $\sqrt{n}$;
 2. easy to visualize clusters because generally data points in the axis will also be close in the 2D space. 
 
 This package aims to provide an easy and flexible way to visualize data through Hilbert curve.
