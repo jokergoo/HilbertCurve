@@ -547,7 +547,7 @@ col_fun = colorRamp2(c(-2, 0, 2), c("green", "white", "red"))
 breaks = seq(-2, 2, by = 2)
 lgd1 = Legend(at = breaks, col_fun = col_fun, title = "style 1")
 lgd2 = Legend(at = rev(breaks), legend_gp = gpar(fill = col_fun(rev(breaks))), title = "style 2")
-lgd3 = Legend(col_fun = col_fun, title = "style 3", plot = FALSE)
+lgd3 = Legend(col_fun = col_fun, title = "style 3")
 
 value = rnorm(length(x))
 hc = HilbertCurve(1, 1000, level = 9, mode = "pixel", title = "pixel mode", 
@@ -769,7 +769,7 @@ if it is partially covered by the conserved regions.
 ```{r}
 # for generating the legend
 lgd = Legend(col_fun = colorRamp2(c(0, 1), c("yellow", "red")), 
-    title = "Conservation", plot = FALSE,
+    title = "Conservation",
     at = c(0, 0.2, 0.4, 0.6, 0.8, 1), 
     labels = c("0%", "20%", "40%", "60%", "80%", "100%"))
 chr1_len = 249250621
@@ -823,7 +823,7 @@ is calculated by `hgGcPercent.bin` binary which is downloaded from http://hgdown
 png('gc_percent_chr1_points.png', width = 500, height = 500)
 df = read.table(pipe("awk '$1==\"chr1\"' ~/HilbertCurveTest/hg19_gc_percent_window1000.bed"))
 col_fun = colorRamp2(quantile(df[[5]], c(0.1, 0.5, 0.9)), c("green", "#FFFFCC", "red"))
-lgd = Legend(col_fun = col_fun, title = "GC percent", plot = FALSE,
+lgd = Legend(col_fun = col_fun, title = "GC percent",
     at = c(300, 400, 500, 600), 
     labels = c("30%", "40%", "50%", "60%"))
 
@@ -903,9 +903,9 @@ plot_histone_mark = function(mark) {
 	df = read.table(pipe(qq("awk '$5>0 && $1==\"chr1\"' ~/HilbertCurveTest/UCSD.Lung.@{mark}.STL002.bed")), 
         sep = "\t")
 	col_fun = colorRamp2(c(0, quantile(df[[5]], 0.99)), c("white", "red"))
-    lgd = Legend(col_fun = col_fun, title = "Intensity", plot = FALSE)
+    lgd = Legend(col_fun = col_fun, title = "Intensity")
     lgd2 = Legend(labels = c(mark, "gene"), legend_gp = gpar(fill = c("#FF0000", "#CCCCCC"))
-        title = "Layer", plot = FALSE)
+        title = "Layer")
 
 	hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel", 
         title = qq("Intensity of @{mark} mark on chr1"), legend = list(lgd, lgd2))
@@ -983,9 +983,9 @@ df = read.table(pipe("awk '$5>0 && $1==\"chr1\"' ~/HilbertCurveTest/UCSD.Lung.H3
     sep = "\t")
 col_fun = colorRamp2(c(0, quantile(df[[5]], 0.99)), c("white", "red"))
 col_fun_new = colorRamp2(c(0, quantile(df[[5]], 0.99)), c("white", "purple"))
-lgd = Legend(col_fun = col_fun, title = "Intensity", plot = FALSE)
+lgd = Legend(col_fun = col_fun, title = "Intensity")
 lgd2 = Legend(labels = c("H3K36me3", "overlap", "gene"),
-    legend_gp = gpar(fill = c("#FF0000", "purple", "#CCCCCC")) title = "Layer", plot = FALSE)
+    legend_gp = gpar(fill = c("#FF0000", "purple", "#CCCCCC")) title = "Layer")
 
 png("H3K36me3_chr1_overlap.png", width = 500, height = 500)
 hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel",
@@ -1026,7 +1026,7 @@ and intermediate methylated regions which are represented as large blocks.
 df = read.table(pipe("awk '$1==\"chr1\"' ~/HilbertCurveTest/UCSD.Lung.Bisulfite-Seq.STL002.bed"), 
     sep = "\t")
 col_fun = colorRamp2(c(0, 0.5, 1), c("blue", "white", "red"))
-lgd = Legend(col_fun = col_fun, title = "Methylation", plot = FALSE)
+lgd = Legend(col_fun = col_fun, title = "Methylation")
 png("methylation_chr1.png", width = 500, height = 500)
 hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel", legend = lgd)
 hc_layer(hc, df, col = col_fun(df[[5]]), mean_mode = "absolute")
