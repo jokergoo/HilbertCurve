@@ -904,7 +904,7 @@ plot_histone_mark = function(mark) {
         sep = "\t")
 	col_fun = colorRamp2(c(0, quantile(df[[5]], 0.99)), c("white", "red"))
     lgd = Legend(col_fun = col_fun, title = "Intensity")
-    lgd2 = Legend(labels = c(mark, "gene"), legend_gp = gpar(fill = c("#FF0000", "#CCCCCC"))
+    lgd2 = Legend(labels = c(mark, "gene"), legend_gp = gpar(fill = c("#FF0000", "#CCCCCC")),
         title = "Layer")
 
 	hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel", 

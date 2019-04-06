@@ -343,11 +343,11 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 	}
 	.height = function(x) {
 		if(inherits(x, "grob")) {
-			grobHieght(x)
+			grobHeight(x)
 		} else if(inherits(x, "Legends")) {
 			ComplexHeatmap:::height(x)
 		} else {
-			stop_wrap("Class not supported.")
+			stop("Class not supported.")
 		}
 	}
 	.draw = function(x) {
