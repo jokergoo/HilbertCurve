@@ -985,7 +985,7 @@ col_fun = colorRamp2(c(0, quantile(df[[5]], 0.99)), c("white", "red"))
 col_fun_new = colorRamp2(c(0, quantile(df[[5]], 0.99)), c("white", "purple"))
 lgd = Legend(col_fun = col_fun, title = "Intensity")
 lgd2 = Legend(labels = c("H3K36me3", "overlap", "gene"),
-    legend_gp = gpar(fill = c("#FF0000", "purple", "#CCCCCC")) title = "Layer")
+    legend_gp = gpar(fill = c("#FF0000", "purple", "#CCCCCC")), title = "Layer")
 
 png("H3K36me3_chr1_overlap.png", width = 500, height = 500)
 hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel",
