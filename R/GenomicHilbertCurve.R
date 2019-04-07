@@ -478,7 +478,8 @@ setMethod(f = "hc_map",
 			oi = .ENV$I_PLOT
 			seekViewport(paste0("hilbert_curve_", .ENV$I_PLOT))
 
-			hc2 = GenomicHilbertCurve(mode = "normal", chr = unique(as.vector(seqnames(background))), level = level, newpage = FALSE)
+			hc2 = GenomicHilbertCurve(mode = "normal", chr = unique(as.vector(seqnames(background))), 
+				level = level, newpage = FALSE, start_from = object@start_from, first_seg = object@first_seg)
 			hc_map(hc2, add = TRUE, labels = labels, fill = fill, border = border, show_labels = show_labels, 
 				labels_gp = labels_gp)
 			seekViewport(name = paste0("hilbert_curve_", oi, "_global"))

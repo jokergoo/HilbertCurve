@@ -143,12 +143,13 @@ based on specifying positions.
 Generally, customizing a Hilbert curve follows following steps:
 
 ```{r, eval = FALSE}
-hc = HilbertCurve(...)  # initialize the curve
-hc_points(hc, ...)      # add points 
-hc_rect(hc, ...)        # add rectangles
-hc_polygon(hc, ...)     # add polygons
-hc_segments(hc, ...)    # add lines
-hc_text(hc, ...)        # add text
+hc = HilbertCurve(...)    # initialize the curve
+hc_points(hc, ...)        # add points 
+hc_rect(hc, ...)          # add rectangles
+hc_polygon(hc, ...)       # add polygons
+hc_segments(hc, ...)      # add lines
+hc_text(hc, ...)          # add text
+hc_centered_text(hc, ...) # add text
 ```
 
 `HilbertCurve()` is a constructor function and initializes the Hilbert curve. Following
@@ -168,43 +169,43 @@ by `start_from` option and the orientation of the first segment can be set by `f
 grid.newpage()
 pushViewport(viewport(layout = grid.layout(nr = 2, nc = 4)))
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 1))
-hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999"), 
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 2), 
     newpage = FALSE, start_from = 'bottomleft', first_seg = "horizontal", 
     title = "start_from = 'bottomleft'\nfirst_seg = 'horizontal'")
 upViewport()
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 2))
-hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999"), 
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 2), 
     newpage = FALSE, start_from = 'topleft', first_seg = "horizontal", 
     title = "start_from = 'topleft'\nfirst_seg = 'horizontal'")
 upViewport()
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 3))
-hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999"), 
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 2), 
     newpage = FALSE, start_from = 'bottomright', first_seg = "horizontal",
     title = "start_from = 'bottomright'\nfirst_seg = 'horizontal'")
 upViewport()
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 4))
-hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999"), 
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 2), 
     newpage = FALSE, start_from = 'topright', first_seg = "horizontal",
     title = "start_from = 'topright'\nfirst_seg = 'horizontal'")
 upViewport()
 
 pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 1))
-hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999"), 
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 2), 
     newpage = FALSE, start_from = 'bottomleft', first_seg = "vertical", 
     title = "start_from = 'bottomleft'\nfirst_seg = 'vertical'")
 upViewport()
 pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 2))
-hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999"), 
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 2), 
     newpage = FALSE, start_from = 'topleft',  first_seg = "vertical",
     title = "start_from = 'topleft'\nfirst_seg = 'vertical'")
 upViewport()
 pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 3))
-hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999"), 
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 2), 
     newpage = FALSE, start_from = 'bottomright',  first_seg = "vertical",
     title = "start_from = 'bottomright'\nfirst_seg = 'vertical'")
 upViewport()
 pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 4))
-hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999"), 
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 2), 
     newpage = FALSE, start_from = 'topright',  first_seg = "vertical",
     title = "start_from = 'topright'\nfirst_seg = 'vertical'")
 upViewport()
@@ -227,13 +228,13 @@ ir = IRanges(s, e)
 ir
 ```
 
-Here `ir` contains intervals which are composed by integers. In later sections, 
+Here `ir` contains intervals which are composed by integers. In [later sections](#toc_10), 
 you will see it is also possible to specify positions with numeric values and negative values.
 
 ### Points
 
 There are two modes for adding points. Normally, intervals are always long in the curve and can not be sufficiently
-represented by single points, thus, by default, a list of e.g. circles split the intervals.
+represented by single points, thus, by default, a list of e.g. circles compose the intervals.
 
 ```{r}
 hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
@@ -310,18 +311,28 @@ change in the ends of the interval if the corresponding segment is not completel
 
 ```{r}
 hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
-hc_polygon(hc, ir, gp = gpar(fill = "#FF0000", col = "black"))
+hc_polygon(hc, ir, gp = gpar(fill = "red", col = "black"))
 ```
 
 ### Text
 
-Text is always added at the center of each interval in `ir`. Additional settings such as
+Text by `hc_text()` is always added at the center of each interval in `ir`. Additional settings such as
 `just` and `rot` can also be set.
 
 ```{r}
 hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
 labels = sample(letters, length(ir), replace = TRUE)
 hc_text(hc, ir, labels = labels, gp = gpar(fontsize = width(ir)*2+5))
+```
+
+`hc_centered_text()` adds text in the visual center of the polygon block which represents the 
+corresponding region. Compare the postions of `a` and `b` in following plot:
+
+```{r}
+hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
+hc_polygon(hc, ir, gp = gpar(fill = "red", col = "black"))
+hc_text(hc, ir, labels = "a")
+hc_centered_text(hc, ir, labels = "b")
 ```
 
 ### Combine low-level functions
@@ -350,7 +361,7 @@ hc = HilbertCurve(0.1, 0.8, level = 4, reference = TRUE)
 hc_points(hc, x1 = c(0.15, 0.55), x2 = c(0.25, 0.65))
 ```
 
-This is also useful to specify the positions with huge values which can not be represented by the `IRagnes` class (e.g. the summation of total length of human chromosomes).
+This is also useful to specify the positions with huge values which can not be represented by the `IRanges` class (e.g. the summation of total length of human chromosomes).
 
 ```{r, eval = FALSE}
 # code not run when generating the vignette
@@ -420,6 +431,24 @@ hc = HilbertCurve(1, 1000, level = 9, mode = "pixel", title = "pixel mode")
 hc_layer(hc, x1 = x, x2 = x+2, mean_mode = "absolute", col = col_fun(value), border = TRUE)
 ```
 
+But the border is more suggested to be added by `hc_polygon()`:
+
+```{r}
+hc = HilbertCurve(1, 1000, level = 9, mode = "pixel", title = "pixel mode")
+hc_layer(hc, x1 = x, x2 = x+2, mean_mode = "absolute", col = col_fun(value))
+hc_polygon(hc, x1 = x, x2 = x+2)
+```
+
+`hc_polygon()` helps to add partitions to the layer.
+
+
+```{r}
+hc = HilbertCurve(1, 1000, level = 9, mode = "pixel", title = "pixel mode")
+hc_layer(hc, x1 = x, x2 = x+2, mean_mode = "absolute", col = col_fun(value))
+hc_polygon(hc, x1 = c(1, 200, 500), x2 = c(200, 500, 1000))
+hc_centered_text(hc, x1 = c(1, 200, 500), x2 = c(200, 500, 1000), labels = c("A", "B", "C"))
+```
+
 The Hilbert curve can be save as PNG figure by `hc_png()` with resolution `2^level x 2^level`.
 Note only the curve itself is exported.
 
@@ -461,7 +490,7 @@ hc_layer(hc, x1 = 750, x2 = 850, col = "#0000FF20",
         tmp = r0[l]
         r0[l] = g0[l]
         g0[l] = tmp  
-        
+
         # add to the curve
         default_overlay(r0, g0, b0, r, g, b, alpha)
     })
@@ -846,8 +875,6 @@ hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel", legend = lgd)
 hc_layer(hc, df, col = col_fun(df[[5]]))
 hc_layer(hc, reduce(g), col = "#00000020")
 invisible(dev.off())
-# or you can only save the Hilbert curve part as a PNG file
-# hc_png(hc, file = "gc_percent_chr1.png")
 ```
 
 ```{r, echo = FALSE, results = "asis"}
@@ -868,8 +895,6 @@ hc = GenomicHilbertCurve(background = background, level = 9, mode = "pixel", leg
 hc_layer(hc, df, col = col_fun(df[[5]]))
 hc_layer(hc, reduce(g), col = "#00000020")
 invisible(dev.off())
-# or you can only save the Hilbert curve part as a PNG file
-# hc_png(hc, file = "gc_percent_half_chr1.png")
 ```
 
 ```{r, echo = FALSE, results = "asis"}
@@ -911,8 +936,6 @@ plot_histone_mark = function(mark) {
         title = qq("Intensity of @{mark} mark on chr1"), legend = list(lgd, lgd2))
 	hc_layer(hc, df, col = col_fun(df[[5]]))
     hc_layer(hc, reduce(g), col = "#00000010")
-    # or you can only save the Hilbert curve part as a PNG file
-    # hc_png(hc, qq("@{mark}_chr1.png"))
 }
 ```
 
@@ -1004,8 +1027,6 @@ hc_layer(hc, reduce(g), col = "#00000010",
         default_overlay(r0, g0, b0, r, g, b, alpha)
     })
 invisible(dev.off())
-# or you can only save the Hilbert curve part as a PNG file
-# hc_png(hc, "H3K36me3_chr1_overlap.png")
 ```
 
 ```{r, echo = FALSE, results = "asis"}
@@ -1030,10 +1051,7 @@ lgd = Legend(col_fun = col_fun, title = "Methylation")
 png("methylation_chr1.png", width = 500, height = 500)
 hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel", legend = lgd)
 hc_layer(hc, df, col = col_fun(df[[5]]), mean_mode = "absolute")
-hc_layer(hc, reduce(g), col = "#00000010")
 invisible(dev.off())
-# or you can only save the Hilbert curve part as a PNG file
-# hc_png(hc, file = 'methylation_chr1.png')
 ```
 
 ```{r, echo = FALSE, results = "asis"}
@@ -1158,7 +1176,7 @@ plot_curve = function(column, ...) {
             b[l] = 240/255
             list(r, g, b)
     })
-    hc_map(hc, add = TRUE, fill = NA, border = "grey")
+    hc_map(hc, labels = 1:22, add = TRUE, fill = NA, border = "grey")
 }
 
 pn = c("African", "Asian", "European")

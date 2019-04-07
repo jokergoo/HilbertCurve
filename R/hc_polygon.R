@@ -75,21 +75,53 @@ which_border = function(x, y, n) {
 #
 setMethod(f = "hc_polygon",
 	signature = "HilbertCurve",
-	definition = function(object, ir, x1 = NULL, x2 = NULL, 
-	gp = gpar(),
-	end_type = c("average", "expanding", "shrinking")) {
+	definition = function(object, ir = NULL, x1 = NULL, x2 = NULL, 
+	gp = gpar(), end_type = c("average", "expanding", "shrinking")) {
 
 	if(object@MODE == "pixel") {
-		stop("`hc_polygon()` can only be used under 'normal' mode.")
+		oi = .ENV$I_PLOT
+		seekViewport(paste0("hilbert_curve_", .ENV$I_PLOT))
+
+		hc2 = HilbertCurve(s = object@data_range[1], e = object@data_range[2], mode = "normal", 
+			level = min(object@LEVEL, 9), newpage = FALSE, 
+			start_from = object@start_from, first_seg = object@first_seg)
+		hc_polygon(hc2, ir = ir, x1 = x1, x2 = x2, gp = gp, end_type = end_type)
+		seekViewport(name = paste0("hilbert_curve_", oi, "_global"))
+		upViewport()
+		return(invisible(NULL))
 	}
 
-	if(!missing(ir)) {
+	polygons = get_polygons(object, ir = ir, x1 = x1, x2 = x2, end_type = end_type)
+
+	gp = validate_gpar(gp, default = list(lty = 1, lwd = 1, col = 1, fill = "transparent"))
+
+	if(length(gp$lty) == 1) gp$lty = rep(gp$lty, length(polygons))
+	if(length(gp$lwd) == 1) gp$lwd = rep(gp$lwd, length(polygons))
+	if(length(gp$col) == 1) gp$col = rep(gp$col, length(polygons))
+	if(length(gp$fill) == 1) gp$fill = rep(gp$fill, length(polygons))
+
+	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
+	for(i in seq_along(polygons)) {
+		grid.polygon(polygons[[i]][, 1], polygons[[i]][, 2], default.units = "native", gp = gpar(fill = gp$fill[i], 
+			col = gp$col[i], lty = gp$lty[i], lwd = gp$lwd[i], lineend = "butt", linejoin = "mitre"))
+	}
+
+	seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "_global"))
+	upViewport()
+
+	return(invisible(NULL))
+	
+})
+
+
+get_polygons = function(object, ir = NULL, x1 = NULL, x2 = NULL, end_type = c("average", "expanding", "shrinking")) {
+	
+	if(!is.null(ir)) {
     	if(!inherits(ir, "IRanges")) {
     		stop("It seems you want to specify positions by one or two numeric vectors, specify them with argument names. (`x1 = ..., x2 = ...`)")
     	}
     }
-
-	if(missing(ir) || is.null(ir)) {
+    if(is.null(ir)) {
 		if(is.null(x1) || is.null(x2)) {
 			stop("You should either specify `ir`, or `x1` and `x2`.")
 		} else {
@@ -114,12 +146,9 @@ setMethod(f = "hc_polygon",
 	}
 	ir = IRanges(start = start, end = end)
 
-	gp = validate_gpar(gp, default = list(lty = 1, lwd = 1, col = 1, fill = "transparent"))
-
-	if(length(gp$lty) == 1) gp$lty = rep(gp$lty, length(ir))
-	if(length(gp$lwd) == 1) gp$lwd = rep(gp$lwd, length(ir))
-	if(length(gp$col) == 1) gp$col = rep(gp$col, length(ir))
-	if(length(gp$fill) == 1) gp$fill = rep(gp$fill, length(ir))
+	if(length(ir) > 200) {
+		cat("It is not suggested to use `hc_polygon()` on more than 200 intervals.\n")
+	}
 
 	mtch = as.matrix(findOverlaps(object@BINS, ir))
 	if(nrow(mtch) == 0) {
@@ -130,7 +159,6 @@ setMethod(f = "hc_polygon",
 	mean_bin_width = mean(width(object@BINS))
 	end_type = match.arg(end_type)[1]
 
-	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
 	tapply(seq_len(nrow(mtch)), mtch[, 2], function(ind) {
 		i1 = mtch[ind, 1]  ## index for BINS
 		i2 = mtch[ind[1], 2]  ## index for ir
@@ -196,27 +224,82 @@ setMethod(f = "hc_polygon",
 		} else {
 			df = data.frame(x = c(pos$x1), y = c(pos$y1))
 		}
-		grid.rect(df$x, df$y, width = 1, height = 1, default.units = "native", gp = gpar(fill = gp$fill[i2], 
-			col = NA, lineend = "butt", linejoin = "mitre"))
-
+		
 		border = which_border(df$x, df$y, hc_level(object)^2)
+		seg_mat = matrix(nrow = sum(border$left_border) + sum(border$right_border) + sum(border$top_border) + sum(border$bottom_border), ncol = 4)
+		colnames(seg_mat) = c("x0", "y0", "x1", "y1")
+
 		l = border$left_border
-		if(sum(l)) grid.segments(df$x[l] - 0.5, df$y[l] - 0.5, df$x[l] - 0.5, df$y[l] + 0.5, default.units = "native",
-			gp = gpar(lwd = gp$lwd[i2], lty = gp$lty[i2], col = gp$col[i2], lineend ="butt", linejoin = "mitre"))
+		k = 0
+		if(sum(l)) {
+			seg_mat[k + 1:sum(l), ] = cbind(x0 = df$x[l] - 0.5, y0 = df$y[l] - 0.5, x1 = df$x[l] - 0.5, y1 = df$y[l] + 0.5)
+			k = k + sum(l) 
+		}
 		l = border$right_border
-		if(sum(l)) grid.segments(df$x[l] + 0.5, df$y[l] - 0.5, df$x[l] + 0.5, df$y[l] + 0.5, default.units = "native",
-			gp = gpar(lwd = gp$lwd[i2], lty = gp$lty[i2], col = gp$col[i2], lineend ="butt", linejoin = "mitre"))
+		if(sum(l)) {
+			seg_mat[k + 1:sum(l), ] = cbind(x0 = df$x[l] + 0.5, y0 = df$y[l] - 0.5, x1 = df$x[l] + 0.5, y1 = df$y[l] + 0.5)
+			k = k + sum(l) 
+		}
 		l = border$top_border
-		if(sum(l)) grid.segments(df$x[l] - 0.5, df$y[l] + 0.5, df$x[l] + 0.5, df$y[l] + 0.5, default.units = "native",
-			gp = gpar(lwd = gp$lwd[i2], lty = gp$lty[i2], col = gp$col[i2], lineend ="butt", linejoin = "mitre"))
+		if(sum(l)) {
+			seg_mat[k + 1:sum(l), ] = cbind(x0 = df$x[l] - 0.5, y0 = df$y[l] + 0.5, x1 = df$x[l] + 0.5, y1 = df$y[l] + 0.5)
+			k = k + sum(l) 
+		}
 		l = border$bottom_border
-		if(sum(l)) grid.segments(df$x[l] - 0.5, df$y[l] - 0.5, df$x[l] + 0.5, df$y[l] - 0.5, default.units = "native",
-			gp = gpar(lwd = gp$lwd[i2], lty = gp$lty[i2], col = gp$col[i2], lineend ="butt", linejoin = "mitre"))
+		if(sum(l)) {
+			seg_mat[k + 1:sum(l), ] = cbind(x0 = df$x[l] - 0.5, y0 = df$y[l] - 0.5, x1 = df$x[l] + 0.5, y1 = df$y[l] - 0.5)
+			k = k + sum(l) 
+		}
+		seg_mat = seg_mat[!is.na(seg_mat[, 1]),  , drop = FALSE]
+		return(reorder_polygon_segments(seg_mat))
 	})
+}
 
-	seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "_global"))
-	upViewport()
+reorder_polygon_segments = function(pos) {
 
-	return(invisible(NULL))
-	
-})
+	pos2 = matrix(nrow = nrow(pos), ncol = ncol(pos))
+	colnames(pos2) = colnames(pos)
+	pos2[1, ] = pos[1, ,drop = FALSE]
+	pos[1, 1] = -Inf
+	pos[1, 2] = -Inf
+	pos[1, 3] = -Inf
+	pos[1, 4] = -Inf
+
+	k = 1
+	for(i in seq_len(nrow(pos))) {
+		x = pos2[k, "x1"]
+		y = pos2[k, "y1"]
+		k = k + 1
+
+		ind = which(pos[, "x0"] == x & pos[, "y0"] == y)
+		if(length(ind)) {
+			ind = ind[1]
+			pos2[k, ] = pos[ind, ]
+			# qqcat("[@{x}, @{y}] -> [@{pos2[k, 3]}, @{pos2[k, 4]}]\n")
+			pos[ind, 1] = -Inf
+			pos[ind, 2] = -Inf
+			pos[ind, 3] = -Inf
+			pos[ind, 4] = -Inf
+		} else {
+			ind = which(pos[, "x1"] == x & pos[, "y1"] == y)
+			if(length(ind)) {
+				ind = ind[1]
+				pos2[k, ] = cbind(x0 = pos[ind, 3], y0 = pos[ind, 4], x1 = pos[ind, 1], y1 = pos[ind, 2])
+				# qqcat("[@{x}, @{y}] -> [@{pos2[k, 3]}, @{pos2[k, 4]}]\n")
+				pos[ind, 1] = -Inf
+				pos[ind, 2] = -Inf
+				pos[ind, 3] = -Inf
+				pos[ind, 4] = -Inf
+			} else {
+				stop("polygon is not connected.")
+			}
+		}
+		if(k == nrow(pos2)) {
+			break
+		}
+	}
+	return(pos2)
+}
+
+
+

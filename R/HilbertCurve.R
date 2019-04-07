@@ -58,7 +58,9 @@ HilbertCurve = setClass("HilbertCurve",
 		RGB = "environment",
 		LEVEL = "integer",
 		OFFSET = "numeric",
-		start_from = "character"
+		start_from = "character",
+		first_seg = "character",
+		data_range = "numeric"
 ))
 
 # == title
@@ -248,12 +250,15 @@ setMethod(f = "hc_offset",
 HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 	reference = FALSE, reference_gp = gpar(lty = 3, col = "#999999"), 
 	arrow = TRUE, zoom = NULL, newpage = TRUE, 
-	background_col = "transparent", title = NULL, title_gp = gpar(fontsize = 16), 
+	background_col = "transparent", background_border = NA, 
+	title = NULL, title_gp = gpar(fontsize = 16), 
 	start_from = c("bottomleft", "topleft", "bottomright", "topright"),
 	first_seg = c("horizontal", "vertical"), legend = list()) {
 
 	hc = new("HilbertCurve")
 	level = as.integer(level)
+
+	hc@data_range = c(min(s), max(e))
 
 	if(s > e) {
 		stop("`s` must be smaller than `e`.")
@@ -303,6 +308,7 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 	}
 
 	hc@start_from = start_from
+	hc@first_seg = first_seg
 	n = 4^level  # number of points
 
 	breaks = round(seq(zoom(hc, s), zoom(hc, e), length = n)) 
@@ -405,7 +411,7 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 	pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 1))
 
 	pushViewport(viewport(name = paste0("hilbert_curve_", get_plot_index()), xscale = c(-0.5, 2^level - 0.5), yscale = c(-0.5, sqrt(n)-0.5), width = size, height = size))
-	grid.rect(gp = gpar(fill = background_col, col = NA))
+	grid.rect(gp = gpar(fill = background_col, col = background_border))
 
 	reference_gp = validate_gpar(reference_gp, default = list(lty = 3, col = "#999999"))
 	if(mode == "normal") {
@@ -608,7 +614,7 @@ setMethod(f = "hc_level",
 #
 setMethod(f = "hc_points",
 	signature = "HilbertCurve",
-	definition = function(object, ir, x1 = NULL, x2 = x1, 
+	definition = function(object, ir = NULL, x1 = NULL, x2 = x1, 
 	np = max(c(2, 10 - hc_level(object))), size = unit(1, "char"), 
 	pch = 1, gp = gpar(), mean_mode = c("w0", "absolute", "weighted"),
 	shape = "circle") {
@@ -620,13 +626,13 @@ setMethod(f = "hc_points",
 	if(is.null(np)) np = 1
 
 	if(np >= 2) {
-		if(missing(ir)) {
+		if(is.null(ir)) {
 			hc_segmented_points(object, x1 = x1, x2 = x2, gp = gp, np = np, mean_mode = mean_mode, shape = shape)
 		} else {
 			hc_segmented_points(object, ir, gp = gp, np = np, mean_mode = mean_mode, shape = shape)
 		}
 	} else {
-		if(missing(ir)) {
+		if(is.null(ir)) {
 			hc_normal_points(object, x1 = x1, x2 = x2, gp = gp, pch = pch, size = size)
 		} else {
 			hc_normal_points(object, ir, gp = gp, pch = pch, size = size)
@@ -668,34 +674,14 @@ setMethod(f = "hc_points",
 #
 setMethod(f = "hc_normal_points",
 	signature = "HilbertCurve",
-	definition = function(object, ir, x1 = NULL, x2 = x1, gp = gpar(), 
+	definition = function(object, ir = NULL, x1 = NULL, x2 = x1, gp = gpar(), 
 	pch = 1, size = unit(1, "char")) {
 
 	if(object@MODE == "pixel") {
         stop("`hc_points()` can only be used under 'normal' mode.")
     }
 
-    if(!missing(ir)) {
-    	if(!inherits(ir, "IRanges")) {
-    		stop("It seems you want to specify positions by one or two numeric vectors, specify them with argument names. (`x1 = ..., x2 = ...`)")
-    	}
-    }
-
-	if(missing(ir) || is.null(ir)) {
-		if(is.null(x1) ) {
-			stop("You should either specify `ir`, or `x1` or `x1` and `x2`.")
-		} else if(!is.null(x1) && !is.null(x2)) {
-			x1 = hc_offset(object, x1)
-			x2 = hc_offset(object, x2)
-			ir = IRanges(start = round(zoom(object, (x1+x2)/2)),
-				         end = round(zoom(object, (x1+x2)/2)))
-		}
-	} else {
-		ir = IRanges(hc_offset(object, start(ir)),
-			         hc_offset(object, end(ir)))
-		ir = IRanges(start = zoom(object, (start(ir) + end(ir))/2),
-		             end = zoom(object, (start(ir) + end(ir))/2))
-	}
+    ir = validate_input(object, ir, x1, x2)
 
 	od = order(ir)
 	ir = ir[od]
@@ -762,7 +748,7 @@ setMethod(f = "hc_normal_points",
 #
 setMethod(f = "hc_segmented_points",
     signature = "HilbertCurve",
-    definition = function(object, ir, x1 = NULL, x2 = NULL, gp = gpar(), 
+    definition = function(object, ir = NULL, x1 = NULL, x2 = NULL, gp = gpar(), 
     np = max(c(2, 10 - hc_level(object))),
     mean_mode = c("w0", "absolute", "weighted"), 
     shape = "circle") {
@@ -771,27 +757,7 @@ setMethod(f = "hc_segmented_points",
         stop("`hc_points()` can only be used under 'normal' mode.")
     }
 
-    if(!missing(ir)) {
-    	if(!inherits(ir, "IRanges")) {
-    		stop("It seems you want to specify positions by one or two numeric vectors, specify them with argument names. (`x1 = ..., x2 = ...`)")
-    	}
-    }
-
-    if(missing(ir) || is.null(ir)) {
-        if(is.null(x1) || is.null(x2)) {
-            stop("You should either specify `ir`, or `x1` and `x2`.")
-        } else {
-            x1 = hc_offset(object, x1)
-            x2 = hc_offset(object, x2)
-            ir = IRanges(start = round(zoom(object, x1)),
-                         end = round(zoom(object, x2)))
-        }
-    } else {
-        ir = IRanges(hc_offset(object, start(ir)),
-                     hc_offset(object, end(ir)))
-        ir = IRanges(start = zoom(object, start(ir)),
-                     end = zoom(object, end(ir)))
-    }
+    ir = validate_input(object, ir, x1, x2)
  
     if(length(shape) == 1) {
         shape = rep(shape, length(ir))
@@ -974,7 +940,7 @@ average_in_window = function(window, ir, mtch, v, mean_mode, empty_v = 0) {
 #
 setMethod(f = "hc_rect",
 	signature = "HilbertCurve",
-	definition = function(object, ir, x1 = NULL, x2 = NULL, 
+	definition = function(object, ir = NULL, x1 = NULL, x2 = NULL, 
 	gp = gpar(fill = "red"), 
 	mean_mode = c("w0", "absolute", "weighted")) {
 
@@ -982,27 +948,7 @@ setMethod(f = "hc_rect",
 		stop("`hc_rect()` can only be used under 'normal' mode.")
 	}
 
-	if(!missing(ir)) {
-    	if(!inherits(ir, "IRanges")) {
-    		stop("It seems you want to specify positions by one or two numeric vectors, specify them with argument names. (`x1 = ..., x2 = ...`)")
-    	}
-    }
-
-	if(missing(ir) || is.null(ir)) {
-		if(is.null(x1) || is.null(x2)) {
-			stop("You should either specify `ir`, or `x1` and `x2`.")
-		} else {
-			x1 = hc_offset(object, x1)
-			x2 = hc_offset(object, x2)
-			ir = IRanges(start = round(zoom(object, x1)),
-				         end = round(zoom(object, x2)))
-		}
-	} else {
-		ir = IRanges(hc_offset(object, start(ir)),
-			         hc_offset(object, end(ir)))
-		ir = IRanges(start = zoom(object, start(ir)),
-	                 end = zoom(object, end(ir)))
-	}
+	ir = validate_input(object, ir, x1, x2)
 
 	s = start(object@BINS)
 	e = end(object@BINS)
@@ -1085,34 +1031,14 @@ setMethod(f = "hc_rect",
 #
 setMethod(f = "hc_segments",
 	signature = "HilbertCurve",
-	definition = function(object, ir, x1 = NULL, x2 = NULL, 
+	definition = function(object, ir = NULL, x1 = NULL, x2 = NULL, 
 	gp = gpar(lty = 1, lwd = 1, col = 1)) {
 
 	if(object@MODE == "pixel") {
 		stop("`hc_segments()` can only be used under 'normal' mode.")
 	}
 
-	if(!missing(ir)) {
-    	if(!inherits(ir, "IRanges")) {
-    		stop("It seems you want to specify positions by one or two numeric vectors, specify them with argument names. (`x1 = ..., x2 = ...`)")
-    	}
-    }
-
-	if(missing(ir) || is.null(ir)) {
-		if(is.null(x1) || is.null(x2)) {
-			stop("You should either specify `ir`, or `x1` and `x2`.")
-		} else {
-			x1 = hc_offset(object, x1)
-			x2 = hc_offset(object, x2)
-			ir = IRanges(start = round(zoom(object, x1)),
-				         end = round(zoom(object, x2)))
-		}
-	} else {
-		ir = IRanges(hc_offset(object, start(ir)),
-			         hc_offset(object, end(ir)))
-		ir = IRanges(start = zoom(object, start(ir)),
-	                 end = zoom(object, end(ir)))
-	}
+	ir = validate_input(object, ir, x1, x2)
 
 	gp = validate_gpar(gp, default = list(lty = 1, lwd = 1, col = 1))
 	if(length(gp$lty) == 1) gp$lty = rep(gp$lty, length(ir))
@@ -1225,33 +1151,24 @@ setMethod(f = "hc_segments",
 #
 setMethod(f = "hc_text",
 	signature = "HilbertCurve",
-	definition = function(object, ir, labels, x1 = NULL, x2 = x1, gp = gpar(), ...) {
+	definition = function(object, ir = NULL, labels, x1 = NULL, x2 = x1, gp = gpar(), ...) {
 
 	if(object@MODE == "pixel") {
-		stop("`hc_text()` can only be used under 'normal' mode.")
+		oi = .ENV$I_PLOT
+		seekViewport(paste0("hilbert_curve_", .ENV$I_PLOT))
+
+		hc2 = HilbertCurve(s = object@data_range[1], e = object@data_range[2], mode = "normal", 
+			level = min(object@LEVEL, 9), newpage = FALSE, 
+			start_from = object@start_from, first_seg = object@first_seg)
+		hc_text(hc2, ir = ir, labels = labels, x1 = x1, x2 = x2, gp = gp, ...)
+		seekViewport(name = paste0("hilbert_curve_", oi, "_global"))
+		upViewport()
+		return(invisible(NULL))
 	}
 
-	if(!missing(ir)) {
-    	if(!inherits(ir, "IRanges")) {
-    		stop("It seems you want to specify positions by one or two numeric vectors, specify them with argument names. (`x1 = ..., x2 = ...`)")
-    	}
-    }
+	ir = validate_input(object, ir, x1, x2)
 
-	if(missing(ir) || is.null(ir)) {
-		if(is.null(x1) ) {
-			stop("You should either specify `ir`, or `x1` or `x1` and `x2`.")
-		} else if(!is.null(x1) && !is.null(x2)) {
-			x1 = hc_offset(object, x1)
-			x2 = hc_offset(object, x2)
-			ir = IRanges(start = round(zoom(object, (x1+x2)/2)),
-				         end = round(zoom(object, (x1+x2)/2)))
-		}
-	} else {
-		ir = IRanges(hc_offset(object, start(ir)),
-			         hc_offset(object, end(ir)))
-		ir = IRanges(start = zoom(object, (start(ir) + end(ir))/2),
-		             end = zoom(object, (start(ir) + end(ir))/2))
-	}
+	if(length(labels) == 1) labels = rep(labels, length(ir))
 
 	od = order(ir)
 	ir = ir[od]
@@ -1327,68 +1244,38 @@ setMethod(f = "hc_text",
 # hc_centered_text(hc, x1 = 7, x2 = 10, labels = "C")
 setMethod(f = "hc_centered_text",
 	signature = "HilbertCurve",
-	definition = function(object, ir, labels, x1 = NULL, x2 = NULL, gp = gpar(), ...) {
+	definition = function(object, ir = NULL, labels, x1 = NULL, x2 = NULL, gp = gpar(), ...) {
 
 	if(object@MODE == "pixel") {
-		stop("`hc_text()` can only be used under 'normal' mode.")
+		oi = .ENV$I_PLOT
+		seekViewport(paste0("hilbert_curve_", .ENV$I_PLOT))
+
+		hc2 = HilbertCurve(s = object@data_range[1], e = object@data_range[2], mode = "normal", 
+			level = min(object@LEVEL, 9), newpage = FALSE, 
+			start_from = object@start_from, first_seg = object@first_seg)
+		df = hc_centered_text(hc2, ir = ir, labels = labels, x1 = x1, x2 = x2, gp = gp, ...)
+		seekViewport(name = paste0("hilbert_curve_", oi, "_global"))
+		upViewport()
+		return(invisible(df))
 	}
 
-	if(!missing(ir)) {
-    	if(!inherits(ir, "IRanges")) {
-    		stop("It seems you want to specify positions by one or two numeric vectors, specify them with argument names. (`x1 = ..., x2 = ...`)")
-    	}
-    }
+	polygons = get_polygons(object, ir = ir, x1 = x1, x2 = x2)
 
-	if(missing(ir) || is.null(ir)) {
-		if(is.null(x1) || is.null(x2)) {
-			stop("You should either specify `ir`, or `x1` and `x2`.")
-		} else {
-			x1 = hc_offset(object, x1)
-			x2 = hc_offset(object, x2)
-			ir = IRanges(start = round(zoom(object, x1)),
-				         end = round(zoom(object, x2)))
-		}
-	} else {
-		ir = IRanges(hc_offset(object, start(ir)),
-			         hc_offset(object, end(ir)))
-		ir = IRanges(start = zoom(object, start(ir)),
-	                 end = zoom(object, end(ir)))
+	y = x = numeric(length(polygons))
+	for(i in seq_along(polygons)) {
+		p = polylabelr::poi(polygons[[i]][, 1], polygons[[i]][, 2], 0.01)
+		x[i] = p$x
+		y[i] = p$y
 	}
-
-	mtch = as.matrix(findOverlaps(object@BINS, ir))
-	if(nrow(mtch) == 0) {
-		return(invisible(NULL))
-	}
-
 	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
-
-	lapply(seq_along(unique(mtch[, 2])), function(i) {
-		ind = mtch[mtch[, 2] == i, 1]
-		pos = object@POS[ind, ]
-		pos = cbind(pos[, 1:2], pos[nrow(pos), 3:4])
-		h1 = hist(pos[, 1], plot = FALSE)
-		i1 = which(h1$counts >= quantile(h1$counts, 0.6))
-		ind_ir = reduce(IRanges(i1, i1))
-		selected = ind_ir[which.max(width(ind_ir))[1]]
-		i1 = start(selected)
-		i2 = end(selected)
-		x = mean(h1$mids[i1:i2])
-
-		h1 = hist(pos[, 2], plot = FALSE)
-		i1 = which(h1$counts >= quantile(h1$counts, 0.6))
-		ind_ir = reduce(IRanges(i1, i1))
-		selected = ind_ir[which.max(width(ind_ir))[1]]
-		i1 = start(selected)
-		i2 = end(selected)
-		y = mean(h1$mids[i1:i2])
-		
-		grid.text(labels[i], x, y, default.units = "native", gp = gp, ...)
-	})
+	grid.text(labels, x, y, default.units = "native", gp = gp, ...)	
+	
+	df = data.frame(x = x, y = y, labels = labels, stringsAsFactors = FALSE)
 
 	seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "_global"))
 	upViewport()
 	
-	return(invisible(NULL))
+	return(invisible(df))
 })
 
 # add arrow at (x2, y2) and x1 -> x2
@@ -1484,7 +1371,7 @@ grid_arrows = function(x1, y1, x2, y2, length = unit(2, "mm"), angle = 15, only.
 #
 setMethod(f = "hc_layer",
 	signature = "HilbertCurve",
-	definition = function(object, ir, x1 = NULL, x2 = x1, col = "red", border = NA,
+	definition = function(object, ir = NULL, x1 = NULL, x2 = x1, col = "red", border = NA,
 	mean_mode = c("w0", "absolute", "weighted"), grid_line = 0,
 	grid_line_col = "black", overlay = default_overlay) {
 
@@ -1492,27 +1379,7 @@ setMethod(f = "hc_layer",
 		stop("`hc_layer()` can only be used under 'pixel' mode.")
 	}
 
-	if(!missing(ir)) {
-    	if(!inherits(ir, "IRanges")) {
-    		stop("It seems you want to specify positions by one or two numeric vectors, specify them as `x1 = ..., x2 = ...`")
-    	}
-    }
-
-	if(missing(ir) || is.null(ir)) {
-		if(is.null(x1) || is.null(x2)) {
-			stop("You should either specify `ir`, or `x1` and `x2`.")
-		} else {
-			x1 = hc_offset(object, x1)
-			x2 = hc_offset(object, x2)
-			ir = IRanges(start = round(zoom(object, x1)),
-				         end = round(zoom(object, x2)))
-		}
-	} else {
-		ir = IRanges(hc_offset(object, start(ir)),
-			         hc_offset(object, end(ir)))
-		ir = IRanges(start = zoom(object, start(ir)),
-	                 end = zoom(object, end(ir)))
-	}
+	ir = validate_input(object, ir, x1, x2)
 
 	s = start(object@BINS)
 	e = end(object@BINS)
@@ -1555,6 +1422,14 @@ setMethod(f = "hc_layer",
 		         object@RGB$green[ind],
 		         object@RGB$blue[ind],
 		         r, g, b, alpha)
+	nlt = max(sapply(lt, length))
+	lt = lapply(lt, function(x) {
+		if(length(x) == 1) {
+			rep(x, nlt)
+		} else {
+			x
+		}
+	})
 	object@RGB$red[ind] = lt[[1]]
 	object@RGB$green[ind] = lt[[2]]
 	object@RGB$blue[ind] = lt[[3]]
@@ -1632,29 +1507,41 @@ setMethod(f = "hc_layer",
 		stop("`grid_line` can not exceed the level of the curve.")
 	}
 
-	if(grid_line > 1) {
-		grid = 2^(grid_line-1)
-		grid_line_col = col2rgb(grid_line_col)/255
-		n = ncol(object@RGB$red)
-		object@RGB$red[1, ] = grid_line_col[1]
-		object@RGB$green[1, ] = grid_line_col[2]
-		object@RGB$blue[1, ] = grid_line_col[3]
+	# if(grid_line > 1) {
+	# 	grid = 2^(grid_line-1)
+	# 	grid_line_col = col2rgb(grid_line_col)/255
+	# 	n = ncol(object@RGB$red)
+	# 	object@RGB$red[1, ] = grid_line_col[1]
+	# 	object@RGB$green[1, ] = grid_line_col[2]
+	# 	object@RGB$blue[1, ] = grid_line_col[3]
 		
-		object@RGB$red[, 1] = grid_line_col[1]
-		object@RGB$green[, 1] = grid_line_col[2]
-		object@RGB$blue[, 1] = grid_line_col[3]
-		for(i in 1:grid) {
-			object@RGB$red[round(n/grid*i), ] = grid_line_col[1]
-			object@RGB$green[round(n/grid*i), ] = grid_line_col[2]
-			object@RGB$blue[round(n/grid*i), ] = grid_line_col[3]
+	# 	object@RGB$red[, 1] = grid_line_col[1]
+	# 	object@RGB$green[, 1] = grid_line_col[2]
+	# 	object@RGB$blue[, 1] = grid_line_col[3]
+	# 	for(i in 1:grid) {
+	# 		object@RGB$red[round(n/grid*i), ] = grid_line_col[1]
+	# 		object@RGB$green[round(n/grid*i), ] = grid_line_col[2]
+	# 		object@RGB$blue[round(n/grid*i), ] = grid_line_col[3]
 			
-			object@RGB$red[, round(n/grid*i)] = grid_line_col[1]
-			object@RGB$green[, round(n/grid*i)] = grid_line_col[2]
-			object@RGB$blue[, round(n/grid*i)] = grid_line_col[3]
-		}
-	}
+	# 		object@RGB$red[, round(n/grid*i)] = grid_line_col[1]
+	# 		object@RGB$green[, round(n/grid*i)] = grid_line_col[2]
+	# 		object@RGB$blue[, round(n/grid*i)] = grid_line_col[3]
+	# 	}
+	# }
 
 	add_raster(object@RGB)
+
+	if(grid_line > 1) {
+		grid = 2^(grid_line-1)
+		seekViewport(paste0("hilbert_curve_", get_plot_index()))
+		grid.rect(gp = gpar(fill = "transparent", col = grid_line_col))
+		for(i in 1:(grid-1)) {
+			grid.segments(i/grid, 0, i/grid, 1, default.units = "npc", gp = gpar(col = grid_line_col))
+			grid.segments(0, i/grid, 1, i/grid, default.units = "npc", gp = gpar(col = grid_line_col))
+		}
+		seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "_global"))
+		upViewport()
+	}
 
 	return(invisible(NULL))
 })

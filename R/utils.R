@@ -26,3 +26,32 @@ subset_gp = function(gp, i = 1) {
 	class(g) = "gpar"
 	return(g)
 }
+
+validate_input = function(object, ir, x1, x2) {
+	if(!is.null(ir)) {
+    	if(!inherits(ir, "IRanges")) {
+    		stop("It seems you want to specify positions by one or two numeric vectors, specify them with argument names. (`x1 = ..., x2 = ...`)")
+    	}
+    }
+
+    if(is.null(ir)) {
+        if(is.null(x1) || is.null(x2)) {
+            stop("You should either specify `ir`, or `x1` and `x2`.")
+        } else {
+            x1 = hc_offset(object, x1)
+            x2 = hc_offset(object, x2)
+            ir = IRanges(start = round(zoom(object, x1)),
+                         end = round(zoom(object, x2)))
+        }
+    } else {
+        ir = IRanges(hc_offset(object, start(ir)),
+                     hc_offset(object, end(ir)))
+        ir = IRanges(start = zoom(object, start(ir)),
+                     end = zoom(object, end(ir)))
+    }
+    return(ir)
+}
+
+is_background_white = function(r, g, b) {
+	r0 == 1 & g0 == 1 & b0 == 1
+}
