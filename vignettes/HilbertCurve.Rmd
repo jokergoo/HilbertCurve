@@ -179,43 +179,43 @@ first segment can be set by `first_seg`:
 grid.newpage()
 pushViewport(viewport(layout = grid.layout(nr = 2, nc = 4)))
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 1))
-hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 2), 
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 1), 
     newpage = FALSE, start_from = 'bottomleft', first_seg = "horizontal", 
     title = "start_from = 'bottomleft'\nfirst_seg = 'horizontal'")
 upViewport()
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 2))
-hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 2), 
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 1), 
     newpage = FALSE, start_from = 'topleft', first_seg = "horizontal", 
     title = "start_from = 'topleft'\nfirst_seg = 'horizontal'")
 upViewport()
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 3))
-hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 2), 
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 1), 
     newpage = FALSE, start_from = 'bottomright', first_seg = "horizontal",
     title = "start_from = 'bottomright'\nfirst_seg = 'horizontal'")
 upViewport()
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 4))
-hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 2), 
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 1), 
     newpage = FALSE, start_from = 'topright', first_seg = "horizontal",
     title = "start_from = 'topright'\nfirst_seg = 'horizontal'")
 upViewport()
 
 pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 1))
-hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 2), 
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 1), 
     newpage = FALSE, start_from = 'bottomleft', first_seg = "vertical", 
     title = "start_from = 'bottomleft'\nfirst_seg = 'vertical'")
 upViewport()
 pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 2))
-hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 2), 
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 1), 
     newpage = FALSE, start_from = 'topleft',  first_seg = "vertical",
     title = "start_from = 'topleft'\nfirst_seg = 'vertical'")
 upViewport()
 pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 3))
-hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 2), 
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 1), 
     newpage = FALSE, start_from = 'bottomright',  first_seg = "vertical",
     title = "start_from = 'bottomright'\nfirst_seg = 'vertical'")
 upViewport()
 pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 4))
-hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 2), 
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 1), 
     newpage = FALSE, start_from = 'topright',  first_seg = "vertical",
     title = "start_from = 'topright'\nfirst_seg = 'vertical'")
 upViewport()
@@ -356,7 +356,7 @@ and `b` in following plot:
 
 ```{r}
 hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
-hc_polygon(hc, ir, gp = gpar(fill = "red", col = "black"))
+hc_polygon(hc, ir)
 hc_text(hc, ir, labels = "a")
 hc_text(hc, ir, labels = "b", centered_by = "polygon")
 ```
@@ -470,7 +470,8 @@ hc_layer(hc, x1 = x1, x2 = x2, mean_mode = "absolute", col = col_fun(value), bor
 ```
 
 Setting `border` argument in `hc_layer` directly modifies the RGB matrix. It
-is more suggested to add borders by `hc_polygon()`:
+adds one pixel border for each polygon and sometimes the border dispears when
+compressing the image. It is more suggested to add borders by `hc_polygon()`:
 
 ```{r}
 hc = HilbertCurve(1, 1000, level = 9, mode = "pixel", title = "pixel mode")

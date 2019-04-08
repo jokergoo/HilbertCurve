@@ -259,7 +259,8 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 	background_col = "transparent", background_border = NA, 
 	title = NULL, title_gp = gpar(fontsize = 16), 
 	start_from = c("bottomleft", "topleft", "bottomright", "topright"),
-	first_seg = c("horizontal", "vertical"), legend = list(), padding = unit(2, "mm")) {
+	first_seg = c("horizontal", "vertical"), legend = list(), 
+	padding = unit(2, "mm")) {
 
 	hc = new("HilbertCurve")
 	level = as.integer(level)
@@ -1176,13 +1177,14 @@ setMethod(f = "hc_text",
 		hc2 = HilbertCurve(s = object@data_range[1], e = object@data_range[2], mode = "normal", 
 			level = min(object@LEVEL, 9), newpage = FALSE, zoom = object@ZOOM,
 			start_from = object@start_from, first_seg = object@first_seg)
-		df = hc_text(hc2, ir = ir, labels = labels, x1 = x1, x2 = x2, gp = gp, ...)
+		df = hc_text(hc2, ir = ir, labels = labels, x1 = x1, x2 = x2, gp = gp,  centered_by = centered_by, ...)
 		seekViewport(name = paste0("hilbert_curve_", oi, "_global"))
 		upViewport()
 		return(invisible(df))
 	}
 
 	ir = validate_input(object, ir, x1, x2)
+	ir = IRanges(start = round((start(ir) + end(ir))/2), end = round((start(ir) + end(ir))/2))
 
 	if(length(labels) == 1) labels = rep(labels, length(ir))
 
@@ -1295,7 +1297,7 @@ setMethod(f = "hc_centered_text",
 })
 
 # add arrow at (x2, y2) and x1 -> x2
-grid_arrows = function(x1, y1, x2, y2, length = unit(4, "mm"), angle = 15, only.head = FALSE, 
+grid_arrows = function(x1, y1, x2, y2, length = unit(2, "mm"), angle = 15, only.head = FALSE, 
 	arrow_gp = gpar(), lines_gp = gpar()) {
 
 	length = convertUnit(length*2, "native", valueOnly = TRUE) - convertUnit(length, "native", valueOnly = TRUE)

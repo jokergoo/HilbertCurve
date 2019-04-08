@@ -13,7 +13,7 @@ HilbertCurve(s, e, level = 4, mode = c("normal", "pixel"),
     background_col = "transparent", background_border = NA,
     title = NULL, title_gp = gpar(fontsize = 16),
     start_from = c("bottomleft", "topleft", "bottomright", "topright"),
-    first_seg = c("horizontal", "vertical"), legend = list())
+    first_seg = c("horizontal", "vertical"), legend = list(), padding = unit(2, "mm"))
 }
 \arguments{
 
@@ -33,6 +33,7 @@ HilbertCurve(s, e, level = 4, mode = c("normal", "pixel"),
   \item{start_from}{which corner on the plot should the curve starts?}
   \item{first_seg}{the orientation of the first segment.}
   \item{legend}{a \code{\link[grid:grid.grob]{grob}} object, a \code{\link[ComplexHeatmap]{Legends-class}} object, or a list of them.}
+  \item{padding}{padding around the Hilbert curve.}
 
 }
 \details{
