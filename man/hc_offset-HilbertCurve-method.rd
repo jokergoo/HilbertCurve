@@ -18,11 +18,11 @@ Adjust positions
 }
 \details{
 Since internally positions are transformed to positive integers, if input positions
-are specified as negative values when initialize the Hilbert curve, a shift will be recorded
+are specified as negative values when initializing the Hilbert curve, a shift will be recorded
 internally and positions are transformed to positive value automatically.
 }
 \value{
-A positive numeric value
+A positive numeric value.
 }
 \author{
 Zuguang Gu <z.gu@dkfz.de>

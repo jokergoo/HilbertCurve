@@ -8,7 +8,7 @@ Add points to the Hilbert curve
 Add points to the Hilbert curve
 }
 \usage{
-\S4method{hc_normal_points}{HilbertCurve}(object, ir, x1 = NULL, x2 = x1, gp = gpar(),
+\S4method{hc_normal_points}{HilbertCurve}(object, ir = NULL, x1 = NULL, x2 = x1, gp = gpar(),
     pch = 1, size = unit(1, "char"))
 }
 \arguments{

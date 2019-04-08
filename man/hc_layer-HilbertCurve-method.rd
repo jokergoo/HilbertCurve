@@ -7,7 +7,7 @@ Add a new layer to the Hilbert curve
 Add a new layer to the Hilbert curve
 }
 \usage{
-\S4method{hc_layer}{HilbertCurve}(object, ir, x1 = NULL, x2 = x1, col = "red", border = NA,
+\S4method{hc_layer}{HilbertCurve}(object, ir = NULL, x1 = NULL, x2 = x1, col = "red", border = NA,
     mean_mode = c("w0", "absolute", "weighted"), grid_line = 0,
     grid_line_col = "black", overlay = default_overlay)
 }

@@ -269,6 +269,7 @@ setMethod(f = "hc_segments",
 # -gr a `GenomicRanges::GRanges` object which contains the genomic regions to be mapped to the curve
 # -labels pass to `hc_text,HilbertCurve-method`
 # -gp pass to `hc_text,HilbertCurve-method`
+# -centered_by how to define the "center" of the interval represented in Hilbert curve. Pass to `hc_text,HilbertCurve-method`.
 # -... pass to `hc_text,HilbertCurve-method`
 #
 # == details
@@ -290,7 +291,8 @@ setMethod(f = "hc_segments",
 #
 setMethod(f = "hc_text",
 	signature = "GenomicHilbertCurve",
-	definition = function(object, gr, labels, gp = gpar(), ...) {
+	definition = function(object, gr, labels, gp = gpar(), 
+	centered_by = c("interval", "polygon"), ...) {
 
 	if(is.data.frame(gr)) {
 		gr = GRanges(seqnames = gr[[1]], ranges = IRanges(gr[[2]], gr[[3]]))
@@ -307,7 +309,7 @@ setMethod(f = "hc_text",
 
 	df = merge_into_one_chr(gr, object@background)
 
-	callNextMethod(object, x1 = df[,1], x2 = df[,2], labels = labels, gp = gp)
+	callNextMethod(object, x1 = df[,1], x2 = df[,2], labels = labels, gp = gp, centered_by = centered_by, ...)
 })
 
 # == title
@@ -316,9 +318,8 @@ setMethod(f = "hc_text",
 # == param
 # -object a `GenomicHilbertCurve-class` object
 # -gr a `GenomicRanges::GRanges` object which contains the genomic regions to be mapped to the curve
-# -gp pass to `hc_text,HilbertCurve-method`
-# -end_type pass to `hc_text,HilbertCurve-method`
-# -... pass to `hc_text,HilbertCurve-method`
+# -gp pass to `hc_polygon,HilbertCurve-method`
+# -end_type pass to `hc_polygon,HilbertCurve-method`
 #
 # == details
 # It is basically a wrapper of `hc_polygon,HilbertCurve-method`.
@@ -340,7 +341,7 @@ setMethod(f = "hc_text",
 setMethod(f = "hc_polygon",
 	signature = "GenomicHilbertCurve",
 	definition = function(object, gr, gp = gpar(), 
-		end_type = c("average", "expanding", "shrinking"), ...) {
+	end_type = c("average", "expanding", "shrinking")) {
 
 	if(is.data.frame(gr)) {
 		gr = GRanges(seqnames = gr[[1]], ranges = IRanges(gr[[2]], gr[[3]]))
@@ -355,6 +356,7 @@ setMethod(f = "hc_polygon",
 	gp = subset_gp(gp, mtch[, 1])
 	df = merge_into_one_chr(gr, object@background)
 
+	end_type = match.arg(end_type)[1]
 	callNextMethod(object, x1 = df[,1], x2 = df[,2], gp = gp, end_type = end_type)
 })
 
@@ -479,7 +481,7 @@ setMethod(f = "hc_map",
 			seekViewport(paste0("hilbert_curve_", .ENV$I_PLOT))
 
 			hc2 = GenomicHilbertCurve(mode = "normal", chr = unique(as.vector(seqnames(background))), 
-				level = level, newpage = FALSE, start_from = object@start_from, first_seg = object@first_seg)
+				level = level, newpage = FALSE, zoom = object@ZOOM, start_from = object@start_from, first_seg = object@first_seg)
 			hc_map(hc2, add = TRUE, labels = labels, fill = fill, border = border, show_labels = show_labels, 
 				labels_gp = labels_gp)
 			seekViewport(name = paste0("hilbert_curve_", oi, "_global"))

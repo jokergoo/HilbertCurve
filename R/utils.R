@@ -52,6 +52,15 @@ validate_input = function(object, ir, x1, x2) {
     return(ir)
 }
 
-is_background_white = function(r, g, b) {
-	r0 == 1 & g0 == 1 & b0 == 1
+# == title
+# Whether the color is white
+#
+# == param
+# -r Red channel.
+# -g Green channel.
+# -b Blue channel.
+# -maxColorValue 1 or 255.
+#
+is_white = function(r, g, b, maxColorValue = 1) {
+	r == maxColorValue & g == maxColorValue & b == maxColorValue
 }

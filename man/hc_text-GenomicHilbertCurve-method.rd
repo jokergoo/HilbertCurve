@@ -7,7 +7,8 @@ Add text to Hilbert curve
 Add text to Hilbert curve
 }
 \usage{
-\S4method{hc_text}{GenomicHilbertCurve}(object, gr, labels, gp = gpar(), ...)
+\S4method{hc_text}{GenomicHilbertCurve}(object, gr, labels, gp = gpar(),
+    centered_by = c("interval", "polygon"), ...)
 }
 \arguments{
 
@@ -15,6 +16,7 @@ Add text to Hilbert curve
   \item{gr}{a \code{\link[GenomicRanges:GRanges-class]{GRanges}} object which contains the genomic regions to be mapped to the curve}
   \item{labels}{pass to \code{\link{hc_text,HilbertCurve-method}}}
   \item{gp}{pass to \code{\link{hc_text,HilbertCurve-method}}}
+  \item{centered_by}{how to define the "center" of the interval represented in Hilbert curve. Pass to \code{\link{hc_text,HilbertCurve-method}}.}
   \item{...}{pass to \code{\link{hc_text,HilbertCurve-method}}}
 
 }

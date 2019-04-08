@@ -38,7 +38,7 @@ which_border = function(x, y, n) {
 # Add polygons to Hilbert curve
 #
 # == param
-# -object A `HilbertCurve-class` object.
+# -object a `HilbertCurve-class` object.
 # -ir an `IRanges::IRanges` object which specifies the input intervals.
 # -x1 if start positions are not integers, they can be set by ``x1``.
 # -x2 if end positions are not integers, they can be set by ``x2``.
@@ -47,16 +47,16 @@ which_border = function(x, y, n) {
 #      the Hilbert curve segments, this argument controls how to determine the
 #      ends of the interval which will be presented on the curve. 
 #      ``average``: if the end covers more than half of the segment,
-#      the whole segment is included and if the end covers less than half of hte segment,
+#      the whole segment is included and if the end covers less than half of the segment,
 #      the segment is removed; ``expanding``: segments are included as long as they are overlapped;
 #      ``shrinking``: segments are removed if they are not completely covered.
 #
 # == detail
-# Drawing polygons are quite similar as drawing rectangles in the context of Hilbert curve.
-# The major difference is: 1) for rectangles, colors for the ends of the interval can change if they are not completely
-# covered by the segments, and 2) polygons can have borders.
+# Drawing polygons are quite visually similar as drawing rectangles.
+# The major differences are: 1) for rectangles, colors for the ends of the interval can change if they are not completely
+# covered by the Hilbert curve segments, and 2) polygons can have borders.
 #
-# Basically polygons are used to mark areas in the Hilbert curve.
+# Normally polygons are used to mark areas in the Hilbert curve.
 #
 # == value
 # No value is returned.
@@ -65,32 +65,35 @@ which_border = function(x, y, n) {
 # Zuguang Gu <z.gu@dkfz.de>
 #
 # == example
-#
 # require(IRanges)
 # ir = IRanges(10, 40)
 #
-# hc = HilbertCurve(1, 100, level = 4, reference = TRUE)
+# hc = HilbertCurve(0, 100, level = 4, reference = TRUE)
 # hc_segments(hc, ir)
+# hc_text(hc, x1 = 10:40, labels = 10:40)
 # hc_polygon(hc, ir, gp = gpar(fill = "#FF000080", col = 1))
 #
 setMethod(f = "hc_polygon",
 	signature = "HilbertCurve",
 	definition = function(object, ir = NULL, x1 = NULL, x2 = NULL, 
-	gp = gpar(), end_type = c("average", "expanding", "shrinking")) {
+	gp = gpar(), end_type = c("expanding", "average", "shrinking")) {
+
+	end_type = match.arg(end_type)[1]
 
 	if(object@MODE == "pixel") {
 		oi = .ENV$I_PLOT
 		seekViewport(paste0("hilbert_curve_", .ENV$I_PLOT))
 
 		hc2 = HilbertCurve(s = object@data_range[1], e = object@data_range[2], mode = "normal", 
-			level = min(object@LEVEL, 9), newpage = FALSE, 
+			level = min(object@LEVEL, 9), newpage = FALSE, zoom = object@ZOOM,
 			start_from = object@start_from, first_seg = object@first_seg)
 		hc_polygon(hc2, ir = ir, x1 = x1, x2 = x2, gp = gp, end_type = end_type)
 		seekViewport(name = paste0("hilbert_curve_", oi, "_global"))
 		upViewport()
 		return(invisible(NULL))
 	}
-
+	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
+	
 	polygons = get_polygons(object, ir = ir, x1 = x1, x2 = x2, end_type = end_type)
 
 	gp = validate_gpar(gp, default = list(lty = 1, lwd = 1, col = 1, fill = "transparent"))
@@ -100,10 +103,11 @@ setMethod(f = "hc_polygon",
 	if(length(gp$col) == 1) gp$col = rep(gp$col, length(polygons))
 	if(length(gp$fill) == 1) gp$fill = rep(gp$fill, length(polygons))
 
-	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
 	for(i in seq_along(polygons)) {
-		grid.polygon(polygons[[i]][, 1], polygons[[i]][, 2], default.units = "native", gp = gpar(fill = gp$fill[i], 
-			col = gp$col[i], lty = gp$lty[i], lwd = gp$lwd[i], lineend = "butt", linejoin = "mitre"))
+		if(nrow(polygons[[i]]) >= 2) {
+			grid.polygon(polygons[[i]][, 1], polygons[[i]][, 2], default.units = "native", gp = gpar(fill = gp$fill[i], 
+				col = gp$col[i], lty = gp$lty[i], lwd = gp$lwd[i], lineend = "butt", linejoin = "mitre"))
+		}
 	}
 
 	seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "_global"))
@@ -206,25 +210,15 @@ get_polygons = function(object, ir = NULL, x1 = NULL, x2 = NULL, end_type = c("a
 		}
 
 		if(length(r) == 0) {
-			return(NULL)
+			return(matrix(nrow = 0, ncol = 2))
 		}
-
-		sr1 = start(r1)
-		sr = start(r)
-		er1 = end(r1)
-		er = end(r)
-
-		x1 = pos$x2 - (pos$x2 - pos$x1)*(er1 - sr)/(er1 - sr1)
-		y1 = pos$y2 - (pos$y2 - pos$y1)*(er1 - sr)/(er1 - sr1)
-		x2 = pos$x2 - (pos$x2 - pos$x1)*(er1 - er)/(er1 - sr1)
-		y2 = pos$y2 - (pos$y2 - pos$y1)*(er1 - er)/(er1 - sr1)
 
 		if(max(i1) == length(object@BINS)) {
 			df = data.frame(x = c(pos$x1, pos$x2[nrow(pos)]), y = c(pos$y1, pos$y2[nrow(pos)]))
 		} else {
 			df = data.frame(x = c(pos$x1), y = c(pos$y1))
 		}
-		
+
 		border = which_border(df$x, df$y, hc_level(object)^2)
 		seg_mat = matrix(nrow = sum(border$left_border) + sum(border$right_border) + sum(border$top_border) + sum(border$bottom_border), ncol = 4)
 		colnames(seg_mat) = c("x0", "y0", "x1", "y1")
@@ -259,11 +253,20 @@ reorder_polygon_segments = function(pos) {
 
 	pos2 = matrix(nrow = nrow(pos), ncol = ncol(pos))
 	colnames(pos2) = colnames(pos)
+
+	if(nrow(pos) == 0) {
+		return(pos2)
+	}
+
 	pos2[1, ] = pos[1, ,drop = FALSE]
 	pos[1, 1] = -Inf
 	pos[1, 2] = -Inf
 	pos[1, 3] = -Inf
 	pos[1, 4] = -Inf
+
+	if(nrow(pos) == 1) {
+		return(pos2)
+	}
 
 	k = 1
 	for(i in seq_len(nrow(pos))) {

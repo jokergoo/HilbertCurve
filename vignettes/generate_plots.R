@@ -1,6 +1,8 @@
 library(methods)
-library(HilbertVis)
 library(GetoptLong)
+library(GenomicRanges)
+
+load_namespace("/desktop-home/guz/project/development/HilbertCurve")
 
 lines = readLines("HilbertCurve.Rmd")
 rcode_start_lines = grep("^```\\{r.*\\}\\s*$", lines)

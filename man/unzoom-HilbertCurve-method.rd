@@ -22,7 +22,7 @@ This is a reverse function of \code{\link{zoom,HilbertCurve-method}}.
 The function is used internally.
 }
 \value{
-A numeric vector of original positions
+A numeric vector of original positions.
 }
 \author{
 Zuguang Gu <z.gu@dkfz.de>

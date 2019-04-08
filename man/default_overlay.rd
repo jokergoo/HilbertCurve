@@ -24,7 +24,7 @@ default_overlay(r0, g0, b0, r, g, b, alpha = 1)
 The default overlay is (take red channel for example) \code{r*alpha + r0*(1-alpha)}.
 }
 \value{
-A list which contains overlayed RGB colors.
+A list which contains overlayed RGB colors (values between 0 and 1).
 }
 \seealso{
 Color overlay function is always used in \code{\link{hc_layer,HilbertCurve-method}} or \code{\link{hc_layer,GenomicHilbertCurve-method}}.

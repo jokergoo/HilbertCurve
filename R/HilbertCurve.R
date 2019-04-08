@@ -109,7 +109,7 @@ setMethod(f = "zoom",
 # The function is used internally.
 #
 # == value
-# A numeric vector of original positions
+# A numeric vector of original positions.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -134,11 +134,11 @@ setMethod(f = "unzoom",
 #
 # == details
 # Since internally positions are transformed to positive integers, if input positions
-# are specified as negative values when initialize the Hilbert curve, a shift will be recorded
+# are specified as negative values when initializing the Hilbert curve, a shift will be recorded
 # internally and positions are transformed to positive value automatically.
 #
 # == value
-# A positive numeric value
+# A positive numeric value.
 #
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
@@ -157,15 +157,17 @@ setMethod(f = "hc_offset",
 # Initialize a Hilbert curve
 #
 # == param
-# -s position that will be mapped as the start of the Hilbert curve.
-# -e position that will be mapped as the end of the Hilbert curve.
+# -s position that will be mapped as the start of the Hilbert curve. The value should a single numeric value.
+#    If it is a vector, the minimum is used.
+# -e position that will be mapped as the end of the Hilbert curve. The value should a single numeric value.
+#    If it is a vector, the maximum is used.
 # -level iteration level of the Hilbert curve. There will by ``4^level - 1`` segments in the curve.
 # -mode "normal" mode is used for low ``level`` value and "pixel" mode is always used for high ``level`` value,
 #       so the "normal" mode is always for low-resolution visualization while "pixel" mode is used for high-resolution visualization.
 #       See 'details' for explanation.
-# -reference whether add reference line on the plot. Only works under 'normal' mode. The reference line
+# -reference whether add reference lines on the plot. Only works under 'normal' mode. The reference line
 #            is only used for illustrating how the curve folds.
-# -reference_gp graphic settings for the reference line. It should be specified by `grid::gpar`.
+# -reference_gp graphic settings for the reference lines. It should be specified by `grid::gpar`.
 # -arrow whether add arrows on the reference line. Only works under 'normal' mode.
 # -zoom Internally, position are stored as integer values. To better map the data to the Hilbert curve, 
 #       the original positions are zoomed
@@ -176,11 +178,12 @@ setMethod(f = "hc_offset",
 #       proper zooming factor is calculated automatically.
 # -newpage whether call `grid::grid.newpage` to draw on a new graphic device.
 # -background_col background color.
+# -background_border background border border.
 # -title title of the plot.
 # -title_gp graphic parameters for the title. It should be specified by `grid::gpar`.
 # -start_from which corner on the plot should the curve starts?
-# -first_seg the orientation of the first segment
-# -legend a `grid::grob` object, a `ComplexHeatmap::Legends-class` object, or a list them.
+# -first_seg the orientation of the first segment.
+# -legend a `grid::grob` object, a `ComplexHeatmap::Legends-class` object, or a list of them.
 #
 # == details
 # This funciton initializes a Hilbert curve with level ``level`` which corresponds 
@@ -204,7 +207,7 @@ setMethod(f = "hc_offset",
 # the image will be add to the interactive device as a rastered image. But still you can use `hc_png,HilbertCurve-method`
 # to export the plot as PNG file.
 #
-# To make it short and clear, under "normal" mode, you use following low-level graphic functions:
+# To make it short and clear, under "normal" mode, you can use following low-level graphic functions:
 # 
 # - `hc_points,HilbertCurve-method`
 # - `hc_segments,HilbertCurve-method`
@@ -216,6 +219,8 @@ setMethod(f = "hc_offset",
 #
 # - `hc_layer,HilbertCurve-method`
 # - `hc_png,HilbertCurve-method`
+# - `hc_polygon,HilbertCurve-method`
+# - `hc_text,HilbertCurve-method`
 #
 # Notice, ``s`` and ``e`` are not necessarily to be integers, it can be any values (e.g. numeric or even negative values).
 #
@@ -421,8 +426,8 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 			# grid.points(hc@POS$x1[1], hc@POS$y1[1], default.units = "native", gp = gpar(col = "#CCCCCC", cex = 0.5))
 			# grid.points(hc@POS$x2, hc@POS$y2, default.units = "native", gp = gpar(col = "#CCCCCC", cex = 0.5))
 
-			# grid.text(round(unzoom(hc, start(bins)[1])), hc@POS$x1[1], hc@POS$y1[1], default.units = "native", gp = gpar(col = "#999999", cex = 0.5))
-			# grid.text(round(unzoom(hc, end(bins))), hc@POS$x2, hc@POS$y2, default.units = "native", gp = gpar(col = "#999999", cex = 0.5))
+			# grid.text(round(unzoom(hc, start(bins)[1]), 2), hc@POS$x1[1], hc@POS$y1[1], default.units = "native", gp = gpar(col = "#999999", fontsize = 10))
+			# grid.text(round(unzoom(hc, end(bins)), 2), hc@POS$x2, hc@POS$y2, default.units = "native", gp = gpar(col = "#999999", fontsize = 10))
 		
 			if(arrow) grid_arrows(hc@POS$x1, hc@POS$y1, (hc@POS$x1+hc@POS$x2)/2, (hc@POS$y1+hc@POS$y2)/2, only.head = TRUE, arrow_gp = gpar(fill = reference_gp$col, col = NA))
 		}
@@ -1126,10 +1131,13 @@ setMethod(f = "hc_segments",
 # -x1 if start positions are not integers, they can be set by ``x1``.
 # -x2 if end positions are not integers, they can be set by ``x2``.
 # -gp graphic parameters for text. It should be specified by `grid::gpar`.
+# -centered_by how to define the "center" of the interval represented in Hilbert curve. See Details section.
 # -... pass to `grid::grid.text`. E.g. you can set text justification by ``just`` here.
 #
 # == details
-# The text is added correspoding to the middle of each interval in ``ir``.
+# If ``centered_by == "interval"``, the text is added correspoding to the middle of each interval in ``ir``,
+# while if ``centered_by == "polygon"``, the text is put in the visual center of the polygon of the interval
+# in the Hilbert curve.
 #
 # == value
 # A data frame which contains coordinates (in the 2D space) of text.
@@ -1151,19 +1159,26 @@ setMethod(f = "hc_segments",
 #
 setMethod(f = "hc_text",
 	signature = "HilbertCurve",
-	definition = function(object, ir = NULL, labels, x1 = NULL, x2 = x1, gp = gpar(), ...) {
+	definition = function(object, ir = NULL, labels, x1 = NULL, x2 = x1, gp = gpar(), 
+	centered_by = c("interval", "polygon"), ...) {
+
+	centered_by = match.arg(centered_by)[1]
+	if(centered_by == "polygon") {
+		df = hc_centered_text(object, ir = ir, labels = labels, x1 = x1, x2 = x2, gp = gp, ...)
+		return(invisible(df))
+	}
 
 	if(object@MODE == "pixel") {
 		oi = .ENV$I_PLOT
 		seekViewport(paste0("hilbert_curve_", .ENV$I_PLOT))
 
 		hc2 = HilbertCurve(s = object@data_range[1], e = object@data_range[2], mode = "normal", 
-			level = min(object@LEVEL, 9), newpage = FALSE, 
+			level = min(object@LEVEL, 9), newpage = FALSE, zoom = object@ZOOM,
 			start_from = object@start_from, first_seg = object@first_seg)
-		hc_text(hc2, ir = ir, labels = labels, x1 = x1, x2 = x2, gp = gp, ...)
+		df = hc_text(hc2, ir = ir, labels = labels, x1 = x1, x2 = x2, gp = gp, ...)
 		seekViewport(name = paste0("hilbert_curve_", oi, "_global"))
 		upViewport()
-		return(invisible(NULL))
+		return(invisible(df))
 	}
 
 	ir = validate_input(object, ir, x1, x2)
@@ -1224,13 +1239,13 @@ setMethod(f = "hc_text",
 # If the interval is long enough that it represents as a block in the 2D space, the corresponding
 # label is put approximately at center (or at least inside) of the block.
 #
-# It is quite experimental and only used internally.
+# Please use `hc_text,HilbertCurve-method` directly.
 #
 # == value
 # ``NULL``
 #
 # == seealso
-# It is basically used in `hc_map,GenomicHilbertCurve-method` to put chromosome names in the center
+# It is used in `hc_map,GenomicHilbertCurve-method` to put chromosome names in the center
 # of chromosomes.
 #
 # == author
@@ -1279,7 +1294,7 @@ setMethod(f = "hc_centered_text",
 })
 
 # add arrow at (x2, y2) and x1 -> x2
-grid_arrows = function(x1, y1, x2, y2, length = unit(2, "mm"), angle = 15, only.head = FALSE, 
+grid_arrows = function(x1, y1, x2, y2, length = unit(4, "mm"), angle = 15, only.head = FALSE, 
 	arrow_gp = gpar(), lines_gp = gpar()) {
 
 	length = convertUnit(length*2, "native", valueOnly = TRUE) - convertUnit(length, "native", valueOnly = TRUE)
@@ -1643,7 +1658,7 @@ add_raster = function(lt_rgb) {
 # The default overlay is (take red channel for example) ``r*alpha + r0*(1-alpha)``.
 #
 # == value
-# A list which contains overlayed RGB colors.
+# A list which contains overlayed RGB colors (values between 0 and 1).
 #
 # == seealso
 # Color overlay function is always used in `hc_layer,HilbertCurve-method` or `hc_layer,GenomicHilbertCurve-method`.
@@ -1655,7 +1670,13 @@ add_raster = function(lt_rgb) {
 # # red (1, 0, 0) overlay to the grey (0.5, 0.5, 0.5) with 0.5 transparency
 # default_overlay(1, 0, 0, 0.5, 0.5, 0.5, 0.5)
 default_overlay = function(r0, g0, b0, r, g, b, alpha = 1) {
-	list(r = r*alpha + r0*(1-alpha),
-		 g = g*alpha + g0*(1-alpha),
-		 b = b*alpha + b0*(1-alpha))
+
+	l_na_1 = is.na(r0) | is.na(g0) | is.na(b0)
+	l_na_2 = is.na(r) | is.na(g) | is.na(b)
+	r = ifelse(l_na_1 & l_na_2, 1, ifelse(l_na_1, r*alpha, ifelse(l_na_2, r0, r*alpha + r0*(1-alpha))))
+	g = ifelse(l_na_1 & l_na_2, 1, ifelse(l_na_1, g*alpha, ifelse(l_na_2, g0, g*alpha + g0*(1-alpha))))
+	b = ifelse(l_na_1 & l_na_2, 1, ifelse(l_na_1, b*alpha, ifelse(l_na_2, b0, b*alpha + b0*(1-alpha))))
+
+	return(list(r = r, g = g, b = b))
 }
+

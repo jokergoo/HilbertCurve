@@ -8,7 +8,7 @@ Add text to the center of the block
 Add text to the center of the block
 }
 \usage{
-\S4method{hc_centered_text}{HilbertCurve}(object, ir, labels, x1 = NULL, x2 = NULL, gp = gpar(), ...)
+\S4method{hc_centered_text}{HilbertCurve}(object, ir = NULL, labels, x1 = NULL, x2 = NULL, gp = gpar(), ...)
 }
 \arguments{
 
@@ -25,13 +25,13 @@ Add text to the center of the block
 If the interval is long enough that it represents as a block in the 2D space, the corresponding
 label is put approximately at center (or at least inside) of the block.
 
-It is quite experimental and only used internally.
+Please use \code{\link{hc_text,HilbertCurve-method}} directly.
 }
 \value{
 \code{NULL}
 }
 \seealso{
-It is basically used in \code{\link{hc_map,GenomicHilbertCurve-method}} to put chromosome names in the center
+It is used in \code{\link{hc_map,GenomicHilbertCurve-method}} to put chromosome names in the center
 of chromosomes.
 }
 \author{

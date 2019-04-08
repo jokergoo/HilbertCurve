@@ -1,6 +1,7 @@
 export("GenomicHilbertCurve")
 export("HilbertCurve")
 export("default_overlay")
+export("is_white")
 exportClasses("GenomicHilbertCurve")
 export("GenomicHilbertCurve")
 exportClasses("HilbertCurve")

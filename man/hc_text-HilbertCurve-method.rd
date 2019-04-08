@@ -7,7 +7,8 @@ Add text to Hilbert curve
 Add text to Hilbert curve
 }
 \usage{
-\S4method{hc_text}{HilbertCurve}(object, ir, labels, x1 = NULL, x2 = x1, gp = gpar(), ...)
+\S4method{hc_text}{HilbertCurve}(object, ir = NULL, labels, x1 = NULL, x2 = x1, gp = gpar(),
+    centered_by = c("interval", "polygon"), ...)
 }
 \arguments{
 
@@ -17,11 +18,14 @@ Add text to Hilbert curve
   \item{x1}{if start positions are not integers, they can be set by \code{x1}.}
   \item{x2}{if end positions are not integers, they can be set by \code{x2}.}
   \item{gp}{graphic parameters for text. It should be specified by \code{\link[grid]{gpar}}.}
+  \item{centered_by}{how to define the "center" of the interval represented in Hilbert curve. See Details section.}
   \item{...}{pass to \code{\link[grid]{grid.text}}. E.g. you can set text justification by \code{just} here.}
 
 }
 \details{
-The text is added correspoding to the middle of each interval in \code{ir}.
+If \code{centered_by == "interval"}, the text is added correspoding to the middle of each interval in \code{ir},
+while if \code{centered_by == "polygon"}, the text is put in the visual center of the polygon of the interval
+in the Hilbert curve.
 }
 \value{
 A data frame which contains coordinates (in the 2D space) of text.

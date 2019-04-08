@@ -8,7 +8,7 @@ Add points to the Hilbert curve
 Add points to the Hilbert curve
 }
 \usage{
-\S4method{hc_segmented_points}{HilbertCurve}(object, ir, x1 = NULL, x2 = NULL, gp = gpar(),
+\S4method{hc_segmented_points}{HilbertCurve}(object, ir = NULL, x1 = NULL, x2 = NULL, gp = gpar(),
     np = max(c(2, 10 - hc_level(object))),
     mean_mode = c("w0", "absolute", "weighted"),
     shape = "circle")

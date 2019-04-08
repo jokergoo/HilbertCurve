@@ -7,7 +7,7 @@ Add line segments to Hilbert curve
 Add line segments to Hilbert curve
 }
 \usage{
-\S4method{hc_segments}{HilbertCurve}(object, ir, x1 = NULL, x2 = NULL,
+\S4method{hc_segments}{HilbertCurve}(object, ir = NULL, x1 = NULL, x2 = NULL,
     gp = gpar(lty = 1, lwd = 1, col = 1))
 }
 \arguments{
