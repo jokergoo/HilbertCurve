@@ -597,8 +597,7 @@ the "red" regions into two parts by whether they overlap with the "grey"
 regions. Then add the not-overlapped regions, the "grey" regions, and
 overlapped regions as three independent layers.
 
-<pre><code>
-hc_layer(red regions not ovelap with blue regions, use white-red color schema)
+<pre><code>hc_layer(red regions not ovelap with blue regions, use white-red color schema)
 hc_layer(grey regions)
 hc_layer(white-blue regions)
 </code></pre>
