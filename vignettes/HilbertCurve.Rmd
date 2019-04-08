@@ -596,11 +596,11 @@ the "red" regions into two parts by whether they overlap with the "grey"
 regions. Then add the not-overlapped regions, the "grey" regions, and
 overlapped regions as three independent layers.
 
-```
+<pre><code>
 hc_layer(red regions not ovelap with blue regions, use white-red color schema)
 hc_layer(grey regions)
 hc_layer(white-blue regions)
-```
+</code></pre>
 
 You can see the `overlay` option provides an easier and more straightforward
 way to do it.
@@ -1011,12 +1011,12 @@ files are alignments of reads, you need to convert to the basepair or
 window-based coverage before using following R commands). Following files for
 four histone modifications are used to visualize:
 
-```
+<pre><code>
 UCSD.Lung.H3K27ac.STL002.bed
 UCSD.Lung.H3K36me3.STL002.bed
 UCSD.Lung.H3K4me3.STL002.bed
 UCSD.Lung.H3K9me3.STL002.bed
-```
+</code></pre>
 
 Since we are going to plot more than one histome marks, the code for plotting are wrapped as a simple function:
 

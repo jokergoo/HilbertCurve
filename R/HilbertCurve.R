@@ -184,6 +184,7 @@ setMethod(f = "hc_offset",
 # -start_from which corner on the plot should the curve starts?
 # -first_seg the orientation of the first segment.
 # -legend a `grid::grob` object, a `ComplexHeatmap::Legends-class` object, or a list of them.
+# -padding padding around the Hilbert curve.
 #
 # == details
 # This funciton initializes a Hilbert curve with level ``level`` which corresponds 
@@ -258,7 +259,7 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 	background_col = "transparent", background_border = NA, 
 	title = NULL, title_gp = gpar(fontsize = 16), 
 	start_from = c("bottomleft", "topleft", "bottomright", "topright"),
-	first_seg = c("horizontal", "vertical"), legend = list()) {
+	first_seg = c("horizontal", "vertical"), legend = list(), padding = unit(2, "mm")) {
 
 	hc = new("HilbertCurve")
 	level = as.integer(level)
@@ -412,7 +413,7 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 		upViewport()
 	}
 
-	size = unit(1, "snpc")
+	size = unit(1, "snpc") - padding*2
 	pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 1))
 
 	pushViewport(viewport(name = paste0("hilbert_curve_", get_plot_index()), xscale = c(-0.5, 2^level - 0.5), yscale = c(-0.5, sqrt(n)-0.5), width = size, height = size))
@@ -1267,7 +1268,7 @@ setMethod(f = "hc_centered_text",
 
 		hc2 = HilbertCurve(s = object@data_range[1], e = object@data_range[2], mode = "normal", 
 			level = min(object@LEVEL, 9), newpage = FALSE, 
-			start_from = object@start_from, first_seg = object@first_seg)
+			start_from = object@start_from, first_seg = object@first_seg, padding = unit(0, "mm"))
 		df = hc_centered_text(hc2, ir = ir, labels = labels, x1 = x1, x2 = x2, gp = gp, ...)
 		seekViewport(name = paste0("hilbert_curve_", oi, "_global"))
 		upViewport()
