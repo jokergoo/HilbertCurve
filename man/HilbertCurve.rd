@@ -13,7 +13,8 @@ HilbertCurve(s, e, level = 4, mode = c("normal", "pixel"),
     background_col = "transparent", background_border = NA,
     title = NULL, title_gp = gpar(fontsize = 16),
     start_from = c("bottomleft", "topleft", "bottomright", "topright"),
-    first_seg = c("horizontal", "vertical"), legend = list(), padding = unit(2, "mm"))
+    first_seg = c("horizontal", "vertical"), legend = list(),
+    padding = unit(2, "mm"))
 }
 \arguments{
 

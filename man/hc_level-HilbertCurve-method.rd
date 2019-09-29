@@ -1,6 +1,5 @@
 \name{hc_level-HilbertCurve-method}
 \alias{hc_level,HilbertCurve-method}
-\alias{hc_level}
 \title{
 Level of the Hilbert curve
 }
@@ -28,3 +27,4 @@ hc_level(hc)
 hc = HilbertCurve(1, 100, level = 5)
 hc_level(hc)
 }
+\alias{hc_level}

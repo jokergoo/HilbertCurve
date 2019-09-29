@@ -1,6 +1,5 @@
 \name{hc_png-HilbertCurve-method}
 \alias{hc_png,HilbertCurve-method}
-\alias{hc_png}
 \title{
 Save Hilbert curve as a PNG figure
 }
@@ -41,3 +40,4 @@ ir = IRanges(s, e)
 hc_layer(hc, ir)
 hc_png(hc, file = "test.png")
 }
+\alias{hc_png}
