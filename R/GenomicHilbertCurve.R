@@ -79,6 +79,8 @@ GenomicHilbertCurve = setClass("GenomicHilbertCurve",
 #
 GenomicHilbertCurve = function(chr = paste0("chr", c(1:22, "X", "Y")), species = "hg19", 
 	background = NULL, ...) {
+	
+	if(missing(chr)) chr = usable_chromosomes(species)
 
 	if(is.null(background)) {
 		chr = unique(chr)
@@ -108,6 +110,21 @@ GenomicHilbertCurve = function(chr = paste0("chr", c(1:22, "X", "Y")), species =
     }
     hc2@background = background
     return(hc2)
+}
+
+
+usable_chromosomes = function(species) {
+	if(is.null(species)) return(NULL)
+
+	switch(gsub("\\d+$", "", species),
+		"hg" = paste0("chr", c(1:22, "X", "Y")),
+		"mm" = paste0("chr", c(1:19, "X", "Y")),
+		"rn" = paste0("chr", c(1:20, "X", "Y")),
+		"dm" = paste0("chr", c("2L", "2R", "3L", "3R", "4", "X")),
+		"ce" = paste0("chr", c("I", "II", "III", "IV", "V", "X")),
+		"sacCer" = paste0("chr", c("I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV")),
+		NULL
+	)
 }
 
 # == title
