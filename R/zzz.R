@@ -10,6 +10,9 @@ Documentation: http://bioconductor.org/packages/HilbertCurve/
 If you use it in published research, please cite:
 Gu, Z. HilbertCurve: an R/Bioconductor package for high-resolution 
   visualization of genomic data. Bioinformatics 2016.
+
+This message can be suppressed by:
+  suppressPackageStartupMessages(library(HilbertCurve))
 ========================================
 ")	
 
