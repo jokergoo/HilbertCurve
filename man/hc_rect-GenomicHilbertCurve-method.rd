@@ -8,7 +8,7 @@ Add rectangles on Hilbert curve
 }
 \usage{
 \S4method{hc_rect}{GenomicHilbertCurve}(object, gr, gp = gpar(fill = "red", col = "red"),
-    mean_mode = c("w0", "absolute", "weighted"))
+    mean_mode = c("w0", "absolute", "weighted", "max_freq"))
 }
 \arguments{
 

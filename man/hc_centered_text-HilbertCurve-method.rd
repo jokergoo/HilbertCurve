@@ -1,5 +1,6 @@
 \name{hc_centered_text-HilbertCurve-method}
 \alias{hc_centered_text,HilbertCurve-method}
+\alias{hc_centered_text}
 \title{
 Add text to the center of the block
 }
@@ -43,4 +44,3 @@ hc_centered_text(hc, x1 = 1, x2 = 3, labels = "A")
 hc_centered_text(hc, x1 = 3, x2 = 7, labels = "B")
 hc_centered_text(hc, x1 = 7, x2 = 10, labels = "C")
 }
-\alias{hc_centered_text}

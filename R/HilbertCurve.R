@@ -552,7 +552,7 @@ setMethod(f = "hc_level",
 #           actually represents an small interval in the axis. When overlapping input intervals to the windows
 #           on the curve and when the window can not completely cover the input intervals, some averaging method should
 #           be applied to get a more accurate estimation for the value in the window. Here the HilbertCurve package
-#           provides three modes: "w0", "weighted" and "absolute" which calculate the mean value in the window
+#           provides four modes: "w0", "weighted", "absolute" and "max_freq" which calculate the mean value in the window
 #           with respect to different scenarios. See 'Details' section and the vignette for more informative explanation.
 # -shape shape of points, used for points if ``np >= 2``. Possible values are "circle", "square", "triangle", "hexagon", "star".
 #
@@ -577,6 +577,9 @@ setMethod(f = "hc_level",
 # So which mode to use depends on specific scenario. If the background is not of interest, ``absolute`` and ``weighted``
 # modes may be proper and if the value also needs to be averaged with background, ``w0`` is the proper choice. Section "Averaging models"
 # in the vignette gives a more detailed explanation for this argument.
+#
+# There is one more value for ``mean_mode`` which is ``max_freq``. ``max_freq`` is mainly for discrete signals and in a segment,
+# value with the highest frequency (or with the highest length) is selected for this segment
 #
 # If ``np >= 2``, the value of ``np`` also controls the size of points.
 # 

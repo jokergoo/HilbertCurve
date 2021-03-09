@@ -9,7 +9,7 @@ Add points to the Hilbert curve
 \usage{
 \S4method{hc_points}{HilbertCurve}(object, ir = NULL, x1 = NULL, x2 = x1,
     np = max(c(2, 10 - hc_level(object))), size = unit(1, "char"),
-    pch = 1, gp = gpar(), mean_mode = c("w0", "absolute", "weighted"),
+    pch = 1, gp = gpar(), mean_mode = c("w0", "absolute", "weighted", "max_freq"),
     shape = "circle")
 }
 \arguments{
@@ -22,7 +22,7 @@ Add points to the Hilbert curve
   \item{size}{size of the points. It should be a \code{\link[grid]{unit}} object. Only works if \code{np <= 1}}
   \item{pch}{shape of points, used for points if \code{np <= 1}.}
   \item{gp}{graphic parameters for points. It should be specified by \code{\link[grid]{gpar}}.}
-  \item{mean_mode}{when \code{np >= 2}, each segment on the curve is split into \code{np} windows and each window actually represents an small interval in the axis. When overlapping input intervals to the windows on the curve and when the window can not completely cover the input intervals, some averaging method should be applied to get a more accurate estimation for the value in the window. Here the HilbertCurve package provides three modes: "w0", "weighted" and "absolute" which calculate the mean value in the window with respect to different scenarios. See 'Details' section and the vignette for more informative explanation.}
+  \item{mean_mode}{when \code{np >= 2}, each segment on the curve is split into \code{np} windows and each window actually represents an small interval in the axis. When overlapping input intervals to the windows on the curve and when the window can not completely cover the input intervals, some averaging method should be applied to get a more accurate estimation for the value in the window. Here the HilbertCurve package provides four modes: "w0", "weighted", "absolute" and "max_freq" which calculate the mean value in the window with respect to different scenarios. See 'Details' section and the vignette for more informative explanation.}
   \item{shape}{shape of points, used for points if \code{np >= 2}. Possible values are "circle", "square", "triangle", "hexagon", "star".}
 
 }
@@ -48,6 +48,9 @@ Following illustrates different settings for \code{mean_mode}:
 So which mode to use depends on specific scenario. If the background is not of interest, \code{absolute} and \code{weighted}
 modes may be proper and if the value also needs to be averaged with background, \code{w0} is the proper choice. Section "Averaging models"
 in the vignette gives a more detailed explanation for this argument.
+
+There is one more value for \code{mean_mode} which is \code{max_freq}. \code{max_freq} is mainly for discrete signals and in a segment,
+value with the highest frequency (or with the highest length) is selected for this segment
 
 If \code{np >= 2}, the value of \code{np} also controls the size of points.
 

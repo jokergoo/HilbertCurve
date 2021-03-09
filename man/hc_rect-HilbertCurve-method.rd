@@ -9,7 +9,7 @@ Add rectangles on Hilbert curve
 \usage{
 \S4method{hc_rect}{HilbertCurve}(object, ir = NULL, x1 = NULL, x2 = NULL,
     gp = gpar(fill = "red"),
-    mean_mode = c("w0", "absolute", "weighted"))
+    mean_mode = c("w0", "absolute", "weighted", "max_freq"))
 }
 \arguments{
 

@@ -9,7 +9,7 @@ Add points to the Hilbert curve
 \usage{
 \S4method{hc_points}{GenomicHilbertCurve}(object, gr,
     np = max(c(2, 10 - hc_level(object))), size = unit(1, "char"),
-    pch = 1, gp = gpar(), mean_mode = c("w0", "absolute", "weighted"),
+    pch = 1, gp = gpar(), mean_mode = c("w0", "absolute", "weighted", "max_freq"),
     shape = "circle")
 }
 \arguments{

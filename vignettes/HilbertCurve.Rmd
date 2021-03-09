@@ -714,6 +714,9 @@ width for the un-intersected parts. $V_b$ is the value corresponding to the
 background. E.g when averaging colors which are represented as numeric RGB
 values, the background value is set to 255 which corresponds to white.
 
+There is one more value for ``mean_mode`` which is ``max_freq``. ``max_freq`` is mainly for discrete signals and in a segment,
+value with the highest frequency (or with the highest length) is selected for this segment.
+
 ## Examples
 
 This section shows several interesting examples.
