@@ -623,7 +623,7 @@ setMethod(f = "hc_points",
 	signature = "HilbertCurve",
 	definition = function(object, ir = NULL, x1 = NULL, x2 = x1, 
 	np = max(c(2, 10 - hc_level(object))), size = unit(1, "char"), 
-	pch = 1, gp = gpar(), mean_mode = c("w0", "absolute", "weighted"),
+	pch = 1, gp = gpar(), mean_mode = c("w0", "absolute", "weighted", "max_freq"),
 	shape = "circle") {
 
 	if(object@MODE == "pixel") {
@@ -631,6 +631,8 @@ setMethod(f = "hc_points",
 	}
 
 	if(is.null(np)) np = 1
+
+	mean_mode = match.arg(mean_mode)
 
 	if(np >= 2) {
 		if(is.null(ir)) {
@@ -757,7 +759,7 @@ setMethod(f = "hc_segmented_points",
     signature = "HilbertCurve",
     definition = function(object, ir = NULL, x1 = NULL, x2 = NULL, gp = gpar(), 
     np = max(c(2, 10 - hc_level(object))),
-    mean_mode = c("w0", "absolute", "weighted"), 
+    mean_mode = c("w0", "absolute", "weighted", "max_freq"), 
     shape = "circle") {
 
     if(object@MODE == "pixel") {
@@ -804,7 +806,7 @@ setMethod(f = "hc_segmented_points",
     col = gp$col
     rgb_col = col2rgb(col, alpha = TRUE)
 
-    rgb_mat = average_in_window(window, ir, mtch, list(rgb_fill[1, ], rgb_fill[2, ], rgb_fill[3, ], rgb_col[1, ], rgb_col[2, ], rgb_col[3, ]), mean_mode, 255)
+    rgb_mat = average_in_window(window, ir, mtch, list(rgb_fill[1, ], rgb_fill[2, ], rgb_fill[3, ], rgb_col[1, ], rgb_col[2, ], rgb_col[3, ]), mean_mode, 255, group = list(1:3, 4:6))
 
     alpha_fill = rep(max(rgb_fill[4, ]), nrow(rgb_mat))
     fill2 = rgb(red = rgb_mat[,1], green = rgb_mat[,2], blue = rgb_mat[,3], alpha = alpha_fill, maxColorValue = 255)
@@ -853,7 +855,7 @@ setMethod(f = "hc_segmented_points",
 # window = IRanges(1, 10)
 # ir = IRanges(c(1, 4, 7), c(2, 5, 8))
 # mtch = as.matrix(findOverlaps(window, ir))
-average_in_window = function(window, ir, mtch, v, mean_mode, empty_v = 0) {
+average_in_window = function(window, ir, mtch, v, mean_mode, empty_v = 0, group = NULL) {
 
 	if(!is.list(v)) {
 		v = list(v)
@@ -898,13 +900,27 @@ average_in_window = function(window, ir, mtch, v, mean_mode, empty_v = 0) {
 			u[i, ] = colMeans(v[ind_list[[i]], , drop = FALSE])
 		}
 		
-	} else {
+	} else if(mean_mode == "weighted") {
 		w = width(intersect)
 		u = matrix(nrow = length(ind_list), ncol = ncol(v))
 		rownames(u) = names(ind_list)
 		for(i in seq_along(ind_list)) {
 			ind = ind_list[[i]]
 			u[i, ] = colSums(v[ind, , drop = FALSE]*w[ind])/sum(w[ind])
+		}
+	} else if(mean_mode == "max_freq") {
+		u = matrix(nrow = length(ind_list), ncol = ncol(v))
+		rownames(u) = names(ind_list)
+		for(i in seq_along(ind_list)) {
+			for(ig in seq_along(group)) {
+				if(length(ind_list[[i]]) > 1) {
+					df_tmp = as.data.frame(v[ind_list[[i]], group[[ig]], drop = FALSE])
+					at = aggregate(list(n = rep(1, nrow(df_tmp))), df_tmp, length)
+					u[i, group[[ig]]] = unlist(at[which.max(at$n)[1], -ncol(at)])
+				} else {
+					u[i, group[[ig]]] = v[ind_list[[i]], group[[ig]]]
+				}
+			}
 		}
 	}
 
@@ -949,7 +965,7 @@ setMethod(f = "hc_rect",
 	signature = "HilbertCurve",
 	definition = function(object, ir = NULL, x1 = NULL, x2 = NULL, 
 	gp = gpar(fill = "red"), 
-	mean_mode = c("w0", "absolute", "weighted")) {
+	mean_mode = c("w0", "absolute", "weighted", "max_freq")) {
 
 	if(object@MODE == "pixel") {
 		stop("`hc_rect()` can only be used under 'normal' mode.")
@@ -975,7 +991,7 @@ setMethod(f = "hc_rect",
 	fill = gp$fill
 
 	rgb = col2rgb(fill, alpha = TRUE)
-	rgb_mat = average_in_window(window, ir, mtch, list(rgb[1, ], rgb[2, ], rgb[3, ]), mean_mode, 255)
+	rgb_mat = average_in_window(window, ir, mtch, list(rgb[1, ], rgb[2, ], rgb[3, ]), mean_mode, 255, group = list(1:3))
 	r = rgb_mat[, 1]
 	g = rgb_mat[, 2]
 	b = rgb_mat[, 3]
@@ -1390,7 +1406,7 @@ grid_arrows = function(x1, y1, x2, y2, length = unit(2, "mm"), angle = 15, only.
 setMethod(f = "hc_layer",
 	signature = "HilbertCurve",
 	definition = function(object, ir = NULL, x1 = NULL, x2 = x1, col = "red", border = NA,
-	mean_mode = c("w0", "absolute", "weighted"), grid_line = 0,
+	mean_mode = c("w0", "absolute", "weighted", "max_freq"), grid_line = 0,
 	grid_line_col = "black", overlay = default_overlay) {
 
 	if(object@MODE == "normal") {
@@ -1416,7 +1432,7 @@ setMethod(f = "hc_layer",
 
 	rgb = col2rgb(col, alpha = TRUE)
 
-	rgb_mat = average_in_window(window, ir, mtch, list(rgb[1, ], rgb[2, ], rgb[3, ], rgb[4, ]), mean_mode, c(255, 255, 255, 0))
+	rgb_mat = average_in_window(window, ir, mtch, list(rgb[1, ], rgb[2, ], rgb[3, ], rgb[4, ]), mean_mode, c(255, 255, 255, 0), group = list(1:4))
 	r = rgb_mat[, 1]/255
 	g = rgb_mat[, 2]/255
 	b = rgb_mat[, 3]/255

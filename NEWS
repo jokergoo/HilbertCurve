@@ -1,3 +1,10 @@
+Changes in version 1.21.1
+
+- add "max_freq" method for mean_mode so that in each interval, value corresponded to
+  the maximal frequency is selected.
+
+-----------------------------
+
 Changes in version 1.13.3
 
 - set `interpolate = FALSE` in `grid.raster()`

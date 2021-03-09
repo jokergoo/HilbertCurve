@@ -160,7 +160,7 @@ setMethod(f = "hc_points",
 	signature = "GenomicHilbertCurve",
 	definition = function(object, gr, 
 	np = max(c(2, 10 - hc_level(object))), size = unit(1, "char"), 
-	pch = 1, gp = gpar(), mean_mode = c("w0", "absolute", "weighted"),
+	pch = 1, gp = gpar(), mean_mode = c("w0", "absolute", "weighted", "max_freq"),
 	shape = "circle") {
 
 	if(is.data.frame(gr)) {
@@ -169,7 +169,8 @@ setMethod(f = "hc_points",
 	if(!inherits(gr, "GRanges")) {
 		stop("`gr` should be a `GRanges` object or a data frame.")
 	}
-
+	gp = recycle_gp(gp, length(gr))
+	
 	mtch = as.matrix(findOverlaps(gr, object@background))
 	gr = gr[mtch[, 1]]
 	if(length(size) > 1) {
@@ -178,10 +179,11 @@ setMethod(f = "hc_points",
 	if(length(pch) > 1) {
 		pch = pch[mtch[, 1]] 
 	}
-	gp = recycle_gp(gp, length(gr))
 	gp = subset_gp(gp, mtch[, 1])
 
 	df = merge_into_one_chr(gr, object@background)
+
+	mean_mode = match.arg(mean_mode)
 	callNextMethod(object, x1 = df[,1], x2 = df[,2], np = np, size = size, pch = pch, gp = gp, 
 		mean_mode = mean_mode, shape = shape)
 })
@@ -214,7 +216,7 @@ setMethod(f = "hc_points",
 setMethod(f = "hc_rect",
 	signature = "GenomicHilbertCurve",
 	definition = function(object, gr, gp = gpar(fill = "red", col = "red"), 
-	mean_mode = c("w0", "absolute", "weighted")) {
+	mean_mode = c("w0", "absolute", "weighted", "max_freq")) {
 
 	if(is.data.frame(gr)) {
 		gr = GRanges(seqnames = gr[[1]], ranges = IRanges(gr[[2]], gr[[3]]))
@@ -222,12 +224,14 @@ setMethod(f = "hc_rect",
 	if(!inherits(gr, "GRanges")) {
 		stop("`gr` should be a `GRanges` object or a data frame.")
 	}
-
+	gp = recycle_gp(gp, length(gr))
+	
 	mtch = as.matrix(findOverlaps(gr, object@background))
 	gr = gr[mtch[, 1]]
-	gp = recycle_gp(gp, length(gr))
 	gp = subset_gp(gp, mtch[, 1])
 	df = merge_into_one_chr(gr, object@background)
+
+	mean_mode = match.arg(mean_mode)
 
 	callNextMethod(object, x1 = df[,1], x2 = df[,2], gp = gp, mean_mode = mean_mode)
 })
@@ -268,9 +272,10 @@ setMethod(f = "hc_segments",
 		stop("`gr` should be a `GRanges` object or a data frame.")
 	}
 
+	gp = recycle_gp(gp, length(gr))
+	
 	mtch = as.matrix(findOverlaps(gr, object@background))
 	gr = gr[mtch[, 1]]
-	gp = recycle_gp(gp, length(gr))
 	gp = subset_gp(gp, mtch[, 1])
 
 	df = merge_into_one_chr(gr, object@background)
@@ -318,13 +323,15 @@ setMethod(f = "hc_text",
 		stop("`gr` should be a `GRanges` object or a data frame.")
 	}
 
+	gp = recycle_gp(gp, length(gr))
+	
 	mtch = as.matrix(findOverlaps(gr, object@background))
 	gr = gr[mtch[, 1]]
 	labels = labels[mtch[, 1]]
-	gp = recycle_gp(gp, length(gr))
 	gp = subset_gp(gp, mtch[, 1])
 
 	df = merge_into_one_chr(gr, object@background)
+	centered_by = match.arg(centered_by)
 
 	callNextMethod(object, x1 = df[,1], x2 = df[,2], labels = labels, gp = gp, centered_by = centered_by, ...)
 })
@@ -366,10 +373,10 @@ setMethod(f = "hc_polygon",
 	if(!inherits(gr, "GRanges")) {
 		stop("`gr` should be a `GRanges` object or a data frame.")
 	}
-
+	gp = recycle_gp(gp, length(gr))
+	
 	mtch = as.matrix(findOverlaps(gr, object@background))
 	gr = gr[mtch[, 1]]
-	gp = recycle_gp(gp, length(gr))
 	gp = subset_gp(gp, mtch[, 1])
 	df = merge_into_one_chr(gr, object@background)
 
@@ -412,7 +419,7 @@ setMethod(f = "hc_polygon",
 setMethod(f = "hc_layer",
 	signature = "GenomicHilbertCurve",
 	definition = function(object, gr, col = "red", border = NA,
-	mean_mode = c("w0", "absolute", "weighted"), grid_line = 0,
+	mean_mode = c("w0", "absolute", "weighted", "max_freq"), grid_line = 0,
 	grid_line_col = "black", overlay = default_overlay) {
 
 	if(is.data.frame(gr)) {
@@ -428,6 +435,8 @@ setMethod(f = "hc_layer",
 	col = col[mtch[,1 ]]
 
 	df = merge_into_one_chr(gr, object@background)
+
+	mean_mode = match.arg(mean_mode)[1]
 
 	callNextMethod(object, x1 = df[,1], x2 = df[,2], col = col, border = border, mean_mode = mean_mode, 
 		grid_line = grid_line, grid_line_col = grid_line_col, overlay = overlay)
