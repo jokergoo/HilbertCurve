@@ -23,8 +23,7 @@ The implementation and example figures are based on following sources:
 
 ### Citation
 
-Zuguang Gu, Roland Eils, and Matthias Schlesner, 
-[HilbertCurve: an R/Bioconductor package for high-resolution visualization of genomic data.](https://doi.org/10.1093/bioinformatics/btw161)
+Zuguang Gu, et al., [HilbertCurve: an R/Bioconductor package for high-resolution visualization of genomic data.](https://doi.org/10.1093/bioinformatics/btw161)
 Bioinformatics 2016
 
 ### Install
