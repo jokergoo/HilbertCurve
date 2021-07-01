@@ -1,4 +1,4 @@
-^\..*
+
 README.*
 lib/
 test/
@@ -15,3 +15,4 @@ generate_genomic_figures/
 ^docs$
 ^pkgdown$
 build_pkg_site.R
+^\.github$

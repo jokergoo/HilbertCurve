@@ -1,11 +1,12 @@
-[![Build Status](https://travis-ci.org/jokergoo/HilbertCurve.svg)](https://travis-ci.org/jokergoo/HilbertCurve) 
+# HilbertCurve
+
+[![R-CMD-check](https://github.com/jokergoo/HilbertCurve/workflows/R-CMD-check/badge.svg)](https://github.com/jokergoo/HilbertCurve/actions)
 [![codecov](https://img.shields.io/codecov/c/github/jokergoo/HilbertCurve.svg)](https://codecov.io/github/jokergoo/HilbertCurve) 
 [![bioc](https://bioconductor.org/shields/downloads/devel/HilbertCurve.svg)](https://bioconductor.org/packages/stats/bioc/HilbertCurve/) 
 [![bioc](http://mcube.nju.edu.cn/cgi-bin/zuguanggu/bioc_download.pl?package=HilbertCurve)](https://bioconductor.org/packages/stats/bioc/HilbertCurve/) 
 [![bioc](http://www.bioconductor.org/shields/years-in-bioc/HilbertCurve.svg)](http://bioconductor.org/packages/devel/bioc/html/HilbertCurve.html)
 
 
-## HilbertCurve
 
 [Hilbert curve](https://en.wikipedia.org/wiki/Hilbert_curve) is a type of space-filling curves
 that fold one dimensional axis into a two dimensional space, but with still keeping the locality.
