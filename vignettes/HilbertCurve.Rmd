@@ -1,18 +1,16 @@
-<!--
-%\VignetteEngine{knitr}
-%\VignetteIndexEntry{Making 2D Hilbert Curve}
--->
+---
+title: "Making 2D Hilbert Curve"
+author: "Zuguang Gu (z.gu@dkfz.de)"
+date: '`r Sys.Date()`'
+output: 
+  rmarkdown::html_vignette:
+    css: custom.css
+vignette: >
+  %\VignetteIndexEntry{Making 2D Hilbert Curve}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
 
-Making 2D Hilbert Curve
-========================================
-
-**Author**: Zuguang Gu ( z.gu@dkfz.de )
-
-**Date**: `r Sys.Date()`
-
-**Package version**: `r installed.packages()["HilbertCurve", "Version"]`
-
--------------------------------------------------------------
 
 ```{r, echo = FALSE, message = FALSE}
 library(markdown)
