@@ -1,8 +1,8 @@
 Package: HilbertCurve
 Type: Package
 Title: Making 2D Hilbert Curve
-Version: 1.21.3
-Date: 2021-05-04
+Version: 1.23.1
+Date: 2021-07-14
 Author: Zuguang Gu
 Maintainer: Zuguang Gu <z.gu@dkfz.de>
 Depends: R (>= 3.1.2), grid
