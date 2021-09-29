@@ -1,10 +1,11 @@
 Package: HilbertCurve
 Type: Package
 Title: Making 2D Hilbert Curve
-Version: 1.23.2
-Date: 2021-07-14
+Version: 1.23.3
+Date: 2021-09-29
 Author: Zuguang Gu
-Maintainer: Zuguang Gu <z.gu@dkfz.de>
+Authors@R: person("Zuguang", "Gu", email = "z.gu@dkfz.de", role = c("aut", "cre"),
+                  comment = c('ORCID'="0000-0002-7395-8709"))
 Depends: R (>= 3.1.2), grid
 Imports: methods, utils, HilbertVis, png, grDevices, circlize (>= 0.3.3), 
          IRanges, GenomicRanges, polylabelr
