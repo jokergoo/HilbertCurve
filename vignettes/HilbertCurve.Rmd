@@ -575,8 +575,10 @@ hc_layer(hc, x1 = c(300, 750), x2 = c(400, 850), col = "#00000010",
         # non-white pixels
         l = !is_white(r0, g0, b0)
 
-        # this line will be removed in the next version
-        attr(col_fun, "colors") = t(col2rgb(attr(col_fun, "colors")))/255
+        # these lines will be removed in the next version
+        if(!is.matrix(attr(col_fun, "colors"))) {
+            attr(col_fun, "colors") = t(col2rgb(attr(col_fun, "colors")))/255
+        }
 
         # original value
         v = col2value(r0[l], g0[l], b0[l], col_fun = col_fun)
