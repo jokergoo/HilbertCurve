@@ -1331,7 +1331,7 @@ grid_arrows = function(x1, y1, x2, y2, length = unit(2, "mm"), angle = 15, only.
 
 	
 	theta = ifelse(x2 >= x1, pi/2 + atan((y2-y1)/(x2-x1)) + pi, pi/2 + atan((y2-y1)/(x2-x1)))
-	mat = matrix(c(cos(theta), sin(theta), -sin(theta), cos(theta)), 2, 2)
+	# mat = matrix(c(cos(theta), sin(theta), -sin(theta), cos(theta)), 2, 2)
 	
 	a1 = X1*cos(theta) - Y1*sin(theta) + x2
 	a2 = X2*cos(theta) - Y2*sin(theta) + x2
@@ -1702,3 +1702,41 @@ default_overlay = function(r0, g0, b0, r, g, b, alpha = 1) {
 	return(list(r = r, g = g, b = b))
 }
 
+
+# == title
+# Query regions
+#
+# == param
+# -object A `HilbertCurve-class` object.
+# -ix A single position on x-axis.
+# -iy A single position on y-axis.
+#
+# == details
+# Values of ``ix`` and ``iy`` should be integers and take values in [1, 2^level].
+#
+# == value
+# A data frame with two columns ``start`` and ``end``. The value corresponds to the range in data.
+#
+setMethod(f = "hc_which",
+	signature = "HilbertCurve",
+	definition = function(object, ix, iy) {
+
+	n = 2^hc@LEVEL
+
+	if(ix > n || ix <= 0) {
+		stop("`ix` can only take value in [1, ", n, "]")
+	}
+	if(iy > n || iy <= 0) {
+		stop("`iy` can only take value in [1, ", n, "]")
+	}
+
+	i = which(object@POS[, 1] == iy - 1 & object@POS[, 2] == ix - 1)
+	if(length(i) == 0) {
+		stop("Cannot find ")
+	}
+
+	x = IRanges::start(object@BINS)[i]
+	y = IRanges::end(object@BINS)[i]
+
+	data.frame(start = unzoom(object, x), end = unzoom(object, y))
+})

@@ -562,3 +562,59 @@ merge_into_one_chr = function(gr, background) {
 
 	return(data.frame(x1, x2))
 }
+
+
+# == title
+# Query regions
+#
+# == param
+# -object a `GenomicHilbertCurve-class` object
+# -ix A single position on x-axis.
+# -iy A single position on y-axis.
+#
+# == details
+# Values of ``ix`` and ``iy`` should be integers and take values in [1, 2^level].
+#
+# == value
+# A data frame with three columns ``chr``, ``start`` and ``end``. The value corresponds to the genomic ranges.
+#
+setMethod(f = "hc_which",
+	signature = "GenomicHilbertCurve",
+	definition = function(object, ix, iy) {
+
+	pos = callNextMethod(object, ix, iy)
+
+	# pos contains positions in the "merged" chromosome
+	background = object@background
+	background_names = names(background)
+	background_length = as.numeric(width(background))
+
+	term = cumsum(background_length)
+	term = c(0, term[-length(term)])
+	names(term) = background_names
+
+	s = pos[[1]] - term
+	s = s[s >= 0]
+
+	e = pos[[2]] - term
+	e = e[e >= 0]
+
+	if(length(s) == length(e)) {
+		i = which.min(s)
+		df = data.frame(chr = names(s[i]), start = s[i], end = e[i])
+		
+	} else if(length(s) + 1 == length(e)) {
+		i = which.min(s)
+		if(background_length[i] - s[i] > e[i + 1]) {
+			df = data.frame(chr = names(s[i]), start = s[i], end = background_length[i])
+		} else {
+			df = data.frame(chr = names(e[i+1]), start = 1, end = e[i+1])
+		}
+	} else {
+		i = which.min(s)
+		df = data.frame(chr = names(s[i]), start = s[i], end = e[i])
+	}
+
+	rownames(df) = NULL
+	return(df)
+})

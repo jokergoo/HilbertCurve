@@ -1,3 +1,9 @@
+Changes in version 1.29.1
+
+- add `hc_which()`.
+
+----------------------------
+
 Changes in version 1.21.1
 
 - add "max_freq" method for mean_mode so that in each interval, value corresponded to
