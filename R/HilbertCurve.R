@@ -278,7 +278,7 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 	s = hc_offset(hc, s)
 	e = hc_offset(hc, e)
 
-	if(is.null(zoom)) zoom = 10*(4^level-1)/(e - s)
+	if(is.null(zoom)) zoom = 100*(4^level)/(e - s)
 	hc@ZOOM = zoom
 
 	pos = hilbertCurve(level)
@@ -321,7 +321,7 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 	breaks = round(seq(zoom(hc, s), zoom(hc, e), length = n)) 
 
 	# n - 1 rows
-	bins = IRanges(start = breaks[-length(breaks)], end = breaks[-1]) # number of segments
+	bins = IRanges(start = breaks[-length(breaks)], end = breaks[-1]-1) # number of segments
 
 	# x and y correspond to the end point of each interval in ir
 	hc@BINS = bins
@@ -637,6 +637,16 @@ setMethod(f = "hc_points",
 
 	mean_mode = match.arg(mean_mode)
 
+	if(!is.null(ir)) {
+		if(all(width(ir) == 1)) {
+			np = 1
+		}
+	} else {
+		if(all(x1 == x2)) {
+			np = 1
+		}
+	}
+
 	if(np >= 2) {
 		if(is.null(ir)) {
 			hc_segmented_points(object, x1 = x1, x2 = x2, gp = gp, np = np, mean_mode = mean_mode, shape = shape)
@@ -925,6 +935,25 @@ average_in_window = function(window, ir, mtch, v, mean_mode, empty_v = 0, group 
 				}
 			}
 		}
+	} else if(mean_mode == "majority") {
+		w = width(intersect)
+
+		ir2 = reduce(ir, min.gapwidth = 0)
+		mtch2 = as.matrix(findOverlaps(window, ir2))
+		intersect2 = pintersect(window[mtch2[, 1]], ir2[mtch2[, 2]])
+
+		width_intersect = tapply(width(intersect2), mtch2[, 1], sum)
+		ind = unique(mtch2[, 1])
+		width_setdiff = width(window[ind]) - width_intersect
+
+		w2 = width(window[ind])
+		u = matrix(nrow = length(ind_list), ncol = ncol(v))
+		rownames(u) = names(ind_list)
+		for(i in seq_along(ind_list)) {
+			ind = ind_list[[i]]
+			x = colSums(v[ind, , drop = FALSE]*w[ind])/sum(w[ind])
+			u[i, ] = ifelse(width_intersect[i]*0.99999 >= width_setdiff[i], x, empty_v)
+		}
 	}
 
 	return(u)
@@ -979,13 +1008,14 @@ setMethod(f = "hc_rect",
 	s = start(object@BINS)
 	e = end(object@BINS)
 	mid = round((s + e)/2)
-	window = IRanges(start = c(s[1], mid), end = c(mid, e[length(e)]))
-		
+	w = e[1]-s[1] + 1
+	window = IRanges(start = c(mid[1] - w+1, mid), end = c(mid, mid[length(mid)] + w-1))
+
 	mtch = as.matrix(findOverlaps(window, ir))
 	if(nrow(mtch) == 0) {
 		return(invisible(NULL))
 	}
-	
+
 	# colors correspond to mean value for each window
 	mean_mode = match.arg(mean_mode)[1]
 
@@ -1421,7 +1451,9 @@ setMethod(f = "hc_layer",
 	s = start(object@BINS)
 	e = end(object@BINS)
 	mid = round((s + e)/2)
-	window = IRanges(start = c(s[1], mid), end = c(mid, e[length(e)]))
+	w = e[1]-s[1] + 1
+	window = IRanges(start = c(mid[1] - w+1, mid), end = c(mid, mid[length(mid)] + w-1))
+	
 		
 	mtch = as.matrix(findOverlaps(window, ir))
 	if(nrow(mtch) == 0) {
@@ -1730,7 +1762,7 @@ setMethod(f = "hc_which",
 		stop("`iy` can only take value in [1, ", n, "]")
 	}
 
-	i = which(object@POS[, 1] == iy - 1 & object@POS[, 2] == ix - 1)
+	i = which(object@POS[, 1] == ix - 1 & object@POS[, 2] == iy - 1)
 	if(length(i) == 0) {
 		stop("Cannot find ")
 	}
