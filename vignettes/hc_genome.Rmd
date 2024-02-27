@@ -1,5 +1,5 @@
 ---
-title: "Making 2D Hilbert Curve"
+title: "GenomicHilbertCurve: specific for genomic data"
 author: "Zuguang Gu (z.gu@dkfz.de)"
 date: '`r Sys.Date()`'
 output: rmarkdown::html_vignette
@@ -24,10 +24,6 @@ options(width = 100)
 
 library(HilbertCurve)
 ```
-
-
-
-## GenomicHilbertCurve: specific for genomic data
 
 To make it easy with genomic data which is always stored as a data frame or a
 `GRanges` object, the package provides specific class and functions to deal
@@ -56,20 +52,22 @@ hc_layer(hc, gr, ...)
 
 Following illustrates several examples of making genome-level Hilbert curves.
 
-### Genes
+## Genes
 
 The first example visualizes genes on chromosome 1 ([RefSeq genes for human, hg19](https://genome.ucsc.edu/cgi-bin/hgTables?hgsid=451688581_FoCuggvGvavyfGhdj9sSGrGlnErE&clade=mammal&org=Human&db=hg38&hgta_group=genes&hgta_track=refGene&hgta_table=0&hgta_regionType=genome&position=chr9%3A133252000-133280861&hgta_outputType=primaryTable&hgta_outFileName=)). Here random colors are used
 to distinguish different genes.
 
 ```{r}
 library(GenomicRanges)
+library(HilbertCurve)
+library(circlize)
 load(system.file("extdata", "refseq_chr1.RData", package = "HilbertCurve"))
 hc = GenomicHilbertCurve(chr = "chr1", level = 5, reference = TRUE, 
     reference_gp = gpar(lty = 1, col = "grey"), arrow = FALSE)
 hc_segments(hc, g, gp = gpar(lwd = 6, col = rand_color(length(g))))
 ```
 
-### Sequence conservation
+## Sequence conservation
 
 The conserved regions on human chromosome 1 between mouse and human or between zebrafish and human are downloaded from [UCSC
 Table Browser](http://genome.ucsc.edu/cgi-bin/hgTables?hgsid=472144813_MQ4BbmgW37du53Nw6n9SKKy6mb6r&clade=mammal&org=Human&db=hg38&hgta_group=compGeno&hgta_track=placentalChainNet&hgta_table=netMm10&hgta_regionType=genome&position=chr9%3A133252000-133280861&hgta_outputType=primaryTable&hgta_outFileName=). The parameters for downloading are:
@@ -100,6 +98,7 @@ if it is partially covered by the conserved regions.
 
 ```{r}
 # for generating the legend
+library(ComplexHeatmap)
 lgd = Legend(col_fun = colorRamp2(c(0, 1), c("yellow", "red")), 
     title = "Conservation",
     at = c(0, 0.2, 0.4, 0.6, 0.8, 1), 
@@ -150,7 +149,7 @@ Compareing these two plots, we have following conclusions:
 The idea of visualizing sequencing conservation through the Hilbert curve is
 from [here](http://mkweb.bcgsc.ca/hilbert/scientificamerican.mhtml).
 
-### GC percent
+## GC percent
 
 Following figure visualizes GC percent on chromosome 1, under "normal" mode.
 The GC content per 1KB window is calculated by `hgGcPercent.bin` binary which
@@ -210,7 +209,7 @@ invisible(dev.off())
 cat("<p><center><img src='gc_percent_half_chr1.png' /></center></p>\n")
 ```
 
-### Histone modifications
+## Histone modifications
 
 Different modifications (e.g. methylation, acetylation) of the histones affect
 the chromatin-DNA interaction, thus play roles in transcription regulation.
@@ -351,7 +350,7 @@ invisible(dev.off())
 cat("<p><center><img src='H3K36me3_chr1_overlap.png' /></center></p>\n")
 ```
 
-### Methylation
+## Methylation
 
 Next figure visualizs methylation on human chromosome 1. Blue corresponds to
 un-methylation and red corresponds to full-methylation. One thing which is
@@ -379,7 +378,7 @@ invisible(dev.off())
 cat("<p><center><img src='methylation_chr1.png' /></center></p>\n")
 ```
 
-### Put multiple chromosomes in one curve
+## Put multiple chromosomes in one curve
 
 We demonstrated how to visualize one single chromosome through Hilbert curve,
 but sometimes we also want to put all chromosomes into one plot to get a full

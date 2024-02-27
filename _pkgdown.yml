@@ -8,8 +8,12 @@ navbar:
         - text: Vignettes
         - text: "Making 2D Hilbert Curve"
           href: articles/hc_general.html
-        - text: "Making Genome-level Hilbert Curve"
+        - text: "GenomicHilbertCurve: specific for genomic data"
           href: articles/hc_genome.html
+        - text: -------
+        - text: More applications
+        - text: "Visualize CPAN modules with Hilbert curve"
+          href: articles/cpan.html
     - text: "Reference"
       href: reference/index.html
 

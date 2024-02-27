@@ -1753,7 +1753,7 @@ setMethod(f = "hc_which",
 	signature = "HilbertCurve",
 	definition = function(object, ix, iy) {
 
-	n = 2^hc@LEVEL
+	n = 2^object@LEVEL
 
 	if(ix > n || ix <= 0) {
 		stop("`ix` can only take value in [1, ", n, "]")

@@ -1,0 +1,12 @@
+---
+title: "The HilbertCurve package"
+author: "Zuguang Gu (z.gu@dkfz.de)"
+date: '`r Sys.Date()`'
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{The HilbertCurve package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+Please go to the package's website: https://jokergoo.github.io/HilbertCurve.

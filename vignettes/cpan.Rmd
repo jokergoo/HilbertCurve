@@ -1,0 +1,79 @@
+---
+title: "Visualize CPAN modules with Hilbert curve"
+author: "Zuguang Gu (z.gu@dkfz.de)"
+date: '`r Sys.Date()`'
+output: rmarkdown::html_vignette
+---
+
+```{r, echo = FALSE}
+library(knitr)
+knitr::opts_chunk$set(
+    error = FALSE,
+    tidy  = FALSE,
+    message = FALSE,
+    warning = FALSE,
+    fig.width = 8,
+    fig.height = 8,
+    fig.align = "center"
+)
+```
+
+There is a nice visualization of CPAN (Perl) modules with the Hilbert curve on http://mapofcpan.org/. In this article, I will
+demonstrate how to make the plot with the **HilbertCurve** package.
+
+
+We first read the list of CPAN modules. The information is in the `02packages.details.txt` file which
+can be directly accessed with the following link:
+
+```{r}
+df = read.table(url("https://www.cpan.org/modules/02packages.details.txt"), skip = 9)
+head(df)
+```
+
+The modules are listed in the first column. We also sort it alphabetically.
+
+```{r}
+all_modules = sort(df[, 1])
+```
+
+We take the "namespace" of the module which is the string before the first "::":
+
+```{r}
+ns = gsub("::.*$", "", all_modules)
+```
+
+Next we will put every value in `ns` in a Hilbert curve. First let's convert it into an `Rle` object:
+
+```{r}
+library(IRanges)
+r = Rle(ns)
+```
+
+Now in `r`, each element corresponds to an unique namespace in `ns`, and the length or the width of the namespace in `ns` is also calculated. Let's get these values:
+
+```{r}
+s = start(r)          # start position of each ns in r
+e = end(r)            # end position of each ns in r
+w = width(r)          # width of each ns in r
+labels = runValue(r)  # corresponding labels
+```
+
+Now we can visualize it via the **HilbertCurve** package. We wil highlight the top 30 namespaces with the largest number of modules.
+
+```{r, fig.width = 8, fig.height = 8}
+library(HilbertCurve)
+
+ind = order(w, decreasing = TRUE)[1:30]
+w_cutoff = w[ ind[30] ]
+
+set.seed(123)  # because we have randomm colors
+hc = HilbertCurve(0, length(all_modules), level = 8, mode = "pixel")
+hc_layer(hc, x1 = s, x2 = e, 
+	col = circlize::rand_color(nrun(r), transparency = ifelse(w >= w_cutoff, 0, 0.8)))
+hc_text(hc, x1 = s[ind], x2 = e[ind], labels = labels[ind], 
+	gp = gpar(fontsize = 9))
+```
+
+```{r}
+sessionInfo()
+```
