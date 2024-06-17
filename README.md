@@ -1,10 +1,13 @@
-# HilbertCurve
+# HilbertCurve <img width="300" alt="image" src="https://github.com/jokergoo/HilbertCurve/assets/449218/e40159f5-bbca-4d61-960b-1ba1d744f9e2" align="right">
+
 
 
 [![R-CMD-check](https://github.com/jokergoo/HilbertCurve/workflows/R-CMD-check/badge.svg)](https://github.com/jokergoo/HilbertCurve/actions)
 [![codecov](https://img.shields.io/codecov/c/github/jokergoo/HilbertCurve.svg)](https://codecov.io/github/jokergoo/HilbertCurve) 
 [![bioc](https://bioconductor.org/shields/downloads/devel/HilbertCurve.svg)](https://bioconductor.org/packages/stats/bioc/HilbertCurve/)
 [![bioc](http://www.bioconductor.org/shields/years-in-bioc/HilbertCurve.svg)](http://bioconductor.org/packages/devel/bioc/html/HilbertCurve.html)
+
+
 
 
 
