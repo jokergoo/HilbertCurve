@@ -1,13 +1,13 @@
 Package: HilbertCurve
 Type: Package
 Title: Making 2D Hilbert Curve
-Version: 1.33.1
-Date: 2024-02-27
+Version: 1.99.0
+Date: 2024-09-10
 Authors@R: person("Zuguang", "Gu", email = "z.gu@dkfz.de", role = c("aut", "cre"),
                   comment = c('ORCID'="0000-0002-7395-8709"))
 Depends: R (>= 4.0.0), grid
-Imports: methods, utils, HilbertVis, png, grDevices, circlize (>= 0.3.3), 
-         IRanges, GenomicRanges, polylabelr
+Imports: methods, utils, png, grDevices, circlize (>= 0.3.3), 
+         IRanges, GenomicRanges, polylabelr, Rcpp
 Suggests: knitr, testthat (>= 1.0.0), ComplexHeatmap (>= 1.99.0), markdown,
           RColorBrewer, RCurl, GetoptLong, rmarkdown
 VignetteBuilder: knitr
@@ -18,10 +18,13 @@ Description: Hilbert curve is a type of space-filling curves
 biocViews: Software, Visualization, Sequencing, Coverage, GenomeAnnotation
 URL: https://github.com/jokergoo/HilbertCurve, https://jokergoo.github.io/HilbertCurve
 License: MIT + file LICENSE
+LinkingTo: Rcpp
 Collate: 00_S4_generic_methods.R
          HilbertCurve.R
          hc_polygon.R
+         hc_legend.R
          utils.R
          GenomicHilbertCurve.R
+         RcppExports.R
          zzz.R
 

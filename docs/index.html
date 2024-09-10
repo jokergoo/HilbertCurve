@@ -6,16 +6,13 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Making 2D Hilbert Curve • HilbertCurve</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="bootstrap-toc.css">
 <script src="bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="pkgdown.js"></script><meta property="og:title" content="Making 2D Hilbert Curve">
-<meta property="og:description" content="Hilbert curve is a type of space-filling curves
-    that fold one dimensional axis into a two dimensional space, 
-    but with still preserves the locality. This package aims to provide 
-    an easy and flexible way to visualize data through Hilbert curve.">
+<meta property="og:description" content="Hilbert curve is a type of space-filling curves that fold one dimensional axis into a two dimensional space, but with still preserves the locality. This package aims to provide an easy and flexible way to visualize data through Hilbert curve.">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -36,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">HilbertCurve</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.33.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.99.0</span>
       </span>
     </div>
 
@@ -56,9 +53,6 @@
     <li>
       <a href="articles/hc_genome.html">GenomicHilbertCurve: specific for genomic data</a>
     </li>
-    <li class="divider">
-    </li>
-<li class="dropdown-header">More applications</li>
     <li>
       <a href="articles/cpan.html">Visualize CPAN modules with Hilbert curve</a>
     </li>
@@ -88,7 +82,7 @@
       </header><div class="row">
   <div class="contents col-md-9">
 <div class="section level1">
-<div class="page-header"><h1 id="hilbertcurve">HilbertCurve<a class="anchor" aria-label="anchor" href="#hilbertcurve"></a>
+<div class="page-header"><h1 id="hilbertcurve-">HilbertCurve <img width="300" alt="image" src="https://github.com/jokergoo/HilbertCurve/assets/449218/e40159f5-bbca-4d61-960b-1ba1d744f9e2" align="right"><a class="anchor" aria-label="anchor" href="#hilbertcurve-"></a>
 </h1></div>
 <p><a href="https://github.com/jokergoo/HilbertCurve/actions" class="external-link"><img src="https://github.com/jokergoo/HilbertCurve/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a> <a href="https://codecov.io/github/jokergoo/HilbertCurve" class="external-link"><img src="https://img.shields.io/codecov/c/github/jokergoo/HilbertCurve.svg" alt="codecov"></a> <a href="https://bioconductor.org/packages/stats/bioc/HilbertCurve/" class="external-link"><img src="https://bioconductor.org/shields/downloads/devel/HilbertCurve.svg" alt="bioc"></a> <a href="http://bioconductor.org/packages/devel/bioc/html/HilbertCurve.html" class="external-link"><img src="http://www.bioconductor.org/shields/years-in-bioc/HilbertCurve.svg" alt="bioc"></a></p>
 <p><a href="https://en.wikipedia.org/wiki/Hilbert_curve" class="external-link">Hilbert curve</a> is a type of space-filling curves that fold one dimensional axis into a two dimensional space, but with still keeping the locality. It has advantages to visualize data with long axis in following two aspects:</p>
@@ -206,7 +200,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
 </div>
 
       </footer>

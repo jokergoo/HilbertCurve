@@ -64,3 +64,39 @@ validate_input = function(object, ir, x1, x2) {
 is_white = function(r, g, b, maxColorValue = 1) {
 	r == maxColorValue & g == maxColorValue & b == maxColorValue
 }
+
+
+
+is_RStudio_current_dev = function() {
+    dv = names(dev.list())
+    if(length(dv) < 2) {
+        FALSE
+    } else {
+        n = length(dv)
+        if(dv[n-1] == "RStudioGD") {
+            TRUE
+        } else {
+            FALSE
+        }
+    }
+}
+
+
+stop_wrap = function (...) {
+    x = paste0(...)
+    x = paste(strwrap(x), collapse = "\n")
+    stop(x, call. = FALSE)
+}
+
+message_wrap = function (...)  {
+    x = paste0(...)
+    x = paste(strwrap(x), collapse = "\n")
+    message(x)
+}
+
+warning_wrap = function (...)  {
+    x = paste0(...)
+    x = paste(strwrap(x), collapse = "\n")
+    warning(x)
+}
+

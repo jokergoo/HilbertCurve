@@ -20,5 +20,4 @@ is_white(r, g, b, maxColorValue = 1)
 \examples{
 # There is no example
 NULL
-
 }

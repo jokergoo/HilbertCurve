@@ -2,7 +2,6 @@
 title: "GenomicHilbertCurve: specific for genomic data"
 author: "Zuguang Gu (z.gu@dkfz.de)"
 date: '`r Sys.Date()`'
-output: rmarkdown::html_vignette
 ---
 
 
@@ -156,9 +155,8 @@ The GC content per 1KB window is calculated by `hgGcPercent.bin` binary which
 is downloaded from http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/. To 
 speed up, we only used chromosome 1 for demonstration.
 
-```{r, eval = grepl("odcf", Sys.info()["nodename"]) & FALSE, echo = 2:10}
-png('gc_percent_chr1_points.png', width = 500, height = 500)
-df = read.table(pipe("awk '$1==\"chr1\"' ~/HilbertCurveTest/hg19_gc_percent_window1000.bed"))
+```{r, fig.width = 7.5, fig.height = 7}
+df = read.table(pipe("awk '$1==\"chr1\"' /Volumes/WD/hc_data/hg19_gc_percent_window1000.bed"))
 col_fun = colorRamp2(quantile(df[[5]], c(0.1, 0.5, 0.9)), c("green", "#FFFFCC", "red"))
 lgd = Legend(col_fun = col_fun, title = "GC percent",
     at = c(300, 400, 500, 600), 
@@ -167,27 +165,18 @@ lgd = Legend(col_fun = col_fun, title = "GC percent",
 hc = GenomicHilbertCurve(chr = "chr1", level = 6, legend = lgd)
 hc_points(hc, df, np = 3, gp = gpar(fill = col_fun(df[[5]]), col = col_fun(df[[5]])))
 hc_rect(hc, reduce(g), gp = gpar(fill = "#00000020", col = NA))
-invisible(dev.off())
 ```
 
-```{r, echo = FALSE, results = "asis"}
-cat("<p><center><img src='gc_percent_chr1_points.png' /></center></p>\n")
-```
 
 Or visualize GC percent on chromosome 1, under "pixel" mode (you may see the difference
 between "normal" mode and "pixel" mode here):
 
-```{r, eval = grepl("odcf", Sys.info()["nodename"]) & FALSE, fig.keep = "none", echo = 2:4}
-png("gc_percent_chr1.png", width = 500, height = 500)
+```{r, fig.width = 7.5, fig.height = 7}
 hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel", legend = lgd)
 hc_layer(hc, df, col = col_fun(df[[5]]))
 hc_layer(hc, reduce(g), col = "#00000020")
-invisible(dev.off())
 ```
 
-```{r, echo = FALSE, results = "asis"}
-cat("<p><center><img src='gc_percent_chr1.png' /></center></p>\n")
-```
 
 Background is not necessary to be the whole chromosome, it can also be self-defined regions.
 The background can be specified as a `GRanges` object and pass to `background` argument. 
@@ -195,19 +184,14 @@ In following example, only the first half part of chromosome 1 is used to initia
 
 **Note: when using `background`, one chromosome can only exist in one row in `background`.**
 
-```{r, eval = grepl("odcf", Sys.info()["nodename"]) & FALSE, fig.keep = "none", echo = 2:6}
-png("gc_percent_half_chr1.png", width = 500, height = 500)
+```{r, fig.width = 7.5, fig.height = 7}
 background = GRanges(seqnames = "chr1", ranges = IRanges(1, ceiling(chr1_len/2)))
 hc = GenomicHilbertCurve(background = background, level = 9, mode = "pixel", legend = lgd,
     title = "First half of chromosome 1")
 hc_layer(hc, df, col = col_fun(df[[5]]))
 hc_layer(hc, reduce(g), col = "#00000020")
-invisible(dev.off())
 ```
 
-```{r, echo = FALSE, results = "asis"}
-cat("<p><center><img src='gc_percent_half_chr1.png' /></center></p>\n")
-```
 
 ## Histone modifications
 
@@ -238,7 +222,7 @@ Since we are going to plot more than one histome marks, the code for plotting ar
 ```{r}
 library(GetoptLong)
 plot_histone_mark = function(mark) {
-    df = read.table(pipe(qq("awk '$5>0 && $1==\"chr1\"' ~/HilbertCurveTest/UCSD.Lung.@{mark}.STL002.bed")), 
+    df = read.table(pipe(qq("awk '$5>0 && $1==\"chr1\"' /Volumes/WD/hc_data/UCSD.Lung.@{mark}.STL002.bed")), 
         sep = "\t")
     col_fun = colorRamp2(c(0, quantile(df[[5]], 0.99)), c("white", "red"))
     lgd1 = Legend(col_fun = col_fun, title = "Intensity")
@@ -261,56 +245,36 @@ H3K27ac is a mark for active enhancers which is narrow and sharp. The Hilbert
 curve shows this attributes and also shows enhancers may exist in form of
 clusters.
 
-```{r, eval = grepl("odcf", Sys.info()["nodename"]) & FALSE, fig.keep = "none", echo = 2}
-png("H3K27ac_chr1.png", width = 500, height = 500)
+```{r, fig.width = 7.5, fig.height = 7}
 plot_histone_mark("H3K27ac")
-invisible(dev.off())
 ```
 
-```{r, echo = FALSE, results = "asis"}
-cat("<p><center><img src='H3K27ac_chr1.png' /></center></p>\n")
-```
 
 H3K36me3 is a mark for actively transcribed gene bodies. The Hilbert curve
 shows that basically most of H3K36me3 modification with high intensity exists
 as big blocks.
 
-```{r, eval = grepl("odcf", Sys.info()["nodename"]) & FALSE, fig.keep = "none", echo = 2}
-png("H3K36me3_chr1.png", width = 500, height = 500)
+```{r, fig.width = 7.5, fig.height = 7}
 plot_histone_mark("H3K36me3")
-invisible(dev.off())
 ```
 
-```{r, echo = FALSE, results = "asis"}
-cat("<p><center><img src='H3K36me3_chr1.png' /></center></p>\n")
-```
 
 H3K4me3 is a mark for TSS of actively transcribed genes which is also narrow
 and sharp. The Hilbert curve confirms this and also shows the size of marks
 are quite consistent.
 
-```{r, eval = grepl("odcf", Sys.info()["nodename"]) & FALSE, fig.keep = "none", echo = 2}
-png("H3K4me3_chr1.png", width = 500, height = 500)
+```{r, fig.width = 7.5, fig.height = 7}
 plot_histone_mark("H3K4me3")
-invisible(dev.off())
 ```
 
-```{r, echo = FALSE, results = "asis"}
-cat("<p><center><img src='H3K4me3_chr1.png' /></center></p>\n")
-```
 
 H3K9me3 is a mark for repressed genes. The Hilbert curve shows that H3K9me3
 modications spread over huge regions in the chromosome.
 
-```{r, eval = grepl("odcf", Sys.info()["nodename"]) & FALSE, fig.keep = "none", echo = 2}
-png("H3K9me3_chr1.png", width = 500, height = 500)
+```{r, fig.width = 7.5, fig.height = 7}
 plot_histone_mark("H3K9me3")
-invisible(dev.off())
 ```
 
-```{r, echo = FALSE, results = "asis"}
-cat("<p><center><img src='H3K9me3_chr1.png' /></center></p>\n")
-```
 
 When there are more than one layers added and users want to see the
 correspondance between different genomic features, they can define a color
@@ -318,8 +282,8 @@ overlay function to enhance the visual effects of the overlapping areas. In
 following example, when regions for H3K36me3 mark are overlapped with gene
 bodies, the color theme is changed to white-purple.
 
-```{r, eval = grepl("odcf", Sys.info()["nodename"]) & FALSE, fig.keep = "none", echo = c(1:9, 11:25)}
-df = read.table(pipe("awk '$5>0 && $1==\"chr1\"' ~/HilbertCurveTest/UCSD.Lung.H3K36me3.STL002.bed"), 
+```{r, fig.width = 7.5, fig.height = 7}
+df = read.table(pipe("awk '$5>0 && $1==\"chr1\"' /Volumes/WD/hc_data/UCSD.Lung.H3K36me3.STL002.bed"), 
     sep = "\t")
 col_fun = colorRamp2(c(0, quantile(df[[5]], 0.99)), c("white", "red"))
 col_fun_new = colorRamp2(c(0, quantile(df[[5]], 0.99)), c("white", "purple"))
@@ -327,7 +291,6 @@ lgd1 = Legend(col_fun = col_fun, title = "Intensity")
 lgd2 = Legend(labels = c("H3K36me3", "overlap", "gene"),
     legend_gp = gpar(fill = c("#FF0000", "purple", "#CCCCCC")), title = "Layer")
 
-png("H3K36me3_chr1_overlap.png", width = 500, height = 500)
 hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel",
     title = "Intensity of H3K36me3 mark on chr1", legend = list(lgd1, lgd2))
 hc_layer(hc, df, col = col_fun(df[[5]]))
@@ -343,12 +306,8 @@ hc_layer(hc, reduce(g), col = "#00000010",
 
         default_overlay(r0, g0, b0, r, g, b, alpha)
     })
-invisible(dev.off())
 ```
 
-```{r, echo = FALSE, results = "asis"}
-cat("<p><center><img src='H3K36me3_chr1_overlap.png' /></center></p>\n")
-```
 
 ## Methylation
 
@@ -363,20 +322,16 @@ The methylation plot shows quite clear patterns for un-methylated regions
 which are small and sharp, fully methylated regions and intermediate
 methylated regions which are represented as large blocks.
 
-```{r, eval = grepl("odcf", Sys.info()["nodename"]) & FALSE, fig.keep = "none", echo = c(1:4, 6:7)}
-df = read.table(pipe("awk '$1==\"chr1\"' ~/HilbertCurveTest/UCSD.Lung.Bisulfite-Seq.STL002.bed"), 
+```{r, fig.width = 7.5, fig.height = 7}
+df = read.table(pipe("awk '$1==\"chr1\"' /Volumes/WD/hc_data/UCSD.Lung.Bisulfite-Seq.STL002.bed"), 
     sep = "\t")
 col_fun = colorRamp2(c(0, 0.5, 1), c("blue", "white", "red"))
 lgd = Legend(col_fun = col_fun, title = "Methylation")
-png("methylation_chr1.png", width = 500, height = 500)
+
 hc = GenomicHilbertCurve(chr = "chr1", level = 9, mode = "pixel", legend = lgd)
 hc_layer(hc, df, col = col_fun(df[[5]]), mean_mode = "absolute")
-invisible(dev.off())
 ```
 
-```{r, echo = FALSE, results = "asis"}
-cat("<p><center><img src='methylation_chr1.png' /></center></p>\n")
-```
 
 ## Put multiple chromosomes in one curve
 
@@ -394,13 +349,12 @@ function. Data is from [Database of Genomic Variants, CNV
 map](http://dgv.tcag.ca/dgv/app/downloads).
 
 
-```{r, eval = grepl("odcf", Sys.info()["nodename"]) & FALSE, fig.keep = "none", echo = -c(1, 16)}
-png("cnv_all_chromosomes.png", width = 500, height = 500)
+```{r, fig.width = 7.5, fig.height = 7}
 hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel")
-df_gain = read.table("~/HilbertCurveTest/Stringent.Gain.hg19.2015-02-03.txt", 
+df_gain = read.table("/Volumes/WD/hc_data/Stringent.Gain.hg19.2015-02-03.txt", 
     header = TRUE, stringsAsFactors = FALSE)
 hc_layer(hc, df_gain, col = "red")
-df_loss = read.table("~/HilbertCurveTest/Stringent.Loss.hg19.2015-02-03.txt", 
+df_loss = read.table("/Volumes/WD/hc_data/Stringent.Loss.hg19.2015-02-03.txt", 
     header = TRUE, stringsAsFactors = FALSE)
 hc_layer(hc, df_loss, col = "green", grid_line = 3, grid_line_col = "grey",
     overlay = function(r0, g0, b0, r, g, b, alpha) {
@@ -410,30 +364,19 @@ hc_layer(hc, df_loss, col = "green", grid_line = 3, grid_line_col = "grey",
         b[l] = 240/255
         list(r, g, b)
 })
-invisible(dev.off())
 ```
 
-```{r, echo = FALSE, results = "asis"}
-cat("<p><center><img src='cnv_all_chromosomes.png' /></center></p>\n")
-```
 
 A map which shows the chromosome positions in Hilbert curve is very necessary
 for knowing which part in the curve represents which chromosome.
 
-```{r, eval = grepl("odcf", Sys.info()["nodename"]) & FALSE, echo = 2, fig.keep = "none"}
-png('map_all_chromosomes.png', width = 500, height = 500)
+```{r, fig.width = 7.5, fig.height = 7}
 hc_map(hc)
-invisible(dev.off())
-```
-
-```{r, echo = FALSE, results = "asis"}
-cat("<p><center><img src='map_all_chromosomes.png' /></center></p>\n")
 ```
 
 The map can be overlayed to the Hilbert curve for easy correspondance.
 
-```{r, eval = grepl("odcf", Sys.info()["nodename"]) & FALSE, fig.keep = "none", echo = -c(1, 13)}
-png('cnv_all_chromosomes_overlay.png', width = 500, height = 500)
+```{r, fig.width = 7.5, fig.height = 7}
 hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel")
 hc_layer(hc, df_gain, col = "red")
 hc_layer(hc, df_loss, col = "green", 
@@ -445,18 +388,13 @@ hc_layer(hc, df_loss, col = "green",
         list(r, g, b)
 })
 hc_map(hc, add = TRUE, fill = rand_color(22, transparency = 0.8))
-invisible(dev.off())
 ```
 
-```{r, echo = FALSE, results = "asis"}
-cat("<p><center><img src='cnv_all_chromosomes_overlay.png' /></center></p>\n")
-```
 
 If colors of chromosomes defuse the colors in the original Hilbert curve, you
 can only draw borders of chromosomes.
 
-```{r, eval = grepl("odcf", Sys.info()["nodename"]) & FALSE, fig.keep = "none", echo = -c(1, 13)}
-png('cnv_all_chromosomes_border.png', width = 500, height = 500)
+```{r, fig.width = 7.5, fig.height = 7}
 hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel")
 hc_layer(hc, df_gain, col = "red")
 hc_layer(hc, df_loss, col = "green",
@@ -468,11 +406,6 @@ hc_layer(hc, df_loss, col = "green",
         list(r, g, b)
 })
 hc_map(hc, add = TRUE, fill = NA, border = "grey")
-invisible(dev.off())
-```
-
-```{r, echo = FALSE, results = "asis"}
-cat("<p><center><img src='cnv_all_chromosomes_border.png' /></center></p>\n")
 ```
 
 If you want to compare several plots simutaneously, you can use
@@ -480,19 +413,18 @@ If you want to compare several plots simutaneously, you can use
 `HilbertCurve()` or `GenomicHilbertCurve()`. Also note we set `labels` in `hc_map()`
 to define the labels added to each chromosome.
 
-```{r, eval = grepl("odcf", Sys.info()["nodename"]) & FALSE, fig.keep = "none", echo = 2:32}
-png('cnv_compare.png', width = 900, height = 300)
+```{r, fig.width = 9, fig.height = 9}
 plot_curve = function(column, ...) {
     cm = ColorMapping(levels = c("gain", "loss", "both"), color = c("red", "green", "purple"))
     hc = GenomicHilbertCurve(chr = paste0("chr", 1:22), level = 9, mode = "pixel",
         title = qq("CNV for @{column}"), ...)  ## `qq()` is from the GetoptLong package
 
-    df = read.table("~/HilbertCurveTest/Stringent.Gain.hg19.2015-02-03.txt", header = TRUE,
+    df = read.table("/Volumes/WD/hc_data/Stringent.Gain.hg19.2015-02-03.txt", header = TRUE,
         stringsAsFactors = FALSE)
     df = df[df[[column]] > 0, , drop = FALSE]
     hc_layer(hc, df, col = "red")
 
-    df = read.table("~/HilbertCurveTest/Stringent.Loss.hg19.2015-02-03.txt", header = TRUE, 
+    df = read.table("/Volumes/WD/hc_data/Stringent.Loss.hg19.2015-02-03.txt", header = TRUE, 
         stringsAsFactors = FALSE)
     df = df[df[[column]] > 0, , drop = FALSE]
     hc_layer(hc, df, col = "green", 
@@ -507,19 +439,16 @@ plot_curve = function(column, ...) {
 }
 
 pn = c("African", "Asian", "European")
-pushViewport(viewport(layout = grid.layout(nrow = 1, ncol = 3)))
-for(i in seq_along(pn)) {
-    pushViewport(viewport(layout.pos.row = 1, layout.pos.col = i))
-    plot_curve(pn[i], newpage = FALSE)
-    upViewport()
-}
+pushViewport(viewport(layout = grid.layout(nrow = 2, ncol = 2)))
+pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 1))
+plot_curve(pn[1], newpage = FALSE)
 upViewport()
-
-invisible(dev.off())
-```
-
-```{r, echo = FALSE, results = "asis"}
-cat("<p><center><img src='cnv_compare.png' /></center></p>\n")
+pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 2))
+plot_curve(pn[2], newpage = FALSE)
+upViewport()
+pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 1))
+plot_curve(pn[3], newpage = FALSE)
+upViewport()
 ```
 
 

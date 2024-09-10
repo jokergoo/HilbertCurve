@@ -2,7 +2,6 @@
 title: "Making 2D Hilbert Curve"
 author: "Zuguang Gu (z.gu@dkfz.de)"
 date: '`r Sys.Date()`'
-output: rmarkdown::html_vignette
 ---
 
 
@@ -58,20 +57,20 @@ Following plots show Hilbert curves with level 2, 3, 4, 5:
 grid.newpage()
 pushViewport(viewport(layout = grid.layout(nr = 1, nc = 4)))
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 1))
-hc = HilbertCurve(1, 16, level = 2, reference = TRUE, newpage = FALSE, title = "level = 2")
+hc = HilbertCurve(1, 16, level = 2, reference = TRUE, newpage = FALSE, title = "level = 2", legend = FALSE)
 hc_segments(hc, x1 = 1, x2 = 2, gp = gpar(col = "red", lwd = 2))
 upViewport()
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 2))
-hc = HilbertCurve(1, 64, level = 3, reference = TRUE, newpage = FALSE, title = "level = 3")
+hc = HilbertCurve(1, 64, level = 3, reference = TRUE, newpage = FALSE, title = "level = 3", legend = FALSE)
 hc_segments(hc, x1 = 1, x2 = 2, gp = gpar(col = "red", lwd = 2))
 upViewport()
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 3))
-hc = HilbertCurve(1, 256, level = 4, reference = TRUE, newpage = FALSE, title = "level = 4")
+hc = HilbertCurve(1, 256, level = 4, reference = TRUE, newpage = FALSE, title = "level = 4", legend = FALSE)
 hc_segments(hc, x1 = 1, x2 = 2, gp = gpar(col = "red", lwd = 2))
 upViewport()
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 4))
 hc = HilbertCurve(1, 1024, level = 5, reference = TRUE, reference_gp = gpar(col = "grey"), 
-    arrow = FALSE, newpage = FALSE, title = "level = 5")
+    arrow = FALSE, newpage = FALSE, title = "level = 5", legend = FALSE)
 hc_segments(hc, x1 = 1, x2 = 2, gp = gpar(col = "red", lwd = 2))
 upViewport()
 upViewport()
@@ -93,7 +92,7 @@ on the axis.
 
 ```{r, eval = FALSE}
 for(i in 1:1024) {
-    hc = HilbertCurve(1, 1024, level = 5, reference = TRUE, arrow = FALSE)
+    hc = HilbertCurve(1, 1024, level = 5, reference = TRUE, arrow = FALSE, legend = FALSE)
     hc_points(hc, x1 = i, np = NULL, pch = 16, size = unit(2, "mm"))
 }
 ```
@@ -172,43 +171,43 @@ grid.newpage()
 pushViewport(viewport(layout = grid.layout(nr = 2, nc = 4)))
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 1))
 hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 1), 
-    newpage = FALSE, start_from = 'bottomleft', first_seg = "horizontal", 
+    newpage = FALSE, start_from = 'bottomleft', first_seg = "horizontal", legend = FALSE,
     title = "start_from = 'bottomleft'\nfirst_seg = 'horizontal'")
 upViewport()
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 2))
 hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 1), 
-    newpage = FALSE, start_from = 'topleft', first_seg = "horizontal", 
+    newpage = FALSE, start_from = 'topleft', first_seg = "horizontal", legend = FALSE,
     title = "start_from = 'topleft'\nfirst_seg = 'horizontal'")
 upViewport()
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 3))
 hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 1), 
-    newpage = FALSE, start_from = 'bottomright', first_seg = "horizontal",
+    newpage = FALSE, start_from = 'bottomright', first_seg = "horizontal",legend = FALSE,
     title = "start_from = 'bottomright'\nfirst_seg = 'horizontal'")
 upViewport()
 pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 4))
 hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 1), 
-    newpage = FALSE, start_from = 'topright', first_seg = "horizontal",
+    newpage = FALSE, start_from = 'topright', first_seg = "horizontal",legend = FALSE,
     title = "start_from = 'topright'\nfirst_seg = 'horizontal'")
 upViewport()
 
 pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 1))
 hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 1), 
-    newpage = FALSE, start_from = 'bottomleft', first_seg = "vertical", 
+    newpage = FALSE, start_from = 'bottomleft', first_seg = "vertical", legend = FALSE,
     title = "start_from = 'bottomleft'\nfirst_seg = 'vertical'")
 upViewport()
 pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 2))
 hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 1), 
-    newpage = FALSE, start_from = 'topleft',  first_seg = "vertical",
+    newpage = FALSE, start_from = 'topleft',  first_seg = "vertical",legend = FALSE,
     title = "start_from = 'topleft'\nfirst_seg = 'vertical'")
 upViewport()
 pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 3))
 hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 1), 
-    newpage = FALSE, start_from = 'bottomright',  first_seg = "vertical",
+    newpage = FALSE, start_from = 'bottomright',  first_seg = "vertical",legend = FALSE,
     title = "start_from = 'bottomright'\nfirst_seg = 'vertical'")
 upViewport()
 pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 4))
 hc = HilbertCurve(1, 16, level = 2, reference = TRUE, reference_gp = gpar(col = "#999999", lwd = 1), 
-    newpage = FALSE, start_from = 'topright',  first_seg = "vertical",
+    newpage = FALSE, start_from = 'topright',  first_seg = "vertical",legend = FALSE,
     title = "start_from = 'topright'\nfirst_seg = 'vertical'")
 upViewport()
 
@@ -769,7 +768,7 @@ hc_layer(hc, x1 = start, x2 = start + width, col = col[country])
 
 Duration of Chinese dynasties. Data from http://www.360doc.com/content/11/1123/02/7829717_166641336.shtml.
 
-```{r, eval = FALSE, echo = -c(20, 30)}
+```{r}
 load(system.file("extdata", "chinese_dynasty.RData", package = "HilbertCurve"))
 
 detect_os = function() {
@@ -790,7 +789,6 @@ fontfamily = switch(detect_os(),
     MacOS = "Songti SC",
     Linux = "Songti SC")
 
-png("chinese_dynasty.png", width = 500, height = 500)
 hc = HilbertCurve(min(chinese_dynasty[[2]]), max(chinese_dynasty[[3]]), 
     title = "Chinese dynasty (1122 B.C. ~ 1911 A.D.)", 
     title_gp = gpar(fontsize = 16, fontfamily = fontfamily))
@@ -804,12 +802,8 @@ hc_text(hc, x1 = chinese_dynasty[[2]], x2 = chinese_dynasty[[3]], labels = chine
 year = seq(-1000, 2000, by = 100)
 hc_text(hc, x1 = year, labels = ifelse(year < 0, paste0(-year, "BC"), year), 
     gp = gpar(fontsize = 8))
-invisible(dev.off())
 ```
 
-```{r, echo = FALSE, results = "asis"}
-cat("<p><center><img src='chinese_dynasty.png' /></center></p>\n")
-```
 
 ## Session info
 

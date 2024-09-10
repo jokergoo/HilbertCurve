@@ -10,8 +10,6 @@ navbar:
           href: articles/hc_general.html
         - text: "GenomicHilbertCurve: specific for genomic data"
           href: articles/hc_genome.html
-        - text: -------
-        - text: More applications
         - text: "Visualize CPAN modules with Hilbert curve"
           href: articles/cpan.html
     - text: "Reference"

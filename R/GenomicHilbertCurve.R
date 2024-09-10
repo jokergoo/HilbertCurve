@@ -508,7 +508,7 @@ setMethod(f = "hc_map",
 
 			hc2 = GenomicHilbertCurve(mode = "normal", chr = unique(as.vector(seqnames(background))), 
 				level = level, newpage = FALSE, zoom = object@ZOOM, start_from = object@start_from, first_seg = object@first_seg,
-				padding = unit(0, "mm"))
+				padding = unit(0, "mm"), legend = FALSE)
 			hc_map(hc2, add = TRUE, labels = labels, fill = fill, border = border, show_labels = show_labels, 
 				labels_gp = labels_gp)
 			seekViewport(name = paste0("hilbert_curve_", oi, "_global"))

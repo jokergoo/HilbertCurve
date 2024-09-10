@@ -281,7 +281,9 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 	if(is.null(zoom)) zoom = 100*(4^level)/(e - s)
 	hc@ZOOM = zoom
 
-	pos = hilbertCurve(level)
+	pos = hilbert_curve_cpp(level)
+	pos = data.frame(x = pos[[1]], y = pos[[2]])
+	
 	start_from = match.arg(start_from)[1]
 	first_seg = match.arg(first_seg)[1]
 	
@@ -334,7 +336,6 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 	mode = match.arg(mode)[1]
 	hc@MODE = mode
 
-	
 	if(newpage) grid.newpage()
 	increase_plot_index()
 
@@ -346,109 +347,152 @@ HilbertCurve = function(s, e, level = 4, mode = c("normal", "pixel"),
 	}
 
 	.width = function(x) {
-		if(inherits(x, "grob")) {
-			grobWidth(x)
-		} else if(inherits(x, "Legends")) {
+		if(inherits(x, "Legends")) {
 			ComplexHeatmap:::width(x)
+		} else if(inherits(x, "hc_legend")) {
+			attr(x, "width")
+		} else if(inherits(x, "grob")) {
+			grobWidth(x)
 		} else {
 			stop("Class not supported.")
 		}
 	}
 	.height = function(x) {
-		if(inherits(x, "grob")) {
-			grobHeight(x)
-		} else if(inherits(x, "Legends")) {
+		if(inherits(x, "Legends")) {
 			ComplexHeatmap:::height(x)
+		} else if(inherits(x, "hc_legend")) {
+			attr(x, "height")
+		} else if(inherits(x, "grob")) {
+			grobHeight(x)
 		} else {
 			stop("Class not supported.")
 		}
 	}
 	.draw = function(x) {
-		if(inherits(x, "grob")) {
+		if(inherits(x, "hc_legend")) {
 			grid.draw(x)
 		} else if(inherits(x, "Legends")) {
 			ComplexHeatmap::draw(x)
-		} 
+		} else if(inherits(x, "grob")) {
+			grid.draw(x)
+		}  else {
+			stop("Class not supported.")
+		}
 	}
 
-	if(length(legend) == 0) {
+	hcl = hc_legend(start_from, first_seg)
+
+	if(identical(legend, FALSE)) {
 		legend_width = unit(0, "mm")
 		legend_height = unit(0, "mm")
+
+		legend = list()
 	} else {
-		if(inherits(legend, "Legends")) {
-			legend = list(legend)
-		} else if(inherits(legend, "grob")) {
-			legend = list(legend)
-		} else if(inherits(legend, "list")) {
+
+		if(identical(legend, TRUE)) {
+			legend = list()
+		}
+		if(length(legend) > 0) {
 			
+			if(inherits(legend, "Legends")) {
+				legend = list(legend)
+			} else if(inherits(legend, "grob")) {
+				legend = list(legend)
+			} else if(inherits(legend, "list")) {
+				
+			} else {
+				stop_wrap("`legend` should be a single legend or a list of legends.")
+			}
+
+			legend = c(list(hcl), legend)
 		} else {
-			stop("`legend` should be a single legend or a list of legends.")
+			legend = list(hcl)
 		}
 
-		legend_width = max(do.call("unit.c", lapply(legend, .width))) + unit(4, "mm")
+		legend_width = max(do.call("unit.c", lapply(legend, .width))) + unit(2, "mm")
 	}
 
-	pushViewport(viewport(layout = grid.layout(nrow = 2, ncol = 2, widths = unit.c(unit(1, "npc") - legend_width, legend_width), 
-			                                                       heights = unit.c(title_height, unit(1, "npc") - title_height)),
-	                     name = paste0("hilbert_curve_", get_plot_index(), "_global")))
+	current_vp = current.viewport()$name
+	    
+	code = expression({
+		if(current_vp == "ROOT") {
+			grid::upViewport(0)
+		} else {
+			grid::seekViewport(current_vp)
+		}
 
-	title_gp = validate_gpar(title_gp, default = list(fontsize = 16))
-	if(length(title) != 0) {
-		pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 1))
-		grid.text(title, gp = title_gp)
-		upViewport()
-	}
-	if(length(legend) != 0) {
-		gap = unit(2, "mm")
-		pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 2))
-		# draw the list of legend
-		legend_height = sum(do.call("unit.c", lapply(legend, .height))) + gap*(length(legend)-1)
-		y = unit(0.5, "npc") + legend_height*0.5 
-		for(i in seq_along(legend)) {
-			pushViewport(viewport(x = unit(2, "mm"), y = y, height = .height(legend[[i]]), width = .width(legend[[i]]), just = c("left", "top")))
-			.draw(legend[[i]])
+	    if(current_vp == "ROOT") {
+	        page_size = unit(par("din"), "in")
+	    } else {
+	    	page_size = unit.c(convertWidth(unit(1, "npc"), "mm"),
+	                                         convertHeight(unit(1, "npc"), "mm"))
+	    }
+
+	    hc_size = min(unit.c(page_size[1] - legend_width, page_size[2] - title_height))
+		pushViewport(viewport(layout = grid.layout(nrow = 2, ncol = 2, widths = unit.c(hc_size, legend_width), 
+				                                                       heights = unit.c(title_height, hc_size)),
+		                     name = hc_viewport(hc, global = TRUE),
+		                     width = hc_size + legend_width,
+		                     height = hc_size + title_height))
+
+		title_gp = validate_gpar(title_gp, default = list(fontsize = 16))
+		if(length(title) != 0) {
+			pushViewport(viewport(layout.pos.row = 1, layout.pos.col = 1))
+			grid.text(title, gp = title_gp)
 			upViewport()
-			y = y - gap - .height(legend[[i]])
+		}
+		if(length(legend) != 0) {
+			gap = unit(2, "mm")
+			pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 2))
+			# draw the list of legend
+			legend_height = sum(do.call("unit.c", lapply(legend, .height))) + gap*(length(legend)-1)
+			y = unit(0.5, "npc") + legend_height*0.5 
+			for(i in seq_along(legend)) {
+				pushViewport(viewport(x = unit(2, "mm"), y = y, height = .height(legend[[i]]), width = .width(legend[[i]]), just = c("left", "top")))
+				.draw(legend[[i]])
+				upViewport()
+				y = y - gap - .height(legend[[i]])
+			}
+
+			upViewport()
 		}
 
-		upViewport()
-	}
+		size = hc_size - padding*2
+		pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 1))
+		pushViewport(viewport(name = hc_viewport(hc), xscale = c(-0.5, 2^level - 0.5), yscale = c(-0.5, sqrt(n)-0.5), width = size, height = size))
+		grid.rect(gp = gpar(fill = background_col, col = background_border))
 
-	size = unit(1, "snpc") - padding*2
-	pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 1))
+		reference_gp = validate_gpar(reference_gp, default = list(lty = 3, col = "#999999"))
+		if(mode == "normal") {
+			if(reference) {
+				grid.segments(hc@POS$x1, hc@POS$y1, hc@POS$x2, hc@POS$y2, default.units = "native", gp = reference_gp)
 
-	pushViewport(viewport(name = paste0("hilbert_curve_", get_plot_index()), xscale = c(-0.5, 2^level - 0.5), yscale = c(-0.5, sqrt(n)-0.5), width = size, height = size))
-	grid.rect(gp = gpar(fill = background_col, col = background_border))
+				if(arrow) arrows_on_hc(hc@POS$x1, hc@POS$y1, (hc@POS$x1+hc@POS$x2)/2, (hc@POS$y1+hc@POS$y2)/2, only.head = TRUE, arrow_gp = gpar(fill = reference_gp$col, col = NA))
+			}
+			upViewport(3)
+		} else {
+			# add a raster object to the viewport
+			background_col = col2rgb(background_col) / 255
+			red = matrix(background_col[1], nrow = 2^level, ncol = 2^level)
+			green = matrix(background_col[2], nrow = 2^level, ncol = 2^level)
+			blue = matrix(background_col[3], nrow = 2^level, ncol = 2^level)
+			hc@RGB$red = red
+			hc@RGB$green = green
+			hc@RGB$blue = blue
 
-	reference_gp = validate_gpar(reference_gp, default = list(lty = 3, col = "#999999"))
-	if(mode == "normal") {
-		if(reference) {
-			grid.segments(hc@POS$x1, hc@POS$y1, hc@POS$x2, hc@POS$y2, default.units = "native", gp = reference_gp)
-			
-			# grid.points(hc@POS$x1[1], hc@POS$y1[1], default.units = "native", gp = gpar(col = "#CCCCCC", cex = 0.5))
-			# grid.points(hc@POS$x2, hc@POS$y2, default.units = "native", gp = gpar(col = "#CCCCCC", cex = 0.5))
+			add_raster(hc@RGB)  # already jump to top vp
 
-			# grid.text(round(unzoom(hc, start(bins)[1]), 2), hc@POS$x1[1], hc@POS$y1[1], default.units = "native", gp = gpar(col = "#999999", fontsize = 10))
-			# grid.text(round(unzoom(hc, end(bins)), 2), hc@POS$x2, hc@POS$y2, default.units = "native", gp = gpar(col = "#999999", fontsize = 10))
-		
-			if(arrow) grid_arrows(hc@POS$x1, hc@POS$y1, (hc@POS$x1+hc@POS$x2)/2, (hc@POS$y1+hc@POS$y2)/2, only.head = TRUE, arrow_gp = gpar(fill = reference_gp$col, col = NA))
 		}
-		upViewport(3)
-	} else {
-		background_col = background_col[1]
-		background_col = col2rgb(background_col) / 255
-		red = matrix(background_col[1], nrow = 2^level, ncol = 2^level)
-		green = matrix(background_col[2], nrow = 2^level, ncol = 2^level)
-		blue = matrix(background_col[3], nrow = 2^level, ncol = 2^level)
-		hc@RGB$red = red
-		hc@RGB$green = green
-		hc@RGB$blue = blue
 
-		add_raster(hc@RGB)  # already jump to top vp
+		hc <<- hc
 
-	}
+	})
 
-	# message(strwrap("If your regions are mostly very small, consider to set 'mean_mode' to 'absolute' when using `hc_points()`, `hc_rect()` and `hc_layer()`."))
+    if(is_RStudio_current_dev() || (!dev.interactive())) {
+        eval(code)
+    } else {
+        grDevices::recordGraphics(eval(code), list(),  as.environment(-1))
+    }
 
 	return(invisible(hc))
 }
@@ -1772,3 +1816,50 @@ setMethod(f = "hc_which",
 
 	data.frame(start = unzoom(object, x), end = unzoom(object, y))
 })
+
+
+
+hc_viewport = function(x, global = FALSE) {
+	if(global) {
+		paste0("hilbert_curve_", .ENV$I_PLOT, "_global")
+	} else {
+		paste0("hilbert_curve_", .ENV$I_PLOT)
+	}
+}
+
+
+
+
+# add arrow at (x2, y2) and x1 -> x2
+arrows_on_hc = function(x1, y1, x2, y2, length = unit(2, "mm"), angle = 15, only.head = FALSE, 
+	arrow_gp = gpar(), lines_gp = gpar(), draw = TRUE) {
+
+	length = convertUnit(length*2, "native", valueOnly = TRUE) - convertUnit(length, "native", valueOnly = TRUE)
+
+	X1 = length*tan(angle/180*pi)
+	X2 = rep(0, length = length(X1))
+	X3 = -length*tan(angle/180*pi)
+
+	Y1 = rep(-length/2, length = length(X1))
+	Y2 = rep(length/2, length = length(X1))
+	Y3 = rep(-length/2, length = length(X1))
+
+	
+	theta = ifelse(x2 >= x1, pi/2 + atan((y2-y1)/(x2-x1)) + pi, pi/2 + atan((y2-y1)/(x2-x1)))
+	# mat = matrix(c(cos(theta), sin(theta), -sin(theta), cos(theta)), 2, 2)
+	
+	a1 = X1*cos(theta) - Y1*sin(theta) + x2
+	a2 = X2*cos(theta) - Y2*sin(theta) + x2
+	a3 = X3*cos(theta) - Y3*sin(theta) + x2
+	b1 = X1*sin(theta) + Y1*cos(theta) + y2
+	b2 = X2*sin(theta) + Y2*cos(theta) + y2
+	b3 = X3*sin(theta) + Y3*cos(theta) + y2
+
+	gb = polygonGrob(c(a1, a2, a3), c(b1, b2, b3), default.units = "native", id = rep(seq_along(a1), times = 3), gp = arrow_gp)
+	if(!draw) {
+		return(gb)
+	}
+	grid.draw(gb)
+	if(!only.head) grid.segments(x1, y1, x2, y2, default.units = "native", gp = lines_gp)
+}
+
