@@ -1,10 +1,13 @@
-# HilbertCurve
+# HilbertCurve <img width="300" alt="image" src="https://github.com/jokergoo/HilbertCurve/assets/449218/e40159f5-bbca-4d61-960b-1ba1d744f9e2" align="right">
+
+
 
 [![R-CMD-check](https://github.com/jokergoo/HilbertCurve/workflows/R-CMD-check/badge.svg)](https://github.com/jokergoo/HilbertCurve/actions)
 [![codecov](https://img.shields.io/codecov/c/github/jokergoo/HilbertCurve.svg)](https://codecov.io/github/jokergoo/HilbertCurve) 
-[![bioc](https://bioconductor.org/shields/downloads/devel/HilbertCurve.svg)](https://bioconductor.org/packages/stats/bioc/HilbertCurve/) 
-[![bioc](http://mcube.nju.edu.cn/cgi-bin/zuguanggu/bioc_download.pl?package=HilbertCurve)](https://bioconductor.org/packages/stats/bioc/HilbertCurve/) 
+[![bioc](https://bioconductor.org/shields/downloads/devel/HilbertCurve.svg)](https://bioconductor.org/packages/stats/bioc/HilbertCurve/)
 [![bioc](http://www.bioconductor.org/shields/years-in-bioc/HilbertCurve.svg)](http://bioconductor.org/packages/devel/bioc/html/HilbertCurve.html)
+
+
 
 
 
@@ -65,27 +68,27 @@ hc_png(hc, ...)
 
 Rainbow color spectrum:
 
-![1](https://cloud.githubusercontent.com/assets/449218/12678993/f184c4de-c6a1-11e5-8c8c-ed3ed938c487.png)
+![](https://cloud.githubusercontent.com/assets/449218/12678993/f184c4de-c6a1-11e5-8c8c-ed3ed938c487.png)
 
 Chinese dynasty:
 
-![2](https://cloud.githubusercontent.com/assets/449218/12678995/f18981cc-c6a1-11e5-8b66-6222bed67c63.png)
+![](https://cloud.githubusercontent.com/assets/449218/12678995/f18981cc-c6a1-11e5-8b66-6222bed67c63.png)
 
 GC percent and genes on chromosome 1:
 
-![3](https://cloud.githubusercontent.com/assets/449218/12678996/f18a6646-c6a1-11e5-9e0b-c99cc7a93f0e.png)
+![](https://cloud.githubusercontent.com/assets/449218/12678996/f18a6646-c6a1-11e5-9e0b-c99cc7a93f0e.png)
 
 Association between H3K36me3 histone modification and gene bodies:
 
-![4](https://cloud.githubusercontent.com/assets/449218/12678992/f1848320-c6a1-11e5-8225-e6fef169f29b.png)
+![](https://cloud.githubusercontent.com/assets/449218/12678992/f1848320-c6a1-11e5-8225-e6fef169f29b.png)
 
 Methylation on chromosome 1:
 
-![5](https://cloud.githubusercontent.com/assets/449218/12678994/f186827e-c6a1-11e5-884a-b9135f24146e.png)
+![](https://cloud.githubusercontent.com/assets/449218/12678994/f186827e-c6a1-11e5-884a-b9135f24146e.png)
 
 Copy number alterations in 22 chromosomes:
 
-![6](https://cloud.githubusercontent.com/assets/449218/12678997/f18e405e-c6a1-11e5-9478-3d8fdc4bc834.png)
+![](https://cloud.githubusercontent.com/assets/449218/12678997/f18e405e-c6a1-11e5-9478-3d8fdc4bc834.png)
 
 ### License
 

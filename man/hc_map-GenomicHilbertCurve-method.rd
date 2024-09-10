@@ -1,6 +1,5 @@
 \name{hc_map-GenomicHilbertCurve-method}
 \alias{hc_map,GenomicHilbertCurve-method}
-\alias{hc_map}
 \title{
 Draw a map which represents positions of different chromosomes on the curve
 }
@@ -60,3 +59,4 @@ hc_map(hc, fill = NA, border = "grey", add = TRUE)
 # or open a new graphic device
 hc_map(hc, fill = rand_color(24))
 }
+\alias{hc_map}

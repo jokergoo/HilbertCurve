@@ -1,3 +1,9 @@
+Changes in version 1.99.0
+
+- Add a hilbert curve legend showing the orientation of the curve.
+
+----------------------------
+
 Changes in version 1.29.1
 
 - add `hc_which()`.

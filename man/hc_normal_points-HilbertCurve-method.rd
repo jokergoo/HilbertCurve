@@ -1,6 +1,5 @@
 \name{hc_normal_points-HilbertCurve-method}
 \alias{hc_normal_points,HilbertCurve-method}
-\alias{hc_normal_points}
 \title{
 Add points to the Hilbert curve
 }
@@ -41,3 +40,4 @@ Zuguang Gu <z.gu@dkfz.de>
 # see documentation of hc_points
 NULL
 }
+\alias{hc_normal_points}

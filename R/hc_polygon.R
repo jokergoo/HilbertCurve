@@ -85,7 +85,7 @@ setMethod(f = "hc_polygon",
 		seekViewport(paste0("hilbert_curve_", .ENV$I_PLOT))
 
 		hc2 = HilbertCurve(s = object@data_range[1], e = object@data_range[2], mode = "normal", 
-			level = min(object@LEVEL, 9), newpage = FALSE, zoom = object@ZOOM,
+			level = min(object@LEVEL, 9), newpage = FALSE, zoom = object@ZOOM, legend = FALSE,
 			start_from = object@start_from, first_seg = object@first_seg, padding = unit(0, "mm"))
 		hc_polygon(hc2, ir = ir, x1 = x1, x2 = x2, gp = gp, end_type = end_type)
 		seekViewport(name = paste0("hilbert_curve_", oi, "_global"))
@@ -93,7 +93,6 @@ setMethod(f = "hc_polygon",
 		return(invisible(NULL))
 	}
 	seekViewport(name = paste0("hilbert_curve_", get_plot_index()))
-	
 	polygons = get_polygons(object, ir = ir, x1 = x1, x2 = x2, end_type = end_type)
 
 	gp = validate_gpar(gp, default = list(lty = 1, lwd = 1, col = 1, fill = "transparent"))
@@ -109,7 +108,6 @@ setMethod(f = "hc_polygon",
 				col = gp$col[i], lty = gp$lty[i], lwd = gp$lwd[i], lineend = "butt", linejoin = "mitre"))
 		}
 	}
-
 	seekViewport(name = paste0("hilbert_curve_", get_plot_index(), "_global"))
 	upViewport()
 

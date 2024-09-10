@@ -10,8 +10,8 @@ Method dispatch page for \code{hc_which}.
 \code{hc_which} can be dispatched on following classes:
 
 \itemize{
-\item \code{\link{hc_which,HilbertCurve-method}}, \code{\link{HilbertCurve-class}} class method
 \item \code{\link{hc_which,GenomicHilbertCurve-method}}, \code{\link{GenomicHilbertCurve-class}} class method
+\item \code{\link{hc_which,HilbertCurve-method}}, \code{\link{HilbertCurve-class}} class method
 }
 }
 \examples{
