@@ -13,3 +13,7 @@
 .DS_Store
 
 vignettes/data
+
+.o
+.so
+
