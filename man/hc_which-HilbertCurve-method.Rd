@@ -25,4 +25,5 @@ A data frame with two columns \code{start} and \code{end}. The value corresponds
 \examples{
 # There is no example
 NULL
+
 }

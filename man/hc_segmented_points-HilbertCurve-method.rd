@@ -1,5 +1,6 @@
 \name{hc_segmented_points-HilbertCurve-method}
 \alias{hc_segmented_points,HilbertCurve-method}
+\alias{hc_segmented_points}
 \title{
 Add points to the Hilbert curve
 }
@@ -39,4 +40,3 @@ Zuguang Gu <z.gu@dkfz.de>
 # see documentation of hc_points
 NULL
 }
-\alias{hc_segmented_points}

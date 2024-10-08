@@ -1,5 +1,6 @@
 \name{unzoom-HilbertCurve-method}
 \alias{unzoom,HilbertCurve-method}
+\alias{unzoom}
 \title{
 Transform zoomed positions to their original values
 }
@@ -31,4 +32,3 @@ hc = HilbertCurve(1, 2)
 z = zoom(hc, 1.5)
 unzoom(hc, z)
 }
-\alias{unzoom}

@@ -25,4 +25,5 @@ A data frame with three columns \code{chr}, \code{start} and \code{end}. The val
 \examples{
 # There is no example
 NULL
+
 }
