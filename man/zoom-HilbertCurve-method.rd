@@ -1,5 +1,6 @@
 \name{zoom-HilbertCurve-method}
 \alias{zoom,HilbertCurve-method}
+\alias{zoom}
 \title{
 Zoom original positions
 }
@@ -35,4 +36,3 @@ Zuguang Gu <z.gu@dkfz.de>
 hc = HilbertCurve(1, 2)
 zoom(hc, 1.5)
 }
-\alias{zoom}

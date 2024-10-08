@@ -16,9 +16,9 @@ This package aims to provide an easy and flexible way to visualize data through 
 The implementation and example figures are based on following sources:
 
 \itemize{
-  \item \url{http://mkweb.bcgsc.ca/hilbert/}
-  \item \url{http://corte.si/posts/code/hilbert/portrait/index.html}
-  \item \url{http://bioconductor.org/packages/devel/bioc/html/HilbertVis.html}
+  \item \url{https://mkweb.bcgsc.ca/hilbert/}
+  \item \url{https://corte.si/posts/code/hilbert/portrait/index.html}
+  \item \url{https://bioconductor.org/packages/devel/bioc/html/HilbertVis.html}
 }
 }
 \section{Methods}{

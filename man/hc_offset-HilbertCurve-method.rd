@@ -1,5 +1,6 @@
 \name{hc_offset-HilbertCurve-method}
 \alias{hc_offset,HilbertCurve-method}
+\alias{hc_offset}
 \title{
 Adjust positions
 }
@@ -30,4 +31,3 @@ Zuguang Gu <z.gu@dkfz.de>
 hc = HilbertCurve(-100, 100)
 hc_offset(hc, c(-100, -50, 0, 50, 100))
 }
-\alias{hc_offset}

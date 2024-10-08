@@ -23,9 +23,9 @@ increase_plot_index = function() {
 # This package aims to provide an easy and flexible way to visualize data through Hilbert curve.
 # The implementation and example figures are based on following sources:
 #
-# - http://mkweb.bcgsc.ca/hilbert/
-# - http://corte.si/posts/code/hilbert/portrait/index.html
-# - http://bioconductor.org/packages/devel/bioc/html/HilbertVis.html
+# - https://mkweb.bcgsc.ca/hilbert/
+# - https://corte.si/posts/code/hilbert/portrait/index.html
+# - https://bioconductor.org/packages/devel/bioc/html/HilbertVis.html
 #
 # == Methods
 # The `HilbertCurve-class` provides following methods:
@@ -1691,7 +1691,7 @@ setMethod(f = "hc_layer",
 #
 # hc_layer(hc, ir)
 # hc_png(hc, file = "test.png")
-#
+# file.remove("test.png")
 setMethod(f = "hc_png",
 	signature = "HilbertCurve",
 	definition = function(object, file = "HilbertCurve.png") {

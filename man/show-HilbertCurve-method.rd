@@ -1,5 +1,6 @@
 \name{show-HilbertCurve-method}
 \alias{show,HilbertCurve-method}
+\alias{show}
 \title{
 Print the HilbertCurve object
 }
@@ -23,4 +24,3 @@ Zuguang Gu <z.gu@dkfz.de>
 \examples{
 HilbertCurve(1, 100)
 }
-\alias{show}
