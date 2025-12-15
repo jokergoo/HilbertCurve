@@ -86,7 +86,7 @@ setMethod(f = "hc_polygon",
 
 		hc2 = HilbertCurve(s = object@data_range[1], e = object@data_range[2], mode = "normal", 
 			level = min(object@LEVEL, 9), newpage = FALSE, zoom = object@ZOOM, legend = FALSE,
-			start_from = object@start_from, first_seg = object@first_seg, padding = unit(0, "mm"))
+			start_from = object@start_from, first_seg = object@first_seg, padding = unit(0, "mm"), legend = FALSE)
 		hc_polygon(hc2, ir = ir, x1 = x1, x2 = x2, gp = gp, end_type = end_type)
 		seekViewport(name = paste0("hilbert_curve_", oi, "_global"))
 		upViewport()

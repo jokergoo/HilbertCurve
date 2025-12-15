@@ -1269,7 +1269,7 @@ setMethod(f = "hc_text",
 
 		hc2 = HilbertCurve(s = object@data_range[1], e = object@data_range[2], mode = "normal", 
 			level = min(object@LEVEL, 9), newpage = FALSE, zoom = object@ZOOM,
-			start_from = object@start_from, first_seg = object@first_seg)
+			start_from = object@start_from, first_seg = object@first_seg, legend = FALSE)
 		df = hc_text(hc2, ir = ir, labels = labels, x1 = x1, x2 = x2, gp = gp,  centered_by = centered_by, ...)
 		seekViewport(name = paste0("hilbert_curve_", oi, "_global"))
 		upViewport()
@@ -1362,7 +1362,7 @@ setMethod(f = "hc_centered_text",
 		seekViewport(paste0("hilbert_curve_", .ENV$I_PLOT))
 
 		hc2 = HilbertCurve(s = object@data_range[1], e = object@data_range[2], mode = "normal", 
-			level = min(object@LEVEL, 9), newpage = FALSE, 
+			level = min(object@LEVEL, 9), newpage = FALSE, legend = FALSE,
 			start_from = object@start_from, first_seg = object@first_seg, padding = unit(0, "mm"))
 		df = hc_centered_text(hc2, ir = ir, labels = labels, x1 = x1, x2 = x2, gp = gp, ...)
 		seekViewport(name = paste0("hilbert_curve_", oi, "_global"))
